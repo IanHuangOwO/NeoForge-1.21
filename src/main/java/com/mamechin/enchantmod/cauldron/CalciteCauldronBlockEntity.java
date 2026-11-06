@@ -144,6 +144,15 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         return BuiltInRegistries.FLUID.get(fluidId);
     }
 
+    public ResourceLocation getActiveRecipeId() {
+        return activeRecipeId;
+    }
+
+    /** Brew progress in ticks as of the last sync (the client uses it to place its animation clock). */
+    public int getProgress() {
+        return progress;
+    }
+
     public boolean isBrewing() {
         return brewing;
     }

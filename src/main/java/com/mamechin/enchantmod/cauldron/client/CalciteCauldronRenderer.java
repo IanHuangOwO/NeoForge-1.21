@@ -6,12 +6,22 @@ import java.util.List;
 import com.mamechin.enchantmod.cauldron.CalciteCauldronBlock;
 import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
+import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import org.joml.Matrix4f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -58,8 +68,10 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
         if (!brewing) {
             cauldron.brewAnimStart = -1;
         } else if (cauldron.brewAnimStart < 0) {
-            cauldron.brewAnimStart = time;
+            cauldron.brewAnimStart = time - cauldron.getProgress(); // joins a running brew at the right point
         }
+
+        if (brewing) renderBrewSurface(cauldron, level, pose, buffer, ignoredLight, time);
 
         // One entry per item type, counts summed, in first-seen slot order.
         List<ItemStack> types = new ArrayList<>();
@@ -143,6 +155,40 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
             }
             pose.popPose();
         }
+    }
+
+    /** While brewing, a tinted water layer on the liquid fades from the base fluid's colour to the result's. */
+    private void renderBrewSurface(CalciteCauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
+            PoseStack pose, MultiBufferSource buffer, int light, float time) {
+        var found = cauldron.getActiveRecipeId() == null ? java.util.Optional.<net.minecraft.world.item.crafting.RecipeHolder<?>>empty()
+                : level.getRecipeManager().byKey(cauldron.getActiveRecipeId());
+        if (found.isEmpty() || !(found.get().value() instanceof CauldronBrewingRecipe recipe)) return;
+
+        float t = Mth.clamp((time - cauldron.brewAnimStart) / recipe.brewTicks(), 0.0F, 1.0F);
+        int from = colorOf(recipe.baseFluid());
+        int to = colorOf(recipe.resultFluid());
+        int r = (int) Mth.lerp(t, from >> 16 & 255, to >> 16 & 255);
+        int g = (int) Mth.lerp(t, from >> 8 & 255, to >> 8 & 255);
+        int b = (int) Mth.lerp(t, from & 255, to & 255);
+
+        int lvl = cauldron.getBlockState().getValue(CalciteCauldronBlock.LEVEL);
+        float y = (6.0F + 3.0F * lvl) / 16.0F + 0.002F; // just above the liquid model's top face
+        float min = 2.0F / 16.0F, max = 14.0F / 16.0F;
+        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+                .apply(ResourceLocation.withDefaultNamespace("block/water_still"));
+        VertexConsumer vc = buffer.getBuffer(RenderType.translucent());
+        Matrix4f m = pose.last().pose();
+        float[][] corners = {{min, min, sprite.getU0(), sprite.getV0()}, {min, max, sprite.getU0(), sprite.getV1()},
+                {max, max, sprite.getU1(), sprite.getV1()}, {max, min, sprite.getU1(), sprite.getV0()}};
+        for (float[] c : corners) {
+            vc.addVertex(m, c[0], y, c[1]).setColor(r, g, b, 255).setUv(c[2], c[3]).setLight(light).setNormal(pose.last(), 0, 1, 0);
+        }
+    }
+
+    /** RGB of a fluid for the gradient: its client tint, or vanilla's default water blue. */
+    private static int colorOf(ResourceLocation fluidId) {
+        var fluid = BuiltInRegistries.FLUID.get(fluidId);
+        return fluid == Fluids.WATER ? 0x3F76E4 : IClientFluidTypeExtensions.of(fluid).getTintColor() & 0xFFFFFF;
     }
 
     /** Smooth pseudo-random value in [-1, 1]: weighted sum of three sines with unrelated speeds. */
