@@ -1,12 +1,17 @@
 package com.mamechin.enchantmod;
 
+import com.mamechin.enchantmod.fluid.InkFluid;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
@@ -20,6 +25,34 @@ public class EnchantModClient {
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
         // Do not forget to add translations for your config options to the en_us.json file.
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    /** Ink fluids reuse the vanilla water textures, tinted per tier. */
+    @SubscribeEvent
+    static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        for (InkFluid ink : InkFluid.ALL) {
+            event.registerFluidType(new IClientFluidTypeExtensions() {
+                @Override
+                public ResourceLocation getStillTexture() {
+                    return ResourceLocation.withDefaultNamespace("block/water_still");
+                }
+
+                @Override
+                public ResourceLocation getFlowingTexture() {
+                    return ResourceLocation.withDefaultNamespace("block/water_flow");
+                }
+
+                @Override
+                public ResourceLocation getOverlayTexture() {
+                    return ResourceLocation.withDefaultNamespace("block/water_overlay");
+                }
+
+                @Override
+                public int getTintColor() {
+                    return ink.tint();
+                }
+            }, ink.type().get());
+        }
     }
 
     @SubscribeEvent

@@ -123,12 +123,17 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
         }
     }
 
-    /** Breaking spills the water as a source block; ink has no fluid block yet, so it is lost. Items drop in onRemove. */
+    /** Breaking spills the stored liquid as a source block (water or the tier's ink); items drop in onRemove. */
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
-        boolean hasWater = level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity c
-                && c.getContent() == CauldronContent.WATER && c.getAmountMl() > 0;
-        BlockState replacement = hasWater ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
+        BlockState replacement = Blocks.AIR.defaultBlockState();
+        if (level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity c && c.getAmountMl() > 0) {
+            if (c.getContent() == CauldronContent.WATER) {
+                replacement = Blocks.WATER.defaultBlockState();
+            } else if (c.getContent() == CauldronContent.INK && c.getInkFluid() != null) {
+                replacement = c.getInkFluid().defaultFluidState().createLegacyBlock();
+            }
+        }
         return level.setBlock(pos, replacement, level.isClientSide ? 11 : 3);
     }
 

@@ -4,7 +4,6 @@ import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 import com.mamechin.enchantmod.item.inkwell.EnchantInkwellItem;
 
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -14,10 +13,10 @@ import net.minecraft.world.item.ItemStack;
 public class RefillInkwellAction implements CauldronAction {
     @Override
     public boolean useItem(CalciteCauldronBlockEntity c, ItemStack stack, Player player, InteractionHand hand) {
-        if (!(stack.getItem() instanceof EnchantInkwellItem) || !stack.isDamaged()
+        if (!(stack.getItem() instanceof EnchantInkwellItem inkwell) || !stack.isDamaged()
                 || c.getContent() != CauldronContent.INK
                 || c.getAmountMl() < CalciteCauldronBlockEntity.INK_ML_PER_USE
-                || !BuiltInRegistries.ITEM.getKey(stack.getItem()).equals(c.getInkwellId())) return false;
+                || inkwell.getInkFluid() != c.getInkFluid()) return false;
         if (!c.getLevel().isClientSide) {
             int uses = Math.min(stack.getDamageValue(), c.getAmountMl() / CalciteCauldronBlockEntity.INK_ML_PER_USE);
             ItemStack refilled = stack.copy();

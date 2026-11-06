@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod;
 
 
-import com.mamechin.enchantmod.fluid.InkBucketItem;
+import com.mamechin.enchantmod.fluid.ModFluids;
 import com.mamechin.enchantmod.item.ModItems;
 
 import net.minecraft.core.registries.Registries;
@@ -24,8 +24,8 @@ public final class ModCreativeTabs {
                 output.accept(ModItems.GOLDEN_QUILL.get());
                 output.accept(ModItems.LAPIS_INKWELL.get());
                 output.accept(ModItems.GLOWING_LAPIS_INKWELL.get());
-                output.accept(InkBucketItem.filled(ModItems.INK_BUCKET.get(), ModItems.LAPIS_INKWELL.getId()));
-                output.accept(InkBucketItem.filled(ModItems.INK_BUCKET.get(), ModItems.GLOWING_LAPIS_INKWELL.getId()));
+                output.accept(ModFluids.LAPIS_INK.bucket().get());
+                output.accept(ModFluids.GLOWING_LAPIS_INK.bucket().get());
                 output.accept(ModItems.SCRIBING_TABLE.get());
                 output.accept(ModItems.CALCITE_CAULDRON.get());
             }).build());

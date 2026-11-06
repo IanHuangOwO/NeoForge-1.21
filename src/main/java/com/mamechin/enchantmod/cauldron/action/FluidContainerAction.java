@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 
-/** Any fluid container (vanilla or modded bucket, tank item, ink bucket) fills or drains the cauldron's tank. */
+/** Any fluid container (vanilla, modded or ink bucket, tank item) fills or drains the cauldron's tank. */
 public class FluidContainerAction implements CauldronAction {
     @Override
     public boolean useItem(CalciteCauldronBlockEntity c, ItemStack stack, Player player, InteractionHand hand) {

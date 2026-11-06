@@ -2,8 +2,8 @@ package com.mamechin.enchantmod.cauldron.action;
 
 import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
+import com.mamechin.enchantmod.fluid.InkTiers;
 
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +17,7 @@ public class BottleInkAction implements CauldronAction {
         if (!stack.is(Items.GLASS_BOTTLE) || c.getContent() != CauldronContent.INK
                 || c.getAmountMl() < CalciteCauldronBlockEntity.INK_ML_PER_USE) return false;
         if (!c.getLevel().isClientSide) {
-            ItemStack inkwell = new ItemStack(BuiltInRegistries.ITEM.get(c.getInkwellId()));
+            ItemStack inkwell = new ItemStack(InkTiers.inkwellFor(c.getInkFluid()));
             int uses = Math.min(inkwell.getMaxDamage(), c.getAmountMl() / CalciteCauldronBlockEntity.INK_ML_PER_USE);
             inkwell.setDamageValue(inkwell.getMaxDamage() - uses);
             CauldronActions.swapHeld(player, hand, stack, inkwell);

@@ -7,7 +7,6 @@ import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
 import com.mamechin.enchantmod.cauldron.brewing.ModCauldronRecipes;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.fluid.ModCapabilities;
-import com.mamechin.enchantmod.fluid.ModDataComponents;
 import com.mamechin.enchantmod.fluid.ModFluids;
 import com.mamechin.enchantmod.item.ModItems;
 import com.mojang.logging.LogUtils;
@@ -29,7 +28,6 @@ public class EnchantMod {
         modEventBus.addListener(CauldronHeat::register);
         ModFluids.FLUID_TYPES.register(modEventBus);
         ModFluids.FLUIDS.register(modEventBus);
-        ModDataComponents.COMPONENTS.register(modEventBus);
         modEventBus.addListener(ModCapabilities::register);
         ModCauldronRecipes.TYPES.register(modEventBus);
         ModCauldronRecipes.SERIALIZERS.register(modEventBus);
