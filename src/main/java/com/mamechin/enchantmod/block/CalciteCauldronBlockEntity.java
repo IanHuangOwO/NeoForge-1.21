@@ -19,6 +19,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 public class CalciteCauldronBlockEntity extends BlockEntity {
     public static final int CAPACITY_ML = 1000;
     public static final int BREW_TICKS = 100; // 5 seconds
+    public static final int CHECK_TICKS = 20;
 
     public final ItemStackHandler inventory = new ItemStackHandler(8) {
         @Override
@@ -28,9 +29,15 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
 
         @Override
         protected void onContentsChanged(int slot) {
+            inventoryDirty = true;
             setChanged();
         }
     };
+
+    // Derived from the inventory; recomputed lazily, only after it changed.
+    private boolean inventoryDirty = true;
+    private boolean[] satisfied = new boolean[InkBrewing.RECIPES.size()];
+    private boolean hasRoom = true;
 
     private int amountMl;
     private CauldronContent content = CauldronContent.WATER;
@@ -43,6 +50,34 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
 
     public int getAmountMl() {
         return amountMl;
+    }
+
+    private void refresh() {
+        if (!inventoryDirty) return;
+        for (int i = 0; i < satisfied.length; i++) {
+            satisfied[i] = InkBrewing.has(inventory, InkBrewing.RECIPES.get(i));
+        }
+        hasRoom = false;
+        for (int i = 0; i < inventory.getSlots() && !hasRoom; i++) {
+            ItemStack s = inventory.getStackInSlot(i);
+            hasRoom = s.isEmpty() || s.getCount() < s.getMaxStackSize();
+        }
+        inventoryDirty = false;
+    }
+
+    /** First recipe whose ingredients are all stored, or null. */
+    public InkBrewing.Recipe matchedRecipe() {
+        refresh();
+        for (int i = 0; i < satisfied.length; i++) {
+            if (satisfied[i]) return InkBrewing.RECIPES.get(i);
+        }
+        return null;
+    }
+
+    /** False when every slot is full, so thrown items can be ignored without touching the inventory. */
+    public boolean hasRoom() {
+        refresh();
+        return hasRoom;
     }
 
     public CauldronContent getContent() {
@@ -70,9 +105,21 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         syncState();
     }
 
+    /** Every 20 ticks the brew re-checks heat and ingredients; any miss cancels it back to plain water. */
     public void serverTick() {
         if (content != CauldronContent.BREWING) return;
-        if (++progress >= BREW_TICKS) {
+        progress++;
+        if (progress % CHECK_TICKS != 0) return;
+
+        InkBrewing.Recipe recipe = InkBrewing.find(inkwellId);
+        refresh();
+        if (recipe == null || !satisfied[InkBrewing.RECIPES.indexOf(recipe)] || !CalciteCauldronBlock.isHeated(level, worldPosition)) {
+            content = CauldronContent.WATER;
+            inkwellId = null;
+            progress = 0;
+            syncState();
+        } else if (progress >= BREW_TICKS) {
+            InkBrewing.consume(inventory, recipe);
             content = CauldronContent.INK;
             progress = 0;
             level.playSound(null, worldPosition, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -108,5 +155,6 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         progress = tag.getInt("Progress");
         inkwellId = tag.contains("Inkwell") ? ResourceLocation.parse(tag.getString("Inkwell")) : null;
         inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
+        inventoryDirty = true;
     }
 }

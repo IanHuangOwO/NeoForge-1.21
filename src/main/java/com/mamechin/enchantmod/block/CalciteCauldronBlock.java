@@ -16,6 +16,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -151,14 +153,31 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    /** Empty-handed right click starts the brew when water, a full ingredient set and a heat source are present. */
+    /**
+     * Empty hand: shift-click takes out the first stored stack; plain click starts the brew when there is
+     * water, a full ingredient set and a heat source (ingredients are consumed when the brew finishes).
+     */
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!(level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron)
-                || cauldron.getContent() != CauldronContent.WATER || cauldron.getAmountMl() == 0) {
+        if (!(level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron)) {
             return InteractionResult.PASS;
         }
-        InkBrewing.Recipe recipe = InkBrewing.match(cauldron.inventory);
+        if (player.isShiftKeyDown()) {
+            for (int i = 0; i < cauldron.inventory.getSlots(); i++) {
+                ItemStack stored = cauldron.inventory.getStackInSlot(i);
+                if (!stored.isEmpty()) {
+                    if (!level.isClientSide) {
+                        player.getInventory().placeItemBackInInventory(cauldron.inventory.extractItem(i, stored.getCount(), false));
+                    }
+                    return InteractionResult.sidedSuccess(level.isClientSide);
+                }
+            }
+            return InteractionResult.PASS;
+        }
+        if (cauldron.getContent() != CauldronContent.WATER || cauldron.getAmountMl() == 0) {
+            return InteractionResult.PASS;
+        }
+        InkBrewing.Recipe recipe = cauldron.matchedRecipe();
         if (recipe == null) {
             return InteractionResult.PASS;
         }
@@ -167,14 +186,13 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
             return InteractionResult.sidedSuccess(level.isClientSide);
         }
         if (!level.isClientSide) {
-            InkBrewing.consume(cauldron.inventory, recipe);
             cauldron.startBrewing(BuiltInRegistries.ITEM.getKey(recipe.inkwell().get()));
             level.playSound(null, pos, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    private static boolean isHeated(Level level, BlockPos pos) {
+    static boolean isHeated(Level level, BlockPos pos) {
         BlockState below = level.getBlockState(pos.below());
         return below.is(HEAT_SOURCES)
                 && (!below.hasProperty(BlockStateProperties.LIT) || below.getValue(BlockStateProperties.LIT));
@@ -183,8 +201,9 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     /** Thrown items fall in and are stored like a hopper would, if the slot accepts them. */
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (level.isClientSide || !(entity instanceof ItemEntity item)
-                || !(level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron)) {
+        // cheapest checks first: side, item type, then the cached "has room" flag
+        if (level.isClientSide || !(entity instanceof ItemEntity item) || !InkBrewing.isIngredient(item.getItem())
+                || !(level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron) || !cauldron.hasRoom()) {
             return;
         }
         ItemStack remainder = ItemHandlerHelper.insertItem(cauldron.inventory, item.getItem(), false);
@@ -193,6 +212,15 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
         } else {
             item.setItem(remainder);
         }
+    }
+
+    /** Breaking spills the water as a source block; ink has no fluid block yet, so it is lost. Items drop in onRemove. */
+    @Override
+    public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
+        boolean hasWater = level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity c
+                && c.getContent() == CauldronContent.WATER && c.getAmountMl() > 0;
+        BlockState replacement = hasWater ? Blocks.WATER.defaultBlockState() : Blocks.AIR.defaultBlockState();
+        return level.setBlock(pos, replacement, level.isClientSide ? 11 : 3);
     }
 
     @Override

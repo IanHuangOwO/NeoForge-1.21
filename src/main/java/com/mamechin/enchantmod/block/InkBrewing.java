@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 import com.mamechin.enchantmod.item.ModItems;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
@@ -24,9 +26,20 @@ public final class InkBrewing {
 
     /** First recipe whose lapis and ink are both in the inventory, or null. */
     public static Recipe match(IItemHandler inv) {
-        if (count(inv, Items.LAPIS_LAZULI) < 1) return null;
         for (Recipe r : RECIPES) {
-            if (count(inv, r.ink()) >= 1) return r;
+            if (has(inv, r)) return r;
+        }
+        return null;
+    }
+
+    public static boolean has(IItemHandler inv, Recipe r) {
+        return count(inv, Items.LAPIS_LAZULI) >= 1 && count(inv, r.ink()) >= 1;
+    }
+
+    /** The recipe that produces the given inkwell id, or null. */
+    public static Recipe find(ResourceLocation inkwellId) {
+        for (Recipe r : RECIPES) {
+            if (BuiltInRegistries.ITEM.getKey(r.inkwell().get()).equals(inkwellId)) return r;
         }
         return null;
     }
