@@ -1,0 +1,42 @@
+{
+  "textures": {
+    "front": "enchantmod:block/scribing_table_front_left",
+    "top": "enchantmod:block/scribing_table_top_left",
+    "back": "enchantmod:block/scribing_table_back_right",
+    "end": "enchantmod:block/scribing_table_side",
+    "bottom": "enchantmod:block/scribing_table_bottom",
+    "particle": "enchantmod:block/scribing_table_side"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front"
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "up": {
+          "texture": "#top",
+          "rotation": 180
+        },
+        "down": {
+          "texture": "#bottom"
+        },
+        "east": {
+          "texture": "#end"
+        }
+      }
+    }
+  ]
+}

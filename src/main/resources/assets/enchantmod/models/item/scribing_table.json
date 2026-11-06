@@ -1,1 +1,140 @@
-{ "parent": "enchantmod:block/scribing_table" }
+{
+  "textures": {
+    "front_left": "enchantmod:block/scribing_table_front_left",
+    "top_left": "enchantmod:block/scribing_table_top_left",
+    "back_left": "enchantmod:block/scribing_table_back_right",
+    "end_left": "enchantmod:block/scribing_table_side",
+    "bottom_left": "enchantmod:block/scribing_table_bottom",
+    "front_right": "enchantmod:block/scribing_table_front_right",
+    "top_right": "enchantmod:block/scribing_table_top_right",
+    "back_right": "enchantmod:block/scribing_table_back_left",
+    "end_right": "enchantmod:block/scribing_table_side",
+    "bottom_right": "enchantmod:block/scribing_table_bottom",
+    "particle": "enchantmod:block/scribing_table_side"
+  },
+  "gui_light": "side",
+  "elements": [
+    {
+      "from": [
+        8,
+        0,
+        0
+      ],
+      "to": [
+        24,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front_left"
+        },
+        "south": {
+          "texture": "#back_left"
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#top_left"
+        },
+        "down": {
+          "texture": "#bottom_left"
+        },
+        "east": {
+          "texture": "#end_left"
+        }
+      }
+    },
+    {
+      "from": [
+        -8,
+        0,
+        0
+      ],
+      "to": [
+        8,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front_right"
+        },
+        "south": {
+          "texture": "#back_right"
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#top_right"
+        },
+        "down": {
+          "texture": "#bottom_right"
+        },
+        "west": {
+          "texture": "#end_right"
+        }
+      }
+    }
+  ],
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "scale": [
+        0.45,
+        0.45,
+        0.45
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        0.35,
+        0.35,
+        0.35
+      ]
+    }
+  }
+}

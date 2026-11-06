@@ -1,1 +1,34 @@
-{ "variants": { "": { "model": "enchantmod:block/scribing_table" } } }
+{
+  "variants": {
+    "facing=north,part=left": {
+      "model": "enchantmod:block/scribing_table_left"
+    },
+    "facing=north,part=right": {
+      "model": "enchantmod:block/scribing_table_right"
+    },
+    "facing=east,part=left": {
+      "model": "enchantmod:block/scribing_table_left",
+      "y": 90
+    },
+    "facing=east,part=right": {
+      "model": "enchantmod:block/scribing_table_right",
+      "y": 90
+    },
+    "facing=south,part=left": {
+      "model": "enchantmod:block/scribing_table_left",
+      "y": 180
+    },
+    "facing=south,part=right": {
+      "model": "enchantmod:block/scribing_table_right",
+      "y": 180
+    },
+    "facing=west,part=left": {
+      "model": "enchantmod:block/scribing_table_left",
+      "y": 270
+    },
+    "facing=west,part=right": {
+      "model": "enchantmod:block/scribing_table_right",
+      "y": 270
+    }
+  }
+}
