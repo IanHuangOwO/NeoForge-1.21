@@ -62,6 +62,9 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     private List<RecipeHolder<CauldronBrewingRecipe>> satisfied = List.of();
     private boolean hasRoom = true;
 
+    /** Client-only: game time the BREWING state was first seen, drives the items' dive animation; -1 when idle. */
+    public float brewAnimStart = -1;
+
     private int amountMl;
     private ResourceLocation fluidId = WATER; // what is stored; unchanged while brewing
     private boolean brewing;
