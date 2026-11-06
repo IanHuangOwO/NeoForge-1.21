@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "type": "neoforge:components",
+      "items": "minecraft:potion",
+      "components": { "minecraft:potion_contents": { "potion": "minecraft:water" } }
+    },
+    { "item": "minecraft:glow_ink_sac" },
+    { "item": "minecraft:lapis_lazuli" }
+  ],
+  "result": { "id": "enchantmod:glowing_lapis_ink", "count": 1 }
+}

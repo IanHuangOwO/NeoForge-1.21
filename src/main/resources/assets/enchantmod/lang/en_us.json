@@ -1,0 +1,17 @@
+{
+  "itemGroup.enchantmod": "EnchantMod",
+  "block.enchantmod.scribing_table": "Scribing Table",
+  "block.enchantmod.calcite_cauldron": "Calcite Cauldron",
+  "item.enchantmod.lapis_ink": "Lapis Ink",
+  "item.enchantmod.glowing_lapis_ink": "Glowing Lapis Ink",
+  "item.enchantmod.golden_quill": "Golden Quill",
+  "item.enchantmod.copper_quill": "Copper Quill",
+
+  "enchantmod.configuration.title": "EnchantMod Configs",
+  "enchantmod.configuration.section.enchantmod.common.toml": "EnchantMod Configs",
+  "enchantmod.configuration.section.enchantmod.common.toml.title": "EnchantMod Configs",
+  "enchantmod.configuration.items": "Item List",
+  "enchantmod.configuration.logDirtBlock": "Log Dirt Block",
+  "enchantmod.configuration.magicNumberIntroduction": "Magic Number Text",
+  "enchantmod.configuration.magicNumber": "Magic Number"
+}
