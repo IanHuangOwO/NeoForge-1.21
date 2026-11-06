@@ -7,14 +7,17 @@ import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronInput;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
+import com.mamechin.enchantmod.fluid.InkTiers;
+import com.mamechin.enchantmod.fluid.ModFluids;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -24,17 +27,18 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import com.mamechin.enchantmod.fluid.InkTiers;
 
 /**
- * Holds the exact liquid amount in ml plus its kind and the 8-slot ingredient inventory.
- * The blockstate (LEVEL, CONTENT) is only a coarse copy for models and comparators.
+ * Holds one fluid (water, liquid of enchanting or an ink tier) in exact ml, the 8-slot ingredient inventory and the
+ * brew progress. The blockstate (LEVEL, CONTENT) is only a coarse copy for models and comparators.
  */
 public class CalciteCauldronBlockEntity extends BlockEntity {
     public static final int CAPACITY_ML = 1000;
     public static final int BOTTLE_ML = 250;
     public static final int INK_ML_PER_USE = 10;
     public static final int CHECK_TICKS = 20;
+
+    private static final ResourceLocation WATER = BuiltInRegistries.FLUID.getKey(Fluids.WATER);
 
     public final ItemStackHandler inventory = new ItemStackHandler(8) {
         @Override
@@ -53,16 +57,16 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     private boolean inventoryDirty = true;
     private int cachedGeneration = -1;
     private List<RecipeHolder<CauldronBrewingRecipe>> satisfied = List.of();
-    private RecipeHolder<CauldronBrewingRecipe> activeRecipe; // resolved from activeRecipeId
-    private ResourceLocation activeRecipeId;
     private boolean hasRoom = true;
 
     private int amountMl;
-    private CauldronContent content = CauldronContent.WATER;
-    private ResourceLocation inkFluidId; // the ink fluid once content == INK (or the brew result while BREWING)
+    private ResourceLocation fluidId = WATER; // what is stored; unchanged while brewing
+    private boolean brewing;
+    private RecipeHolder<CauldronBrewingRecipe> activeRecipe; // resolved from activeRecipeId
+    private ResourceLocation activeRecipeId;
     private int progress;
 
-    /** Exposes the cauldron as a 1000 mB tank: water, or enchanting ink of one tier; never mixed, locked while brewing. */
+    /** Exposes the cauldron as a 1000 mB tank of one fluid at a time; locked while brewing. */
     public final IFluidHandler fluidHandler = new IFluidHandler() {
         @Override
         public int getTanks() {
@@ -81,30 +85,21 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
 
         @Override
         public boolean isFluidValid(int tank, FluidStack stack) {
-            return stack.is(Fluids.WATER) || InkTiers.inkwellFor(stack.getFluid()) != null;
+            return isAccepted(stack.getFluid());
         }
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
             int room = CAPACITY_ML - amountMl;
-            if (resource.isEmpty() || content == CauldronContent.BREWING || room <= 0) return 0;
+            if (resource.isEmpty() || brewing || room <= 0 || !isAccepted(resource.getFluid())) return 0;
+            ResourceLocation id = BuiltInRegistries.FLUID.getKey(resource.getFluid());
+            if (amountMl > 0 && !id.equals(fluidId)) return 0; // never mix fluids
             int accepted = Math.min(room, resource.getAmount());
-            if (resource.is(Fluids.WATER)) {
-                if (content != CauldronContent.WATER) return 0;
-                if (action.execute()) setAmountMl(amountMl + accepted);
-                return accepted;
+            if (action.execute()) {
+                fluidId = id;
+                setAmountMl(amountMl + accepted);
             }
-            if (InkTiers.inkwellFor(resource.getFluid()) != null) {
-                ResourceLocation id = BuiltInRegistries.FLUID.getKey(resource.getFluid());
-                if (amountMl > 0 && !(content == CauldronContent.INK && id.equals(inkFluidId))) return 0;
-                if (action.execute()) {
-                    content = CauldronContent.INK;
-                    inkFluidId = id;
-                    setAmountMl(amountMl + accepted);
-                }
-                return accepted;
-            }
-            return 0;
+            return accepted;
         }
 
         @Override
@@ -114,7 +109,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
 
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
-            if (amountMl == 0 || content == CauldronContent.BREWING || maxDrain <= 0) return FluidStack.EMPTY;
+            if (amountMl == 0 || brewing || maxDrain <= 0) return FluidStack.EMPTY;
             int drained = Math.min(maxDrain, amountMl);
             FluidStack out = contents().copyWithAmount(drained);
             if (action.execute()) setAmountMl(amountMl - drained);
@@ -122,10 +117,13 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         }
     };
 
+    /** Fluids the cauldron takes: water, liquid of enchanting and every ink tier. */
+    private static boolean isAccepted(Fluid fluid) {
+        return fluid == Fluids.WATER || fluid == ModFluids.LIQUID_OF_ENCHANTING.source().get() || InkTiers.inkwellFor(fluid) != null;
+    }
+
     private FluidStack contents() {
-        if (amountMl == 0) return FluidStack.EMPTY;
-        if (content == CauldronContent.INK && inkFluidId != null) return new FluidStack(getInkFluid(), amountMl);
-        return new FluidStack(Fluids.WATER, amountMl);
+        return amountMl == 0 ? FluidStack.EMPTY : new FluidStack(getFluid(), amountMl);
     }
 
     public CalciteCauldronBlockEntity(BlockPos pos, BlockState state) {
@@ -134,6 +132,23 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
 
     public int getAmountMl() {
         return amountMl;
+    }
+
+    public Fluid getFluid() {
+        return BuiltInRegistries.FLUID.get(fluidId);
+    }
+
+    public boolean isBrewing() {
+        return brewing;
+    }
+
+    /** The visual category of the stored fluid, for the blockstate. */
+    public CauldronContent getContent() {
+        if (brewing) return CauldronContent.BREWING;
+        Fluid fluid = getFluid();
+        if (fluid == Fluids.WATER) return CauldronContent.WATER;
+        if (fluid == ModFluids.LIQUID_OF_ENCHANTING.source().get()) return CauldronContent.ENCHANTING;
+        return CauldronContent.INK;
     }
 
     private void refresh() {
@@ -151,7 +166,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         inventoryDirty = false;
     }
 
-    /** Recipes whose ingredients are all stored right now (server only). */
+    /** Recipes whose ingredients are all stored right now, whatever the fluid (server only). */
     public List<RecipeHolder<CauldronBrewingRecipe>> satisfiedRecipes() {
         refresh();
         return satisfied;
@@ -163,30 +178,24 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         return hasRoom;
     }
 
-    public CauldronContent getContent() {
-        return content;
-    }
-
-    /** The ink fluid held (or being brewed); null when none. */
-    public Fluid getInkFluid() {
-        return inkFluidId == null ? null : BuiltInRegistries.FLUID.get(inkFluidId);
+    /** True when the recipe's base fluid is what the cauldron holds. */
+    public boolean holdsBaseOf(CauldronBrewingRecipe recipe) {
+        return amountMl > 0 && fluidId.equals(recipe.baseFluid());
     }
 
     public void setAmountMl(int ml) {
         amountMl = Mth.clamp(ml, 0, CAPACITY_ML);
         if (amountMl == 0) {
-            content = CauldronContent.WATER;
-            inkFluidId = null;
+            fluidId = WATER;
             progress = 0;
         }
         syncState();
     }
 
     public void startBrewing(RecipeHolder<CauldronBrewingRecipe> recipe) {
-        content = CauldronContent.BREWING;
+        brewing = true;
         activeRecipe = recipe;
         activeRecipeId = recipe.id();
-        inkFluidId = BuiltInRegistries.FLUID.getKey(InkTiers.fluidFor(recipe.value().result().getItem()));
         progress = 0;
         syncState();
     }
@@ -202,21 +211,20 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         return activeRecipe;
     }
 
-    private void cancelBrew() {
-        content = CauldronContent.WATER;
-        inkFluidId = null;
+    private void stopBrewing() {
+        brewing = false;
         activeRecipe = null;
         activeRecipeId = null;
         progress = 0;
-        syncState();
     }
 
-    /** Every 20 ticks (and at the end) the brew re-checks heat and ingredients; any miss cancels it back to plain water. */
+    /** Every 20 ticks (and at the end) the brew re-checks heat and ingredients; any miss cancels it, keeping the base fluid. */
     public void serverTick() {
-        if (content != CauldronContent.BREWING) return;
+        if (!brewing) return;
         RecipeHolder<CauldronBrewingRecipe> holder = activeRecipe();
         if (holder == null) {
-            cancelBrew();
+            stopBrewing();
+            syncState();
             return;
         }
         CauldronBrewingRecipe recipe = holder.value();
@@ -225,13 +233,12 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
 
         refresh();
         if (!satisfied.contains(holder) || CauldronHeat.tierBelow(level, worldPosition) < recipe.minHeat()) {
-            cancelBrew();
+            stopBrewing();
+            syncState();
         } else if (progress >= recipe.brewTicks()) {
             recipe.consume(inventory);
-            content = CauldronContent.INK;
-            activeRecipe = null;
-            activeRecipeId = null;
-            progress = 0;
+            fluidId = recipe.resultFluid();
+            stopBrewing();
             level.playSound(null, worldPosition, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
             syncState();
         }
@@ -243,7 +250,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
             int lvl = (amountMl * 3 + CAPACITY_ML - 1) / CAPACITY_ML; // ceil: 1-333 ml = 1, up to 1000 ml = 3
             level.setBlock(worldPosition, getBlockState()
                     .setValue(CalciteCauldronBlock.LEVEL, lvl)
-                    .setValue(CalciteCauldronBlock.CONTENT, content), 3);
+                    .setValue(CalciteCauldronBlock.CONTENT, getContent()), 3);
         }
     }
 
@@ -251,9 +258,9 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("AmountMl", amountMl);
-        tag.putString("Content", content.getSerializedName());
+        tag.putString("Fluid", fluidId.toString());
+        tag.putBoolean("Brewing", brewing);
         tag.putInt("Progress", progress);
-        if (inkFluidId != null) tag.putString("InkFluid", inkFluidId.toString());
         if (activeRecipeId != null) tag.putString("Recipe", activeRecipeId.toString());
         tag.put("Inventory", inventory.serializeNBT(registries));
     }
@@ -262,9 +269,9 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         amountMl = tag.getInt("AmountMl");
-        content = CauldronContent.valueOf(tag.getString("Content").toUpperCase());
+        fluidId = tag.contains("Fluid") ? ResourceLocation.parse(tag.getString("Fluid")) : WATER;
+        brewing = tag.getBoolean("Brewing");
         progress = tag.getInt("Progress");
-        inkFluidId = tag.contains("InkFluid") ? ResourceLocation.parse(tag.getString("InkFluid")) : null;
         activeRecipeId = tag.contains("Recipe") ? ResourceLocation.parse(tag.getString("Recipe")) : null;
         activeRecipe = null;
         inventory.deserializeNBT(registries, tag.getCompound("Inventory"));

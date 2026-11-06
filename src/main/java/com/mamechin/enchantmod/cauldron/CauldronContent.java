@@ -2,9 +2,9 @@ package com.mamechin.enchantmod.cauldron;
 
 import net.minecraft.util.StringRepresentable;
 
-/** What the cauldron currently holds; drives the liquid model. */
+/** What the cauldron looks like it holds; drives the liquid model. */
 public enum CauldronContent implements StringRepresentable {
-    WATER("water"), BREWING("brewing"), INK("ink");
+    WATER("water"), ENCHANTING("enchanting"), BREWING("brewing"), INK("ink");
 
     private final String name;
 

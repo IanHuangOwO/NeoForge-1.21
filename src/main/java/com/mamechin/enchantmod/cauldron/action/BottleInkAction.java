@@ -17,7 +17,7 @@ public class BottleInkAction implements CauldronAction {
         if (!stack.is(Items.GLASS_BOTTLE) || c.getContent() != CauldronContent.INK
                 || c.getAmountMl() < CalciteCauldronBlockEntity.INK_ML_PER_USE) return false;
         if (!c.getLevel().isClientSide) {
-            ItemStack inkwell = new ItemStack(InkTiers.inkwellFor(c.getInkFluid()));
+            ItemStack inkwell = new ItemStack(InkTiers.inkwellFor(c.getFluid()));
             int uses = Math.min(inkwell.getMaxDamage(), c.getAmountMl() / CalciteCauldronBlockEntity.INK_ML_PER_USE);
             inkwell.setDamageValue(inkwell.getMaxDamage() - uses);
             CauldronActions.swapHeld(player, hand, stack, inkwell);

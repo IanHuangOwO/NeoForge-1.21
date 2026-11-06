@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod;
 
-import com.mamechin.enchantmod.fluid.InkFluid;
+import com.mamechin.enchantmod.fluid.EnchantFluid;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +30,7 @@ public class EnchantModClient {
     /** Ink fluids reuse the vanilla water textures, tinted per tier. */
     @SubscribeEvent
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
-        for (InkFluid ink : InkFluid.ALL) {
+        for (EnchantFluid ink : EnchantFluid.ALL) {
             event.registerFluidType(new IClientFluidTypeExtensions() {
                 @Override
                 public ResourceLocation getStillTexture() {

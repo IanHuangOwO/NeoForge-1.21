@@ -16,7 +16,7 @@ public class RefillInkwellAction implements CauldronAction {
         if (!(stack.getItem() instanceof EnchantInkwellItem inkwell) || !stack.isDamaged()
                 || c.getContent() != CauldronContent.INK
                 || c.getAmountMl() < CalciteCauldronBlockEntity.INK_ML_PER_USE
-                || inkwell.getInkFluid() != c.getInkFluid()) return false;
+                || inkwell.getInkFluid() != c.getFluid()) return false;
         if (!c.getLevel().isClientSide) {
             int uses = Math.min(stack.getDamageValue(), c.getAmountMl() / CalciteCauldronBlockEntity.INK_ML_PER_USE);
             ItemStack refilled = stack.copy();

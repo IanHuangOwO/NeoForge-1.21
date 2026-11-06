@@ -24,6 +24,7 @@ public final class ModCreativeTabs {
                 output.accept(ModItems.GOLDEN_QUILL.get());
                 output.accept(ModItems.LAPIS_INKWELL.get());
                 output.accept(ModItems.GLOWING_LAPIS_INKWELL.get());
+                output.accept(ModFluids.LIQUID_OF_ENCHANTING.bucket().get());
                 output.accept(ModFluids.LAPIS_INK.bucket().get());
                 output.accept(ModFluids.GLOWING_LAPIS_INK.bucket().get());
                 output.accept(ModItems.SCRIBING_TABLE.get());

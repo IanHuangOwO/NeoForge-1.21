@@ -29,6 +29,15 @@
     },
     "level=3,content=ink": {
       "model": "enchantmod:block/calcite_cauldron_ink_3"
+    },
+    "level=1,content=enchanting": {
+      "model": "enchantmod:block/calcite_cauldron_enchanting_1"
+    },
+    "level=2,content=enchanting": {
+      "model": "enchantmod:block/calcite_cauldron_enchanting_2"
+    },
+    "level=3,content=enchanting": {
+      "model": "enchantmod:block/calcite_cauldron_enchanting_3"
     }
   }
 }

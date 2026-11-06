@@ -17,5 +17,7 @@
   "block.enchantmod.lapis_ink": "Lapis Ink",
   "block.enchantmod.glowing_lapis_ink": "Glowing Lapis Ink",
   "item.enchantmod.lapis_ink_bucket": "Lapis Ink Bucket",
-  "item.enchantmod.glowing_lapis_ink_bucket": "Glowing Lapis Ink Bucket"
+  "item.enchantmod.glowing_lapis_ink_bucket": "Glowing Lapis Ink Bucket",
+  "block.enchantmod.liquid_of_enchanting": "Liquid of Enchanting",
+  "item.enchantmod.liquid_of_enchanting_bucket": "Liquid of Enchanting Bucket"
 }
