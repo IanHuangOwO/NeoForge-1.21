@@ -1,0 +1,8 @@
+{
+  "type": "enchantmod:cauldron_brewing",
+  "ingredients": [ { "item": "minecraft:lapis_lazuli" } ],
+  "base_fluid": "minecraft:water",
+  "result_fluid": "enchantmod:liquid_of_enchanting",
+  "brew_ticks": 100,
+  "min_heat": 1
+}
