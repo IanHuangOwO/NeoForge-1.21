@@ -3,13 +3,12 @@ package com.mamechin.enchantmod.cauldron;
 import com.mamechin.enchantmod.cauldron.action.CauldronAction;
 import com.mamechin.enchantmod.cauldron.action.CauldronActions;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
+import com.mamechin.enchantmod.cauldron.client.CauldronBubbles;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -78,20 +77,6 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
             return state.setValue(HEATED, CauldronHeat.tier(neighborState) > 0);
         }
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
-    }
-
-    /** Client-only: bubbles pop on the surface while heated; a running brew bubbles harder. */
-    @Override
-    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        int lvl = state.getValue(LEVEL);
-        if (!state.getValue(HEATED) || lvl == 0) return;
-        int bubbles = state.getValue(CONTENT) == CauldronContent.BREWING ? 3 : (random.nextFloat() < 0.4F ? 1 : 0);
-        double surface = pos.getY() + (6.0 + 3.0 * lvl) / 16.0;
-        for (int i = 0; i < bubbles; i++) {
-            level.addParticle(ParticleTypes.BUBBLE_POP,
-                    pos.getX() + 0.2 + random.nextDouble() * 0.6, surface + 0.02, pos.getZ() + 0.2 + random.nextDouble() * 0.6,
-                    0.0, 0.02, 0.0);
-        }
     }
 
     @Override
@@ -185,7 +170,8 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     @Override
     @SuppressWarnings("unchecked")
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide || type != ModBlockEntities.CALCITE_CAULDRON.get()) return null;
+        if (type != ModBlockEntities.CALCITE_CAULDRON.get()) return null;
+        if (level.isClientSide) return (l, p, s, be) -> CauldronBubbles.tick(l, p, s);
         return (l, p, s, be) -> ((CalciteCauldronBlockEntity) be).serverTick();
     }
 }
