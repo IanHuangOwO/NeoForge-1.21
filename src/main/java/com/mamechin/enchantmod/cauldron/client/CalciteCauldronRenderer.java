@@ -29,6 +29,8 @@ import net.minecraft.world.item.ItemStack;
 public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauldronBlockEntity> {
     private static final float ITEM_SCALE = 0.45F;
     private static final float HOVER_HEIGHT = 1.5F;  // centre of the block above the cauldron
+    private static final float MAX_DRIFT_XZ = 0.25F; // furthest the item strays sideways from its anchor
+    private static final float MAX_DRIFT_Y = 0.5F;   // furthest it strays up or down
     private static final float SPACING = 0.5F;
     private static final float TEXT_SCALE = 0.016F;
 
@@ -85,10 +87,15 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
         float spacing = types.size() == 1 ? 0 : Math.min(SPACING, 0.9F / (types.size() - 1));
 
         for (int i = 0; i < types.size(); i++) {
-            float phase = i * 1.7F;
-            float x = 0.5F + Mth.sin(time * 0.05F + phase * 1.3F) * 0.02F;   // slight sideways wobble
-            float z = 0.5F + Mth.cos(time * 0.04F + phase) * 0.02F;
-            float y = HOVER_HEIGHT + Mth.sin(time * 0.08F + phase) * 0.06F;  // mostly up and down
+            // Drift: three sines of unrelated frequencies per axis give a smooth, non-repeating wander,
+            // bounded by MAX_DRIFT_XZ / MAX_DRIFT_Y around the anchor. Seeded per item and per cauldron.
+            float seed = i * 1.7F + (cauldron.getBlockPos().hashCode() % 1000) * 0.37F;
+            float dx = MAX_DRIFT_XZ * wander(time, seed, 0.031F, 0.047F, 0.019F);
+            float dz = MAX_DRIFT_XZ * wander(time, seed + 11.0F, 0.037F, 0.023F, 0.053F);
+            float dy = MAX_DRIFT_Y * wander(time, seed + 23.0F, 0.043F, 0.029F, 0.061F);
+            float x = 0.5F + dx;
+            float z = 0.5F + dz;
+            float y = HOVER_HEIGHT + dy;
             float local = (i - (types.size() - 1) / 2.0F) * spacing;          // along the viewer's right
             float scale = 1.0F;
             boolean showCount = true;
@@ -106,6 +113,8 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
                         float e = u * u; // ease in
                         float top = y + 0.35F;
                         y = Mth.lerp(e, top, surface);
+                        x = 0.5F + dx * (1 - e); // pull back over the liquid so the dive lands inside the cauldron
+                        z = 0.5F + dz * (1 - e);
                         local = Mth.lerp(e, local, 0.0F);
                         scale = 1.0F - 0.7F * e;
                     }
@@ -134,6 +143,11 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
             }
             pose.popPose();
         }
+    }
+
+    /** Smooth pseudo-random value in [-1, 1]: weighted sum of three sines with unrelated speeds. */
+    private static float wander(float time, float seed, float f1, float f2, float f3) {
+        return 0.5F * Mth.sin(time * f1 + seed) + 0.3F * Mth.sin(time * f2 + seed * 1.9F) + 0.2F * Mth.sin(time * f3 + seed * 3.1F);
     }
 
     @Override
