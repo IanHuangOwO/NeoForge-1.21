@@ -2,7 +2,7 @@
   "itemGroup.enchantmod": "EnchantMod",
   "block.enchantmod.scribing_table": "Scribing Table",
   "block.enchantmod.calcite_cauldron": "Calcite Cauldron",
-  "message.enchantmod.cauldron.no_heat": "The cauldron needs a heat source underneath",
+  "message.enchantmod.cauldron.no_heat": "The cauldron needs a hotter heat source underneath",
   "item.enchantmod.lapis_inkwell": "Lapis Inkwell",
   "item.enchantmod.glowing_lapis_inkwell": "Glowing Lapis Inkwell",
   "item.enchantmod.golden_quill": "Golden Quill",

@@ -2,6 +2,7 @@ package com.mamechin.enchantmod.cauldron;
 
 import com.mamechin.enchantmod.block.ModBlockEntities;
 import com.mamechin.enchantmod.cauldron.brewing.InkBrewing;
+import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -117,7 +118,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
 
         InkBrewing.Recipe recipe = InkBrewing.find(inkwellId);
         refresh();
-        if (recipe == null || !satisfied[InkBrewing.RECIPES.indexOf(recipe)] || !CalciteCauldronBlock.isHeated(level, worldPosition)) {
+        if (recipe == null || !satisfied[InkBrewing.RECIPES.indexOf(recipe)] || CauldronHeat.tierBelow(level, worldPosition) < recipe.minHeat()) {
             content = CauldronContent.WATER;
             inkwellId = null;
             progress = 0;

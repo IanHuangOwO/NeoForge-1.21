@@ -2,8 +2,8 @@ package com.mamechin.enchantmod.cauldron.action;
 
 import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlock;
 import com.mamechin.enchantmod.cauldron.brewing.InkBrewing;
+import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -17,7 +17,7 @@ public class StartBrewAction implements CauldronAction {
         if (player.isShiftKeyDown() || c.getContent() != CauldronContent.WATER || c.getAmountMl() == 0) return false;
         InkBrewing.Recipe recipe = c.matchedRecipe();
         if (recipe == null) return false;
-        if (!CalciteCauldronBlock.isHeated(c.getLevel(), c.getBlockPos())) {
+        if (CauldronHeat.tierBelow(c.getLevel(), c.getBlockPos()) < recipe.minHeat()) {
             if (!c.getLevel().isClientSide) player.displayClientMessage(Component.translatable("message.enchantmod.cauldron.no_heat"), true);
             return true;
         }

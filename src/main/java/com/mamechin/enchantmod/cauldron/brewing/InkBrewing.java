@@ -15,11 +15,11 @@ import net.neoforged.neoforge.items.IItemHandler;
 
 /** Ingredient set (1 lapis + 1 ink) to inkwell tier. shortcut: hardcoded list, make it a data recipe type when addons need it. */
 public final class InkBrewing {
-    public record Recipe(Item ink, Supplier<? extends Item> inkwell) {}
+    public record Recipe(Item ink, Supplier<? extends Item> inkwell, int minHeat) {}
 
     public static final List<Recipe> RECIPES = List.of(
-            new Recipe(Items.INK_SAC, ModItems.LAPIS_INKWELL),
-            new Recipe(Items.GLOW_INK_SAC, ModItems.GLOWING_LAPIS_INKWELL));
+            new Recipe(Items.INK_SAC, ModItems.LAPIS_INKWELL, 1),
+            new Recipe(Items.GLOW_INK_SAC, ModItems.GLOWING_LAPIS_INKWELL, 3));
 
     public static boolean isIngredient(ItemStack stack) {
         return stack.is(Items.LAPIS_LAZULI) || RECIPES.stream().anyMatch(r -> stack.is(r.ink()));

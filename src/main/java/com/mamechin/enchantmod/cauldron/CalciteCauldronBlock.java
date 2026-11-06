@@ -1,6 +1,5 @@
 package com.mamechin.enchantmod.cauldron;
 
-import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.cauldron.action.CauldronAction;
 import com.mamechin.enchantmod.cauldron.action.CauldronActions;
 import com.mamechin.enchantmod.cauldron.brewing.InkBrewing;
@@ -8,9 +7,6 @@ import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -29,7 +25,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
@@ -42,7 +37,6 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     public static final MapCodec<CalciteCauldronBlock> CODEC = simpleCodec(CalciteCauldronBlock::new);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
     public static final EnumProperty<CauldronContent> CONTENT = EnumProperty.create("content", CauldronContent.class);
-    public static final TagKey<Block> HEAT_SOURCES = TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "cauldron_heat_sources"));
 
     // Required by the vanilla base class, but unused: all clicks go through CauldronActions.
     private static final CauldronInteraction.InteractionMap NO_INTERACTIONS = CauldronInteraction.newInteractionMap("calcite");
@@ -111,16 +105,6 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
             }
         }
         return InteractionResult.PASS;
-    }
-
-    static boolean isHeatedImpl(Level level, BlockPos pos) {
-        BlockState below = level.getBlockState(pos.below());
-        return below.is(HEAT_SOURCES)
-                && (!below.hasProperty(BlockStateProperties.LIT) || below.getValue(BlockStateProperties.LIT));
-    }
-
-    public static boolean isHeated(Level level, BlockPos pos) {
-        return isHeatedImpl(level, pos);
     }
 
     /** Thrown items fall in and are stored if the inventory accepts them. */

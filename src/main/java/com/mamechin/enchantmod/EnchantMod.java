@@ -3,6 +3,7 @@ package com.mamechin.enchantmod;
 import org.slf4j.Logger;
 
 import com.mamechin.enchantmod.block.ModBlocks;
+import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.item.ModItems;
 import com.mojang.logging.LogUtils;
 
@@ -19,6 +20,7 @@ public class EnchantMod {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public EnchantMod(IEventBus modEventBus, ModContainer modContainer) {
+        modEventBus.addListener(CauldronHeat::register);
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
