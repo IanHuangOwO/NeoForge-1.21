@@ -39,7 +39,8 @@ public record InkFluid(String namespace, String name, int tint,
             DeferredRegister.Blocks blocks, DeferredRegister.Items items) {
         var props = new BaseFlowingFluid.Properties[1]; // filled below, read lazily when the registries resolve
         var type = types.register(name, () -> new FluidType(FluidType.Properties.create()
-                .descriptionId("block." + namespace + "." + name)));
+                .descriptionId("block." + namespace + "." + name)
+                .canConvertToSource(false))); // like lava: two sources never make a third
         var source = fluids.register(name, () -> new BaseFlowingFluid.Source(props[0]));
         var flowing = fluids.register(name + "_flowing", () -> new BaseFlowingFluid.Flowing(props[0]));
         var block = blocks.registerBlock(name, p -> new LiquidBlock(source.get(), p), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER));
