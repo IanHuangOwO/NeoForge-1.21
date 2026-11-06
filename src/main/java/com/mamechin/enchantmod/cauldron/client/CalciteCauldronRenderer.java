@@ -155,7 +155,7 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
         }
     }
 
-    /** While brewing, an opaque tinted layer on the liquid fades from the base fluid's colour to the result's (colours: CauldronColors). */
+    /** While brewing, a translucent tinted layer (it replaces the liquid model) on the liquid fades from the base fluid's colour to the result's (colours: CauldronColors). */
     private void renderBrewSurface(CalciteCauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
             PoseStack pose, MultiBufferSource buffer, int light, float time) {
         var found = cauldron.getActiveRecipeId() == null ? java.util.Optional.<net.minecraft.world.item.crafting.RecipeHolder<?>>empty()
@@ -174,7 +174,7 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
         float min = 2.0F / 16.0F, max = 14.0F / 16.0F;
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/calcite_cauldron_liquid_mask"));
-        VertexConsumer vc = buffer.getBuffer(RenderType.solid()); // opaque, like the liquid models
+        VertexConsumer vc = buffer.getBuffer(RenderType.translucent()); // same pass and alpha as the liquid models
         Matrix4f m = pose.last().pose();
         float[][] corners = {{min, min, sprite.getU0(), sprite.getV0()}, {min, max, sprite.getU0(), sprite.getV1()},
                 {max, max, sprite.getU1(), sprite.getV1()}, {max, min, sprite.getU1(), sprite.getV0()}};

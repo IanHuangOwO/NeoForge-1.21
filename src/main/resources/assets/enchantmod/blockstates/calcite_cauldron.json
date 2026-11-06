@@ -1,43 +1,90 @@
 {
-  "variants": {
-    "level=0": {
-      "model": "enchantmod:block/calcite_cauldron"
+  "multipart": [
+    {
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron"
+      }
     },
-    "level=1,content=water": {
-      "model": "enchantmod:block/calcite_cauldron_water_1"
+    {
+      "when": {
+        "level": "1",
+        "content": "water"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_water_1"
+      }
     },
-    "level=2,content=water": {
-      "model": "enchantmod:block/calcite_cauldron_water_2"
+    {
+      "when": {
+        "level": "2",
+        "content": "water"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_water_2"
+      }
     },
-    "level=3,content=water": {
-      "model": "enchantmod:block/calcite_cauldron_water_3"
+    {
+      "when": {
+        "level": "3",
+        "content": "water"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_water_3"
+      }
     },
-    "level=1,content=brewing": {
-      "model": "enchantmod:block/calcite_cauldron_brewing_1"
+    {
+      "when": {
+        "level": "1",
+        "content": "enchanting"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_enchanting_1"
+      }
     },
-    "level=2,content=brewing": {
-      "model": "enchantmod:block/calcite_cauldron_brewing_2"
+    {
+      "when": {
+        "level": "2",
+        "content": "enchanting"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_enchanting_2"
+      }
     },
-    "level=3,content=brewing": {
-      "model": "enchantmod:block/calcite_cauldron_brewing_3"
+    {
+      "when": {
+        "level": "3",
+        "content": "enchanting"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_enchanting_3"
+      }
     },
-    "level=1,content=ink": {
-      "model": "enchantmod:block/calcite_cauldron_ink_1"
+    {
+      "when": {
+        "level": "1",
+        "content": "ink"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_ink_1"
+      }
     },
-    "level=2,content=ink": {
-      "model": "enchantmod:block/calcite_cauldron_ink_2"
+    {
+      "when": {
+        "level": "2",
+        "content": "ink"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_ink_2"
+      }
     },
-    "level=3,content=ink": {
-      "model": "enchantmod:block/calcite_cauldron_ink_3"
-    },
-    "level=1,content=enchanting": {
-      "model": "enchantmod:block/calcite_cauldron_enchanting_1"
-    },
-    "level=2,content=enchanting": {
-      "model": "enchantmod:block/calcite_cauldron_enchanting_2"
-    },
-    "level=3,content=enchanting": {
-      "model": "enchantmod:block/calcite_cauldron_enchanting_3"
+    {
+      "when": {
+        "level": "3",
+        "content": "ink"
+      },
+      "apply": {
+        "model": "enchantmod:block/calcite_cauldron_liquid_ink_3"
+      }
     }
-  }
+  ]
 }
