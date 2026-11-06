@@ -16,7 +16,7 @@ public final class ModFluids {
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, EnchantMod.MODID);
 
     /** Base liquid: water + lapis in the cauldron. Every ink brews from it. */
-    public static final EnchantFluid LIQUID_OF_ENCHANTING = EnchantFluid.register(EnchantMod.MODID, "liquid_of_enchanting", 0xFF8A5AE6,
+    public static final EnchantFluid LIQUID_OF_ENCHANTING = EnchantFluid.register(EnchantMod.MODID, "liquid_of_enchanting", 0xFF2D66B8,
             FLUID_TYPES, FLUIDS, ModBlocks.BLOCKS, ModItems.ITEMS);
     public static final EnchantFluid LAPIS_INK = EnchantFluid.register(EnchantMod.MODID, "lapis_ink", 0xFF12257A,
             FLUID_TYPES, FLUIDS, ModBlocks.BLOCKS, ModItems.ITEMS);
