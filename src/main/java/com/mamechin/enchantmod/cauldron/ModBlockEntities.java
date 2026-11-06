@@ -1,9 +1,9 @@
-package com.mamechin.enchantmod.block;
+package com.mamechin.enchantmod.cauldron;
 
 import java.util.function.Supplier;
 
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
+import com.mamechin.enchantmod.block.ModBlocks;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;

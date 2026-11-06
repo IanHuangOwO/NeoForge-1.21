@@ -6,11 +6,14 @@ import com.mamechin.enchantmod.block.ModBlocks;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
 import com.mamechin.enchantmod.cauldron.brewing.ModCauldronRecipes;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
+import com.mamechin.enchantmod.fluid.ModCapabilities;
+import com.mamechin.enchantmod.fluid.ModDataComponents;
+import com.mamechin.enchantmod.fluid.ModFluids;
 import com.mamechin.enchantmod.item.ModItems;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
-import com.mamechin.enchantmod.block.ModBlockEntities;
+import com.mamechin.enchantmod.cauldron.ModBlockEntities;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -24,6 +27,10 @@ public class EnchantMod {
 
     public EnchantMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(CauldronHeat::register);
+        ModFluids.FLUID_TYPES.register(modEventBus);
+        ModFluids.FLUIDS.register(modEventBus);
+        ModDataComponents.COMPONENTS.register(modEventBus);
+        modEventBus.addListener(ModCapabilities::register);
         ModCauldronRecipes.TYPES.register(modEventBus);
         ModCauldronRecipes.SERIALIZERS.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(CauldronRecipes::onDatapackSync);

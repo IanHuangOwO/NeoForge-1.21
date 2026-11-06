@@ -1,6 +1,5 @@
 package com.mamechin.enchantmod.cauldron;
 
-import com.mamechin.enchantmod.block.ModBlockEntities;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +19,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import com.mamechin.enchantmod.fluid.ModDataComponents;
+import com.mamechin.enchantmod.fluid.ModFluids;
+import com.mamechin.enchantmod.item.inkwell.EnchantInkwellItem;
 
 /**
  * Holds the exact liquid amount in ml plus its kind and the 8-slot ingredient inventory.
@@ -57,6 +62,73 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     private CauldronContent content = CauldronContent.WATER;
     private ResourceLocation inkwellId; // tier of the ink once content == INK (or the brew result while BREWING)
     private int progress;
+
+    /** Exposes the cauldron as a 1000 mB tank: water, or enchanting ink of one tier; never mixed, locked while brewing. */
+    public final IFluidHandler fluidHandler = new IFluidHandler() {
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return contents();
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return CAPACITY_ML;
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return stack.is(Fluids.WATER) || stack.is(ModFluids.ENCHANTING_INK.get());
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            int room = CAPACITY_ML - amountMl;
+            if (resource.isEmpty() || content == CauldronContent.BREWING || room <= 0) return 0;
+            int accepted = Math.min(room, resource.getAmount());
+            if (resource.is(Fluids.WATER)) {
+                if (content != CauldronContent.WATER) return 0;
+                if (action.execute()) setAmountMl(amountMl + accepted);
+                return accepted;
+            }
+            if (resource.is(ModFluids.ENCHANTING_INK.get())) {
+                ResourceLocation tier = resource.get(ModDataComponents.INK_TIER.get());
+                if (tier == null || !(BuiltInRegistries.ITEM.get(tier) instanceof EnchantInkwellItem)) return 0;
+                if (amountMl > 0 && !(content == CauldronContent.INK && tier.equals(inkwellId))) return 0;
+                if (action.execute()) {
+                    content = CauldronContent.INK;
+                    inkwellId = tier;
+                    setAmountMl(amountMl + accepted);
+                }
+                return accepted;
+            }
+            return 0;
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            return FluidStack.isSameFluidSameComponents(resource, contents()) ? drain(resource.getAmount(), action) : FluidStack.EMPTY;
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            if (amountMl == 0 || content == CauldronContent.BREWING || maxDrain <= 0) return FluidStack.EMPTY;
+            int drained = Math.min(maxDrain, amountMl);
+            FluidStack out = contents().copyWithAmount(drained);
+            if (action.execute()) setAmountMl(amountMl - drained);
+            return out;
+        }
+    };
+
+    private FluidStack contents() {
+        if (amountMl == 0) return FluidStack.EMPTY;
+        if (content == CauldronContent.INK && inkwellId != null) return ModFluids.inkStack(inkwellId, amountMl);
+        return new FluidStack(Fluids.WATER, amountMl);
+    }
 
     public CalciteCauldronBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.CALCITE_CAULDRON.get(), pos, state);

@@ -7,12 +7,15 @@
   "item.enchantmod.glowing_lapis_inkwell": "Glowing Lapis Inkwell",
   "item.enchantmod.golden_quill": "Golden Quill",
   "item.enchantmod.copper_quill": "Copper Quill",
-
   "enchantmod.configuration.title": "EnchantMod Configs",
   "enchantmod.configuration.section.enchantmod.common.toml": "EnchantMod Configs",
   "enchantmod.configuration.section.enchantmod.common.toml.title": "EnchantMod Configs",
   "enchantmod.configuration.items": "Item List",
   "enchantmod.configuration.logDirtBlock": "Log Dirt Block",
   "enchantmod.configuration.magicNumberIntroduction": "Magic Number Text",
-  "enchantmod.configuration.magicNumber": "Magic Number"
+  "enchantmod.configuration.magicNumber": "Magic Number",
+  "item.enchantmod.ink_bucket": "Bucket of %s",
+  "ink_tier.enchantmod.lapis_inkwell": "Lapis Ink",
+  "ink_tier.enchantmod.glowing_lapis_inkwell": "Glowing Lapis Ink",
+  "fluid_type.enchantmod.enchanting_ink": "Enchanting Ink"
 }

@@ -146,7 +146,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     @Override
     @SuppressWarnings("unchecked")
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide || type != com.mamechin.enchantmod.block.ModBlockEntities.CALCITE_CAULDRON.get()) return null;
+        if (level.isClientSide || type != ModBlockEntities.CALCITE_CAULDRON.get()) return null;
         return (l, p, s, be) -> ((CalciteCauldronBlockEntity) be).serverTick();
     }
 }

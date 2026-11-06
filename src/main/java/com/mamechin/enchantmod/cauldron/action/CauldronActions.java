@@ -15,8 +15,8 @@ import net.minecraft.world.item.ItemUtils;
 /** Ordered action list: the first action that applies wins. Addons may add to it during setup. */
 public final class CauldronActions {
     public static final List<CauldronAction> ACTIONS = new ArrayList<>(List.of(
-            new FillWaterBucketAction(),
-            new TakeWaterBucketAction(),
+            new TakeInkBucketAction(),
+            new FluidContainerAction(),
             new AddWaterBottleAction(),
             new BottleInkAction(),
             new RefillInkwellAction(),
