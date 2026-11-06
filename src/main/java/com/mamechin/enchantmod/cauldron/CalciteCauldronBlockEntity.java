@@ -12,6 +12,8 @@ import com.mamechin.enchantmod.fluid.ModFluids;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -38,6 +40,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     public static final int BOTTLE_ML = 250;
     public static final int INK_ML_PER_USE = 10;
     public static final int CHECK_TICKS = 20;
+    private static final int SPARKLE_COUNT = 10;
 
     private static final ResourceLocation WATER = BuiltInRegistries.FLUID.getKey(Fluids.WATER);
 
@@ -260,7 +263,17 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
             stopBrewing();
             level.playSound(null, worldPosition, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
             syncState();
+            sparkle();
         }
+    }
+
+    /** A small burst of white sparkles rising off the liquid when a brew finishes. */
+    private void sparkle() {
+        if (!(level instanceof ServerLevel server)) return;
+        int lvl = getBlockState().getValue(CalciteCauldronBlock.LEVEL);
+        double surface = worldPosition.getY() + (6.0 + 3.0 * lvl) / 16.0;
+        server.sendParticles(ParticleTypes.END_ROD, worldPosition.getX() + 0.5, surface + 0.05, worldPosition.getZ() + 0.5,
+                SPARKLE_COUNT, 0.25, 0.02, 0.25, 0.02);
     }
 
     private void syncState() {
