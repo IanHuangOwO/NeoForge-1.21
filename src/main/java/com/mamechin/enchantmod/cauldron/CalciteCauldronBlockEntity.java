@@ -238,7 +238,8 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         if (progress % CHECK_TICKS != 0 && progress < recipe.brewTicks()) return;
 
         refresh();
-        if (!satisfied.contains(holder) || CauldronHeat.tierBelow(level, worldPosition) < recipe.minHeat()) {
+        if (!satisfied.contains(holder) || !getBlockState().getValue(CalciteCauldronBlock.HEATED)
+                || CauldronHeat.tierBelow(level, worldPosition) < recipe.minHeat()) {
             stopBrewing();
             syncState();
         } else if (progress >= recipe.brewTicks()) {

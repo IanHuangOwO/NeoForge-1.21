@@ -3,9 +3,16 @@ package com.mamechin.enchantmod.cauldron;
 import com.mamechin.enchantmod.cauldron.action.CauldronAction;
 import com.mamechin.enchantmod.cauldron.action.CauldronActions;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
+import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
@@ -36,6 +43,8 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 public class CalciteCauldronBlock extends AbstractCauldronBlock implements EntityBlock {
     public static final MapCodec<CalciteCauldronBlock> CODEC = simpleCodec(CalciteCauldronBlock::new);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
+    /** Cached "some heat source is directly below", kept current by updateShape; drives the bubbles. */
+    public static final BooleanProperty HEATED = BooleanProperty.create("heated");
     public static final EnumProperty<CauldronContent> CONTENT = EnumProperty.create("content", CauldronContent.class);
 
     // Required by the vanilla base class, but unused: all clicks go through CauldronActions.
@@ -43,7 +52,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
 
     public CalciteCauldronBlock(Properties properties) {
         super(properties, NO_INTERACTIONS);
-        registerDefaultState(stateDefinition.any().setValue(LEVEL, 0).setValue(CONTENT, CauldronContent.WATER));
+        registerDefaultState(stateDefinition.any().setValue(LEVEL, 0).setValue(CONTENT, CauldronContent.WATER).setValue(HEATED, false));
     }
 
     @Override
@@ -53,7 +62,36 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(LEVEL, CONTENT);
+        builder.add(LEVEL, CONTENT, HEATED);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockState below = context.getLevel().getBlockState(context.getClickedPos().below());
+        return defaultBlockState().setValue(HEATED, CauldronHeat.tier(below) > 0);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+            LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        if (direction == Direction.DOWN) {
+            return state.setValue(HEATED, CauldronHeat.tier(neighborState) > 0);
+        }
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    /** Client-only: bubbles pop on the surface while heated; a running brew bubbles harder. */
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        int lvl = state.getValue(LEVEL);
+        if (!state.getValue(HEATED) || lvl == 0) return;
+        int bubbles = state.getValue(CONTENT) == CauldronContent.BREWING ? 3 : (random.nextFloat() < 0.4F ? 1 : 0);
+        double surface = pos.getY() + (6.0 + 3.0 * lvl) / 16.0;
+        for (int i = 0; i < bubbles; i++) {
+            level.addParticle(ParticleTypes.BUBBLE_POP,
+                    pos.getX() + 0.2 + random.nextDouble() * 0.6, surface + 0.02, pos.getZ() + 0.2 + random.nextDouble() * 0.6,
+                    0.0, 0.02, 0.0);
+        }
     }
 
     @Override
