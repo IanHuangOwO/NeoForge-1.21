@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -50,6 +51,8 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         protected void onContentsChanged(int slot) {
             inventoryDirty = true;
             setChanged();
+            // the client renders the stored items, so it needs the new inventory
+            if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
     };
 
@@ -252,6 +255,16 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
                     .setValue(CalciteCauldronBlock.LEVEL, lvl)
                     .setValue(CalciteCauldronBlock.CONTENT, getContent()), 3);
         }
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override

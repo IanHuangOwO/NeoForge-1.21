@@ -1,5 +1,7 @@
 package com.mamechin.enchantmod;
 
+import com.mamechin.enchantmod.cauldron.ModBlockEntities;
+import com.mamechin.enchantmod.cauldron.client.CalciteCauldronRenderer;
 import com.mamechin.enchantmod.fluid.EnchantFluid;
 
 import net.minecraft.client.Minecraft;
@@ -11,6 +13,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
@@ -25,6 +28,11 @@ public class EnchantModClient {
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
         // Do not forget to add translations for your config options to the en_us.json file.
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    @SubscribeEvent
+    static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntities.CALCITE_CAULDRON.get(), CalciteCauldronRenderer::new);
     }
 
     /** Ink fluids reuse the vanilla water textures, tinted per tier. */
