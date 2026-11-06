@@ -1,0 +1,10 @@
+{
+  "type": "enchantmod:cauldron_brewing",
+  "ingredients": [
+    { "item": "minecraft:lapis_lazuli" },
+    { "item": "minecraft:ink_sac" }
+  ],
+  "result": { "id": "enchantmod:lapis_inkwell" },
+  "brew_ticks": 100,
+  "min_heat": 1
+}

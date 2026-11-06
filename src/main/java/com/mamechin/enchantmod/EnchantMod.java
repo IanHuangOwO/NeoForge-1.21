@@ -3,6 +3,8 @@ package com.mamechin.enchantmod;
 import org.slf4j.Logger;
 
 import com.mamechin.enchantmod.block.ModBlocks;
+import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
+import com.mamechin.enchantmod.cauldron.brewing.ModCauldronRecipes;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.item.ModItems;
 import com.mojang.logging.LogUtils;
@@ -12,6 +14,7 @@ import com.mamechin.enchantmod.block.ModBlockEntities;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(EnchantMod.MODID)
@@ -21,6 +24,9 @@ public class EnchantMod {
 
     public EnchantMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(CauldronHeat::register);
+        ModCauldronRecipes.TYPES.register(modEventBus);
+        ModCauldronRecipes.SERIALIZERS.register(modEventBus);
+        NeoForge.EVENT_BUS.addListener(CauldronRecipes::onDatapackSync);
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);

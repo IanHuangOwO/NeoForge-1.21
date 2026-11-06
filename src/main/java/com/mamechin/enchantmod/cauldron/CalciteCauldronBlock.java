@@ -2,7 +2,7 @@ package com.mamechin.enchantmod.cauldron;
 
 import com.mamechin.enchantmod.cauldron.action.CauldronAction;
 import com.mamechin.enchantmod.cauldron.action.CauldronActions;
-import com.mamechin.enchantmod.cauldron.brewing.InkBrewing;
+import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -111,7 +111,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         // cheapest checks first: side, item type, then the cached "has room" flag
-        if (level.isClientSide || !(entity instanceof ItemEntity item) || !InkBrewing.isIngredient(item.getItem())
+        if (level.isClientSide || !(entity instanceof ItemEntity item) || !CauldronRecipes.accepts(level, item.getItem())
                 || !(level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron) || !cauldron.hasRoom()) {
             return;
         }
