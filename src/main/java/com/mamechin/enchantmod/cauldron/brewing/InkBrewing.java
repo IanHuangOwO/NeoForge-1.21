@@ -1,8 +1,9 @@
-package com.mamechin.enchantmod.block;
+package com.mamechin.enchantmod.cauldron.brewing;
 
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
 import com.mamechin.enchantmod.item.ModItems;
 
 import net.minecraft.core.registries.BuiltInRegistries;

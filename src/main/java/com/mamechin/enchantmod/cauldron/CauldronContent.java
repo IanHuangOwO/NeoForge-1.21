@@ -1,4 +1,4 @@
-package com.mamechin.enchantmod.block;
+package com.mamechin.enchantmod.cauldron;
 
 import net.minecraft.util.StringRepresentable;
 

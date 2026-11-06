@@ -1,6 +1,7 @@
 package com.mamechin.enchantmod.block;
 
 import com.mamechin.enchantmod.EnchantMod;
+import com.mamechin.enchantmod.cauldron.CalciteCauldronBlock;
 
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;

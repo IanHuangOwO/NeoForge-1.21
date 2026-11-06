@@ -1,5 +1,7 @@
-package com.mamechin.enchantmod.block;
+package com.mamechin.enchantmod.cauldron;
 
+import com.mamechin.enchantmod.block.ModBlockEntities;
+import com.mamechin.enchantmod.cauldron.brewing.InkBrewing;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +20,8 @@ import net.neoforged.neoforge.items.ItemStackHandler;
  */
 public class CalciteCauldronBlockEntity extends BlockEntity {
     public static final int CAPACITY_ML = 1000;
+    public static final int BOTTLE_ML = 250;
+    public static final int INK_ML_PER_USE = 10;
     public static final int BREW_TICKS = 100; // 5 seconds
     public static final int CHECK_TICKS = 20;
 
