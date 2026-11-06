@@ -1,1 +1,34 @@
-{ "variants": { "": { "model": "enchantmod:block/calcite_cauldron" } } }
+{
+  "variants": {
+    "level=0": {
+      "model": "enchantmod:block/calcite_cauldron"
+    },
+    "level=1,content=water": {
+      "model": "enchantmod:block/calcite_cauldron_water_1"
+    },
+    "level=2,content=water": {
+      "model": "enchantmod:block/calcite_cauldron_water_2"
+    },
+    "level=3,content=water": {
+      "model": "enchantmod:block/calcite_cauldron_water_3"
+    },
+    "level=1,content=brewing": {
+      "model": "enchantmod:block/calcite_cauldron_brewing_1"
+    },
+    "level=2,content=brewing": {
+      "model": "enchantmod:block/calcite_cauldron_brewing_2"
+    },
+    "level=3,content=brewing": {
+      "model": "enchantmod:block/calcite_cauldron_brewing_3"
+    },
+    "level=1,content=ink": {
+      "model": "enchantmod:block/calcite_cauldron_ink_1"
+    },
+    "level=2,content=ink": {
+      "model": "enchantmod:block/calcite_cauldron_ink_2"
+    },
+    "level=3,content=ink": {
+      "model": "enchantmod:block/calcite_cauldron_ink_3"
+    }
+  }
+}

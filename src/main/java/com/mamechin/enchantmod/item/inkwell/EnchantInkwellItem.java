@@ -1,13 +1,13 @@
-package com.mamechin.enchantmod.item.ink;
+package com.mamechin.enchantmod.item.inkwell;
 
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-/** Base for every ink tier. Behavior shared by all inks goes here. */
-public abstract class EnchantInkItem extends Item {
-    protected EnchantInkItem(Properties properties) {
+/** Base for every inkwell tier. Behavior shared by all inkwells goes here. */
+public abstract class EnchantInkwellItem extends Item {
+    protected EnchantInkwellItem(Properties properties) {
         super(properties);
     }
 

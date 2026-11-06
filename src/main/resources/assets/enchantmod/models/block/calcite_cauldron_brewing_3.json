@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/template_cauldron_full",
+  "textures": {
+    "bottom": "enchantmod:block/calcite_cauldron_bottom",
+    "content": "enchantmod:block/calcite_cauldron_brewing",
+    "inside": "enchantmod:block/calcite_cauldron_inner",
+    "particle": "enchantmod:block/calcite_cauldron_side",
+    "side": "enchantmod:block/calcite_cauldron_side",
+    "top": "enchantmod:block/calcite_cauldron_top"
+  }
+}

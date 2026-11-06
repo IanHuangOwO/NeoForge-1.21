@@ -21,8 +21,8 @@ public final class ModCreativeTabs {
             .displayItems((parameters, output) -> {
                 output.accept(ModItems.COPPER_QUILL.get());
                 output.accept(ModItems.GOLDEN_QUILL.get());
-                output.accept(ModItems.LAPIS_INK.get());
-                output.accept(ModItems.GLOWING_LAPIS_INK.get());
+                output.accept(ModItems.LAPIS_INKWELL.get());
+                output.accept(ModItems.GLOWING_LAPIS_INKWELL.get());
                 output.accept(ModItems.SCRIBING_TABLE.get());
                 output.accept(ModItems.CALCITE_CAULDRON.get());
             }).build());
