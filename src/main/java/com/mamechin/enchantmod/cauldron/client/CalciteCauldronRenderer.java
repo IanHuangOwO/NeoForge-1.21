@@ -15,6 +15,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -39,6 +40,8 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
     private static final float HOVER_HEIGHT = 1.5F;  // centre of the block above the cauldron
     private static final float MAX_DRIFT_XZ = 0.25F; // furthest the item strays sideways from its anchor
     private static final float MAX_DRIFT_Y = 0.5F;   // furthest it strays up or down
+    private static final float LIQUID_ALPHA = 190.0F / 255.0F; // how see-through the liquid is (1 = solid)
+    private static final float FLOOR = 4.0F / 16.0F;
     private static final float SPACING = 0.5F;
     private static final float TEXT_SCALE = 0.016F;
 
@@ -69,7 +72,7 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
             cauldron.brewAnimStart = time - cauldron.getProgress(); // joins a running brew at the right point
         }
 
-        if (brewing) renderBrewSurface(cauldron, level, pose, buffer, ignoredLight, time);
+        renderLiquid(cauldron, level, pose, buffer, ignoredLight, time, brewing);
 
         // One entry per item type, counts summed, in first-seen slot order.
         List<ItemStack> types = new ArrayList<>();
@@ -155,31 +158,40 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
         }
     }
 
-    /** While brewing, a translucent tinted layer (it replaces the liquid model) on the liquid fades from the base fluid's colour to the result's (colours: CauldronColors). */
-    private void renderBrewSurface(CalciteCauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
-            PoseStack pose, MultiBufferSource buffer, int light, float time) {
-        var found = cauldron.getActiveRecipeId() == null ? java.util.Optional.<net.minecraft.world.item.crafting.RecipeHolder<?>>empty()
-                : level.getRecipeManager().byKey(cauldron.getActiveRecipeId());
-        if (found.isEmpty() || !(found.get().value() instanceof CauldronBrewingRecipe recipe)) return;
-
-        float t = Mth.clamp((time - cauldron.brewAnimStart) / recipe.brewTicks(), 0.0F, 1.0F);
-        int from = CauldronColors.of(recipe.baseFluid());
-        int to = CauldronColors.of(recipe.resultFluid());
-        int r = (int) Mth.lerp(t, from >> 16 & 255, to >> 16 & 255);
-        int g = (int) Mth.lerp(t, from >> 8 & 255, to >> 8 & 255);
-        int b = (int) Mth.lerp(t, from & 255, to & 255);
-
+    /**
+     * The liquid itself: one translucent layer drawn every frame (no block model, so no re-mesh flicker). Height, opacity
+     * and colour ease toward their targets. While brewing the target colour runs from the base fluid to the result.
+     * Colours: CauldronColors; opacity: LIQUID_ALPHA.
+     */
+    private void renderLiquid(CalciteCauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
+            PoseStack pose, MultiBufferSource buffer, int light, float time, boolean brewing) {
         int lvl = cauldron.getBlockState().getValue(CalciteCauldronBlock.LEVEL);
-        float y = (6.0F + 3.0F * lvl) / 16.0F + 0.002F; // just above the liquid model's top face
+        LiquidView view = cauldron.liquidView;
+
+        int rgb = CauldronColors.of(BuiltInRegistries.FLUID.getKey(cauldron.getFluid()));
+        if (brewing && cauldron.getActiveRecipeId() != null
+                && level.getRecipeManager().byKey(cauldron.getActiveRecipeId()).map(h -> h.value()).orElse(null) instanceof CauldronBrewingRecipe recipe) {
+            float t = Mth.clamp((time - cauldron.brewAnimStart) / recipe.brewTicks(), 0.0F, 1.0F);
+            int from = CauldronColors.of(recipe.baseFluid());
+            int to = CauldronColors.of(recipe.resultFluid());
+            rgb = (int) Mth.lerp(t, from >> 16 & 255, to >> 16 & 255) << 16
+                    | (int) Mth.lerp(t, from >> 8 & 255, to >> 8 & 255) << 8
+                    | (int) Mth.lerp(t, from & 255, to & 255);
+        }
+        float targetTop = lvl == 0 ? view.top : (6.0F + 3.0F * lvl) / 16.0F + 0.002F;
+        view.update(time, lvl == 0 && view.top == 0 ? FLOOR : targetTop, lvl == 0 ? 0.0F : LIQUID_ALPHA, rgb);
+        if (view.alpha < 0.01F) return;
+
         float min = 2.0F / 16.0F, max = 14.0F / 16.0F;
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
                 .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/calcite_cauldron_liquid_mask"));
-        VertexConsumer vc = buffer.getBuffer(RenderType.translucent()); // same pass and alpha as the liquid models
+        VertexConsumer vc = buffer.getBuffer(RenderType.translucent());
         Matrix4f m = pose.last().pose();
         float[][] corners = {{min, min, sprite.getU0(), sprite.getV0()}, {min, max, sprite.getU0(), sprite.getV1()},
                 {max, max, sprite.getU1(), sprite.getV1()}, {max, min, sprite.getU1(), sprite.getV0()}};
         for (float[] c : corners) {
-            vc.addVertex(m, c[0], y, c[1]).setColor(r, g, b, 255).setUv(c[2], c[3]).setLight(light).setNormal(pose.last(), 0, 1, 0);
+            vc.addVertex(m, c[0], view.top, c[1]).setColor((int) view.r, (int) view.g, (int) view.b, (int) (view.alpha * 255))
+                    .setUv(c[2], c[3]).setLight(light).setNormal(pose.last(), 0, 1, 0);
         }
     }
 

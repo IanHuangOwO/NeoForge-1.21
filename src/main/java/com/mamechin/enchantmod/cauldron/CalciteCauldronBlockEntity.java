@@ -62,6 +62,9 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     private List<RecipeHolder<CauldronBrewingRecipe>> satisfied = List.of();
     private boolean hasRoom = true;
 
+    /** Client-only: smoothed liquid appearance, see LiquidView. */
+    public final com.mamechin.enchantmod.cauldron.client.LiquidView liquidView = new com.mamechin.enchantmod.cauldron.client.LiquidView();
+
     /** Client-only: game time the BREWING state was first seen, drives the items' dive animation; -1 when idle. */
     public float brewAnimStart = -1;
 
