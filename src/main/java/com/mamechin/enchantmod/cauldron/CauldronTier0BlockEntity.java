@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.cauldron;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +36,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
  * Holds one fluid (water, liquid of enchanting or an ink tier) in exact ml, the 8-slot ingredient inventory and the
  * brew progress. The blockstate (LEVEL, CONTENT) is only a coarse copy for models and comparators.
  */
-public class CalciteCauldronBlockEntity extends BlockEntity {
+public class CauldronTier0BlockEntity extends BlockEntity {
     public static final int CAPACITY_ML = 1000;
     public static final int BOTTLE_ML = 250;
     public static final int INK_ML_PER_USE = 10;
@@ -53,6 +54,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         @Override
         protected void onContentsChanged(int slot) {
             inventoryDirty = true;
+            displayDirty = true;
             setChanged();
             // the client renders the stored items, so it needs the new inventory
             if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -64,6 +66,42 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     private int cachedGeneration = -1;
     private List<RecipeHolder<CauldronBrewingRecipe>> satisfied = List.of();
     private boolean hasRoom = true;
+
+    // Client-only: the stored items grouped per item type for the renderer, rebuilt only after the inventory changed.
+    private boolean displayDirty = true;
+    private final List<ItemStack> displayTypes = new ArrayList<>();
+    private final List<Integer> displayCounts = new ArrayList<>();
+
+    public List<ItemStack> displayTypes() {
+        rebuildDisplay();
+        return displayTypes;
+    }
+
+    public List<Integer> displayCounts() {
+        rebuildDisplay();
+        return displayCounts;
+    }
+
+    private void rebuildDisplay() {
+        if (!displayDirty) return;
+        displayDirty = false;
+        displayTypes.clear();
+        displayCounts.clear();
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (stack.isEmpty()) continue;
+            int index = -1;
+            for (int j = 0; j < displayTypes.size(); j++) {
+                if (ItemStack.isSameItemSameComponents(displayTypes.get(j), stack)) index = j;
+            }
+            if (index < 0) {
+                displayTypes.add(stack.copyWithCount(1));
+                displayCounts.add(stack.getCount());
+            } else {
+                displayCounts.set(index, displayCounts.get(index) + stack.getCount());
+            }
+        }
+    }
 
     /** Client-only: smoothed liquid appearance, see LiquidView. */
     public final com.mamechin.enchantmod.cauldron.client.LiquidView liquidView = new com.mamechin.enchantmod.cauldron.client.LiquidView();
@@ -138,8 +176,8 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         return amountMl == 0 ? FluidStack.EMPTY : new FluidStack(getFluid(), amountMl);
     }
 
-    public CalciteCauldronBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.CALCITE_CAULDRON.get(), pos, state);
+    public CauldronTier0BlockEntity(BlockPos pos, BlockState state) {
+        super(ModBlockEntities.CAULDRON_TIER0.get(), pos, state);
     }
 
     public int getAmountMl() {
@@ -253,7 +291,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         if (progress % CHECK_TICKS != 0 && progress < recipe.brewTicks()) return;
 
         refresh();
-        if (!satisfied.contains(holder) || !getBlockState().getValue(CalciteCauldronBlock.HEATED)
+        if (!satisfied.contains(holder) || !getBlockState().getValue(CauldronTier0Block.HEATED)
                 || CauldronHeat.tierBelow(level, worldPosition) < recipe.minHeat()) {
             stopBrewing();
             syncState();
@@ -270,7 +308,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     /** A burst of small bubbles popping off the liquid when a brew finishes. */
     private void burst() {
         if (!(level instanceof ServerLevel server)) return;
-        int lvl = getBlockState().getValue(CalciteCauldronBlock.LEVEL);
+        int lvl = getBlockState().getValue(CauldronTier0Block.LEVEL);
         double surface = worldPosition.getY() + (6.0 + 3.0 * lvl) / 16.0;
         // count 0 = the offset is a velocity, so every bubble rises straight up from a random spot on the surface
         for (int i = 0; i < BURST_COUNT; i++) {
@@ -285,8 +323,8 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         if (level != null) {
             int lvl = (amountMl * 3 + CAPACITY_ML - 1) / CAPACITY_ML; // ceil: 1-333 ml = 1, up to 1000 ml = 3
             level.setBlock(worldPosition, getBlockState()
-                    .setValue(CalciteCauldronBlock.LEVEL, lvl)
-                    .setValue(CalciteCauldronBlock.CONTENT, getContent()), 3);
+                    .setValue(CauldronTier0Block.LEVEL, lvl)
+                    .setValue(CauldronTier0Block.CONTENT, getContent()), 3);
         }
     }
 
@@ -322,5 +360,6 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
         activeRecipe = null;
         inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
         inventoryDirty = true;
+        displayDirty = true;
     }
 }

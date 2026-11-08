@@ -11,5 +11,5 @@
     "Q": { "item": "minecraft:quartz" },
     "G": { "item": "minecraft:gold_ingot" }
   },
-  "result": { "id": "enchantmod:golden_quill", "count": 1 }
+  "result": { "id": "enchantmod:quill_tier1", "count": 1 }
 }

@@ -18,9 +18,9 @@ public final class ModFluids {
     /** Base liquid: water + lapis in the cauldron. Every ink brews from it. */
     public static final EnchantFluid LIQUID_OF_ENCHANTING = EnchantFluid.register(EnchantMod.MODID, "liquid_of_enchanting", 0xFF2D66B8,
             FLUID_TYPES, FLUIDS, ModBlocks.BLOCKS, ModItems.ITEMS);
-    public static final EnchantFluid LAPIS_INK = EnchantFluid.register(EnchantMod.MODID, "lapis_ink", 0xFF12257A,
+    public static final EnchantFluid INK_TIER0 = EnchantFluid.register(EnchantMod.MODID, "ink_tier0", 0xFF12257A,
             FLUID_TYPES, FLUIDS, ModBlocks.BLOCKS, ModItems.ITEMS);
-    public static final EnchantFluid GLOWING_LAPIS_INK = EnchantFluid.register(EnchantMod.MODID, "glowing_lapis_ink", 0xFF0A1440,
+    public static final EnchantFluid INK_TIER1 = EnchantFluid.register(EnchantMod.MODID, "ink_tier1", 0xFF0A1440,
             FLUID_TYPES, FLUIDS, ModBlocks.BLOCKS, ModItems.ITEMS);
 
     private ModFluids() {}

@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod;
 
 import com.mamechin.enchantmod.cauldron.ModBlockEntities;
-import com.mamechin.enchantmod.cauldron.client.CalciteCauldronRenderer;
+import com.mamechin.enchantmod.cauldron.client.CauldronTier0Renderer;
 import com.mamechin.enchantmod.fluid.EnchantFluid;
 
 import net.minecraft.client.Minecraft;
@@ -32,7 +32,7 @@ public class EnchantModClient {
 
     @SubscribeEvent
     static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerBlockEntityRenderer(ModBlockEntities.CALCITE_CAULDRON.get(), CalciteCauldronRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CAULDRON_TIER0.get(), CauldronTier0Renderer::new);
     }
 
     /** Ink fluids reuse the vanilla water textures, tinted per tier. */

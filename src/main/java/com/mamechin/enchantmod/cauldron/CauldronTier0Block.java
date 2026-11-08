@@ -39,8 +39,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 /** Thin shell: click behavior lives in cauldron/action, state in the block entity, recipes in cauldron/brewing. */
-public class CalciteCauldronBlock extends AbstractCauldronBlock implements EntityBlock {
-    public static final MapCodec<CalciteCauldronBlock> CODEC = simpleCodec(CalciteCauldronBlock::new);
+public class CauldronTier0Block extends AbstractCauldronBlock implements EntityBlock {
+    public static final MapCodec<CauldronTier0Block> CODEC = simpleCodec(CauldronTier0Block::new);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
     /** Cached "some heat source is directly below", kept current by updateShape; drives the bubbles. */
     public static final BooleanProperty HEATED = BooleanProperty.create("heated");
@@ -49,7 +49,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     // Required by the vanilla base class, but unused: all clicks go through CauldronActions.
     private static final CauldronInteraction.InteractionMap NO_INTERACTIONS = CauldronInteraction.newInteractionMap("calcite");
 
-    public CalciteCauldronBlock(Properties properties) {
+    public CauldronTier0Block(Properties properties) {
         super(properties, NO_INTERACTIONS);
         registerDefaultState(stateDefinition.any().setValue(LEVEL, 0).setValue(CONTENT, CauldronContent.WATER).setValue(HEATED, false));
     }
@@ -81,7 +81,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new CalciteCauldronBlockEntity(pos, state);
+        return new CauldronTier0BlockEntity(pos, state);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
             Player player, InteractionHand hand, BlockHitResult hit) {
-        if (level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron) {
+        if (level.getBlockEntity(pos) instanceof CauldronTier0BlockEntity cauldron) {
             for (CauldronAction action : CauldronActions.ACTIONS) {
                 if (action.useItem(cauldron, stack, player, hand)) {
                     return ItemInteractionResult.sidedSuccess(level.isClientSide);
@@ -120,7 +120,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron) {
+        if (level.getBlockEntity(pos) instanceof CauldronTier0BlockEntity cauldron) {
             for (CauldronAction action : CauldronActions.ACTIONS) {
                 if (action.useEmptyHand(cauldron, player)) {
                     return InteractionResult.sidedSuccess(level.isClientSide);
@@ -135,7 +135,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         // cheapest checks first: side, item type, then the cached "has room" flag
         if (level.isClientSide || !(entity instanceof ItemEntity item) || !CauldronRecipes.accepts(level, item.getItem())
-                || !(level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron) || !cauldron.hasRoom()) {
+                || !(level.getBlockEntity(pos) instanceof CauldronTier0BlockEntity cauldron) || !cauldron.hasRoom()) {
             return;
         }
         ItemStack remainder = ItemHandlerHelper.insertItem(cauldron.inventory, item.getItem(), false);
@@ -150,7 +150,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         BlockState replacement = Blocks.AIR.defaultBlockState();
-        if (level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity c && c.getAmountMl() > 0) {
+        if (level.getBlockEntity(pos) instanceof CauldronTier0BlockEntity c && c.getAmountMl() > 0) {
             replacement = c.getFluid().defaultFluidState().createLegacyBlock();
         }
         return level.setBlock(pos, replacement, level.isClientSide ? 11 : 3);
@@ -158,7 +158,7 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof CalciteCauldronBlockEntity cauldron) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof CauldronTier0BlockEntity cauldron) {
             IItemHandler inv = cauldron.inventory;
             for (int i = 0; i < inv.getSlots(); i++) {
                 Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), inv.getStackInSlot(i));
@@ -170,8 +170,13 @@ public class CalciteCauldronBlock extends AbstractCauldronBlock implements Entit
     @Override
     @SuppressWarnings("unchecked")
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (type != ModBlockEntities.CALCITE_CAULDRON.get()) return null;
-        if (level.isClientSide) return (l, p, s, be) -> CauldronBubbles.tick(l, p, s);
-        return (l, p, s, be) -> ((CalciteCauldronBlockEntity) be).serverTick();
+        if (type != ModBlockEntities.CAULDRON_TIER0.get()) return null;
+        // Only tick while there is something to do; the ticker is re-evaluated whenever the blockstate changes.
+        if (level.isClientSide) {
+            if (!state.getValue(HEATED) || state.getValue(LEVEL) == 0) return null;
+            return (l, p, s, be) -> CauldronBubbles.tick(l, p, s);
+        }
+        if (state.getValue(CONTENT) != CauldronContent.BREWING) return null;
+        return (l, p, s, be) -> ((CauldronTier0BlockEntity) be).serverTick();
     }
 }

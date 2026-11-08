@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.cauldron.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -27,7 +27,7 @@ public final class CauldronActions {
         player.setItemInHand(hand, held.getMaxStackSize() == 1 ? returned : ItemUtils.createFilledResult(held, player, returned));
     }
 
-    static void play(CalciteCauldronBlockEntity cauldron, SoundEvent sound) {
+    static void play(CauldronTier0BlockEntity cauldron, SoundEvent sound) {
         cauldron.getLevel().playSound(null, cauldron.getBlockPos(), sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 

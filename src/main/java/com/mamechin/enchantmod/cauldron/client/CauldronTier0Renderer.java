@@ -1,11 +1,10 @@
 package com.mamechin.enchantmod.cauldron.client;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlock;
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronTier0Block;
+import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -35,7 +34,7 @@ import net.minecraft.world.item.ItemStack;
  * bottom-right, bobbing mostly up/down with a slight sideways wobble. When a brew starts they rise and
  * dive into the liquid one after another.
  */
-public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauldronBlockEntity> {
+public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0BlockEntity> {
     private static final float ITEM_SCALE = 0.45F;
     private static final float HOVER_HEIGHT = 1.5F;  // centre of the block above the cauldron
     private static final float MAX_DRIFT_XZ = 0.25F; // furthest the item strays sideways from its anchor
@@ -52,19 +51,19 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
     private final ItemRenderer itemRenderer;
     private final Font font;
 
-    public CalciteCauldronRenderer(BlockEntityRendererProvider.Context context) {
+    public CauldronTier0Renderer(BlockEntityRendererProvider.Context context) {
         this.itemRenderer = context.getItemRenderer();
         this.font = context.getFont();
     }
 
     @Override
-    public void render(CalciteCauldronBlockEntity cauldron, float partialTick, PoseStack pose,
+    public void render(CauldronTier0BlockEntity cauldron, float partialTick, PoseStack pose,
             MultiBufferSource buffer, int ignoredLight, int overlay) {
         var level = cauldron.getLevel();
         if (level == null) return;
 
         float time = level.getGameTime() + partialTick;
-        boolean brewing = cauldron.getBlockState().getValue(CalciteCauldronBlock.CONTENT) == CauldronContent.BREWING;
+        boolean brewing = cauldron.getBlockState().getValue(CauldronTier0Block.CONTENT) == CauldronContent.BREWING;
         // Client-only animation clock: starts when we first see the BREWING state, resets when it ends.
         if (!brewing) {
             cauldron.brewAnimStart = -1;
@@ -74,28 +73,13 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
 
         renderLiquid(cauldron, level, pose, buffer, ignoredLight, time, brewing);
 
-        // One entry per item type, counts summed, in first-seen slot order.
-        List<ItemStack> types = new ArrayList<>();
-        List<Integer> counts = new ArrayList<>();
-        for (int i = 0; i < cauldron.inventory.getSlots(); i++) {
-            ItemStack stack = cauldron.inventory.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
-            int index = -1;
-            for (int j = 0; j < types.size(); j++) {
-                if (ItemStack.isSameItemSameComponents(types.get(j), stack)) index = j;
-            }
-            if (index < 0) {
-                types.add(stack.copyWithCount(1));
-                counts.add(stack.getCount());
-            } else {
-                counts.set(index, counts.get(index) + stack.getCount());
-            }
-        }
+        List<ItemStack> types = cauldron.displayTypes();
+        List<Integer> counts = cauldron.displayCounts();
         if (types.isEmpty()) return;
 
         int light = LevelRenderer.getLightColor(level, cauldron.getBlockPos().above());
         float camYaw = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
-        int lvl = cauldron.getBlockState().getValue(CalciteCauldronBlock.LEVEL);
+        int lvl = cauldron.getBlockState().getValue(CauldronTier0Block.LEVEL);
         float surface = (lvl == 0 ? 4.0F : 6.0F + 3.0F * lvl) / 16.0F;
         float spacing = types.size() == 1 ? 0 : Math.min(SPACING, 0.9F / (types.size() - 1));
 
@@ -163,10 +147,11 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
      * and colour ease toward their targets. While brewing the target colour runs from the base fluid to the result.
      * Colours: CauldronColors; opacity: LIQUID_ALPHA.
      */
-    private void renderLiquid(CalciteCauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
+    private void renderLiquid(CauldronTier0BlockEntity cauldron, net.minecraft.world.level.Level level,
             PoseStack pose, MultiBufferSource buffer, int light, float time, boolean brewing) {
-        int lvl = cauldron.getBlockState().getValue(CalciteCauldronBlock.LEVEL);
+        int lvl = cauldron.getBlockState().getValue(CauldronTier0Block.LEVEL);
         LiquidView view = cauldron.liquidView;
+        if (lvl == 0 && view.alpha < 0.01F) return; // empty and fully faded: nothing to draw or ease
 
         int rgb = CauldronColors.of(BuiltInRegistries.FLUID.getKey(cauldron.getFluid()));
         if (brewing && cauldron.getActiveRecipeId() != null
@@ -184,7 +169,7 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
 
         float min = 2.0F / 16.0F, max = 14.0F / 16.0F;
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/calcite_cauldron_liquid_mask"));
+                .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/cauldron_tier0_liquid_mask"));
         VertexConsumer vc = buffer.getBuffer(RenderType.translucent());
         Matrix4f m = pose.last().pose();
         float[][] corners = {{min, min, sprite.getU0(), sprite.getV0()}, {min, max, sprite.getU0(), sprite.getV1()},
@@ -201,7 +186,7 @@ public class CalciteCauldronRenderer implements BlockEntityRenderer<CalciteCauld
     }
 
     @Override
-    public net.minecraft.world.phys.AABB getRenderBoundingBox(CalciteCauldronBlockEntity be) {
+    public net.minecraft.world.phys.AABB getRenderBoundingBox(CauldronTier0BlockEntity be) {
         // items hover one block above the cauldron, outside the block's own bounding box
         return new net.minecraft.world.phys.AABB(be.getBlockPos()).expandTowards(0, 1.5, 0).inflate(1, 0, 1);
     }

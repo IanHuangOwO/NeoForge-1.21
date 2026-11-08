@@ -2,7 +2,7 @@ package com.mamechin.enchantmod.cauldron.action;
 
 import java.util.Comparator;
 
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 
@@ -17,7 +17,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
  */
 public class StartBrewAction implements CauldronAction {
     @Override
-    public boolean useEmptyHand(CalciteCauldronBlockEntity c, Player player) {
+    public boolean useEmptyHand(CauldronTier0BlockEntity c, Player player) {
         if (player.isShiftKeyDown() || c.isBrewing() || c.getAmountMl() == 0) return false;
         // The client has no recipe data cache; it predicts success and the server decides.
         if (c.getLevel().isClientSide) return true;

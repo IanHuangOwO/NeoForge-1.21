@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.cauldron.client;
 
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlock;
+import com.mamechin.enchantmod.cauldron.CauldronTier0Block;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 
 import net.minecraft.client.Minecraft;
@@ -18,11 +18,11 @@ public final class CauldronBubbles {
     private static final float SIZE = 0.5F;          // half the vanilla bubble
 
     public static void tick(Level level, BlockPos pos, BlockState state) {
-        int lvl = state.getValue(CalciteCauldronBlock.LEVEL);
-        if (!state.getValue(CalciteCauldronBlock.HEATED) || lvl == 0) return;
+        int lvl = state.getValue(CauldronTier0Block.LEVEL);
+        if (!state.getValue(CauldronTier0Block.HEATED) || lvl == 0) return;
 
         RandomSource random = level.random;
-        int bubbles = state.getValue(CalciteCauldronBlock.CONTENT) == CauldronContent.BREWING
+        int bubbles = state.getValue(CauldronTier0Block.CONTENT) == CauldronContent.BREWING
                 ? BREWING_BUBBLES : (random.nextFloat() < IDLE_CHANCE ? 1 : 0);
         double surface = pos.getY() + (6.0 + 3.0 * lvl) / 16.0 + 0.02;
         var engine = Minecraft.getInstance().particleEngine;

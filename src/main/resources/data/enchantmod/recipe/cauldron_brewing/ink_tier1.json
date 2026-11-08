@@ -1,8 +1,8 @@
 {
   "type": "enchantmod:cauldron_brewing",
-  "ingredients": [ { "item": "minecraft:ink_sac" } ],
+  "ingredients": [ { "item": "minecraft:glow_ink_sac" } ],
   "base_fluid": "enchantmod:liquid_of_enchanting",
-  "result_fluid": "enchantmod:lapis_ink",
+  "result_fluid": "enchantmod:ink_tier1",
   "brew_ticks": 100,
-  "min_heat": 1
+  "min_heat": 3
 }

@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.block;
 
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlock;
+import com.mamechin.enchantmod.cauldron.CauldronTier0Block;
 
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -15,8 +15,8 @@ public final class ModBlocks {
     public static final DeferredBlock<ScribingTableBlock> SCRIBING_TABLE = BLOCKS.registerBlock("scribing_table",
             ScribingTableBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE));
 
-    public static final DeferredBlock<CalciteCauldronBlock> CALCITE_CAULDRON = BLOCKS.registerBlock("calcite_cauldron",
-            CalciteCauldronBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON).sound(SoundType.CALCITE));
+    public static final DeferredBlock<CauldronTier0Block> CAULDRON_TIER0 = BLOCKS.registerBlock("cauldron_tier0",
+            CauldronTier0Block::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON).sound(SoundType.CALCITE));
 
     private ModBlocks() {}
 }

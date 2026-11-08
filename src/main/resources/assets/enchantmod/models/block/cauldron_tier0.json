@@ -1,11 +1,11 @@
 {
     "ambientocclusion": false,
     "textures": {
-        "particle": "enchantmod:block/calcite_cauldron_side",
-        "top": "enchantmod:block/calcite_cauldron_top",
-        "bottom": "enchantmod:block/calcite_cauldron_bottom",
-        "side": "enchantmod:block/calcite_cauldron_side",
-        "inside": "enchantmod:block/calcite_cauldron_inner"
+        "particle": "enchantmod:block/cauldron_tier0_side",
+        "top": "enchantmod:block/cauldron_tier0_top",
+        "bottom": "enchantmod:block/cauldron_tier0_bottom",
+        "side": "enchantmod:block/cauldron_tier0_side",
+        "inside": "enchantmod:block/cauldron_tier0_inner"
     },
     "elements": [
         {

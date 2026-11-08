@@ -3,7 +3,7 @@
   "pools": [
     {
       "rolls": 1,
-      "entries": [ { "type": "minecraft:item", "name": "enchantmod:calcite_cauldron" } ],
+      "entries": [ { "type": "minecraft:item", "name": "enchantmod:cauldron_tier0" } ],
       "conditions": [ { "condition": "minecraft:survives_explosion" } ]
     }
   ]

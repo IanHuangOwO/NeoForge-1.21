@@ -20,15 +20,15 @@ public final class ModCreativeTabs {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> Items.LAPIS_LAZULI.getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(ModItems.COPPER_QUILL.get());
-                output.accept(ModItems.GOLDEN_QUILL.get());
-                output.accept(ModItems.LAPIS_INKWELL.get());
-                output.accept(ModItems.GLOWING_LAPIS_INKWELL.get());
+                output.accept(ModItems.QUILL_TIER0.get());
+                output.accept(ModItems.QUILL_TIER1.get());
+                output.accept(ModItems.INKWELL_TIER0.get());
+                output.accept(ModItems.INKWELL_TIER1.get());
                 output.accept(ModFluids.LIQUID_OF_ENCHANTING.bucket().get());
-                output.accept(ModFluids.LAPIS_INK.bucket().get());
-                output.accept(ModFluids.GLOWING_LAPIS_INK.bucket().get());
+                output.accept(ModFluids.INK_TIER0.bucket().get());
+                output.accept(ModFluids.INK_TIER1.bucket().get());
                 output.accept(ModItems.SCRIBING_TABLE.get());
-                output.accept(ModItems.CALCITE_CAULDRON.get());
+                output.accept(ModItems.CAULDRON_TIER0.get());
             }).build());
 
     private ModCreativeTabs() {}

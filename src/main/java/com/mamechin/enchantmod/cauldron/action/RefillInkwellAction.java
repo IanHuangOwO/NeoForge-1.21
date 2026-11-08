@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.cauldron.action;
 
-import com.mamechin.enchantmod.cauldron.CalciteCauldronBlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 import com.mamechin.enchantmod.item.inkwell.EnchantInkwellItem;
 
@@ -12,17 +12,17 @@ import net.minecraft.world.item.ItemStack;
 /** A damaged inkwell of the cauldron's own tier is refilled from the stored ink. */
 public class RefillInkwellAction implements CauldronAction {
     @Override
-    public boolean useItem(CalciteCauldronBlockEntity c, ItemStack stack, Player player, InteractionHand hand) {
+    public boolean useItem(CauldronTier0BlockEntity c, ItemStack stack, Player player, InteractionHand hand) {
         if (!(stack.getItem() instanceof EnchantInkwellItem inkwell) || !stack.isDamaged()
                 || c.getContent() != CauldronContent.INK
-                || c.getAmountMl() < CalciteCauldronBlockEntity.INK_ML_PER_USE
+                || c.getAmountMl() < CauldronTier0BlockEntity.INK_ML_PER_USE
                 || inkwell.getInkFluid() != c.getFluid()) return false;
         if (!c.getLevel().isClientSide) {
-            int uses = Math.min(stack.getDamageValue(), c.getAmountMl() / CalciteCauldronBlockEntity.INK_ML_PER_USE);
+            int uses = Math.min(stack.getDamageValue(), c.getAmountMl() / CauldronTier0BlockEntity.INK_ML_PER_USE);
             ItemStack refilled = stack.copy();
             refilled.setDamageValue(stack.getDamageValue() - uses);
             CauldronActions.swapHeld(player, hand, stack, refilled);
-            c.setAmountMl(c.getAmountMl() - uses * CalciteCauldronBlockEntity.INK_ML_PER_USE);
+            c.setAmountMl(c.getAmountMl() - uses * CauldronTier0BlockEntity.INK_ML_PER_USE);
             CauldronActions.play(c, SoundEvents.BOTTLE_FILL);
         }
         return true;
