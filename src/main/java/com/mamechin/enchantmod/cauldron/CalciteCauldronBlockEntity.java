@@ -40,7 +40,7 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
     public static final int BOTTLE_ML = 250;
     public static final int INK_ML_PER_USE = 10;
     public static final int CHECK_TICKS = 20;
-    private static final int SPARKLE_COUNT = 10;
+    private static final int BURST_COUNT = 24;
 
     private static final ResourceLocation WATER = BuiltInRegistries.FLUID.getKey(Fluids.WATER);
 
@@ -263,17 +263,21 @@ public class CalciteCauldronBlockEntity extends BlockEntity {
             stopBrewing();
             level.playSound(null, worldPosition, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
             syncState();
-            sparkle();
+            burst();
         }
     }
 
-    /** A small burst of white sparkles rising off the liquid when a brew finishes. */
-    private void sparkle() {
+    /** A burst of small bubbles popping off the liquid when a brew finishes. */
+    private void burst() {
         if (!(level instanceof ServerLevel server)) return;
         int lvl = getBlockState().getValue(CalciteCauldronBlock.LEVEL);
         double surface = worldPosition.getY() + (6.0 + 3.0 * lvl) / 16.0;
-        server.sendParticles(ParticleTypes.END_ROD, worldPosition.getX() + 0.5, surface + 0.05, worldPosition.getZ() + 0.5,
-                SPARKLE_COUNT, 0.25, 0.02, 0.25, 0.02);
+        // count 0 = the offset is a velocity, so every bubble rises straight up from a random spot on the surface
+        for (int i = 0; i < BURST_COUNT; i++) {
+            server.sendParticles(ParticleTypes.BUBBLE_POP,
+                    worldPosition.getX() + 0.2 + level.random.nextDouble() * 0.6, surface + 0.02,
+                    worldPosition.getZ() + 0.2 + level.random.nextDouble() * 0.6, 0, 0.0, 1.0, 0.0, 0.015);
+        }
     }
 
     private void syncState() {

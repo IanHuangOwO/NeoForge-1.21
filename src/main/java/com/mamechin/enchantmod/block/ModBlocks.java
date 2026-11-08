@@ -16,8 +16,7 @@ public final class ModBlocks {
             ScribingTableBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE));
 
     public static final DeferredBlock<CalciteCauldronBlock> CALCITE_CAULDRON = BLOCKS.registerBlock("calcite_cauldron",
-            CalciteCauldronBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON)
-                    .strength(Blocks.CALCITE.defaultDestroyTime()).sound(SoundType.CALCITE));
+            CalciteCauldronBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON).sound(SoundType.CALCITE));
 
     private ModBlocks() {}
 }
