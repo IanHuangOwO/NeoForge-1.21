@@ -1,0 +1,8 @@
+{
+  "type": "enchantmod:cauldron_brewing",
+  "ingredients": [ { "item": "minecraft:dragon_breath" } ],
+  "base_fluid": "enchantmod:liquid_of_enchanting",
+  "result_fluid": "enchantmod:ink_tier2",
+  "brew_ticks": 100,
+  "min_heat": 3
+}

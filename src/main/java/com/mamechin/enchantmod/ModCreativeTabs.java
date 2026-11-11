@@ -22,11 +22,14 @@ public final class ModCreativeTabs {
             .displayItems((parameters, output) -> {
                 output.accept(ModItems.QUILL_TIER0.get());
                 output.accept(ModItems.QUILL_TIER1.get());
+                output.accept(ModItems.QUILL_TIER2.get());
                 output.accept(ModItems.INKWELL_TIER0.get());
                 output.accept(ModItems.INKWELL_TIER1.get());
+                output.accept(ModItems.INKWELL_TIER2.get());
                 output.accept(ModFluids.LIQUID_OF_ENCHANTING.bucket().get());
                 output.accept(ModFluids.INK_TIER0.bucket().get());
                 output.accept(ModFluids.INK_TIER1.bucket().get());
+                output.accept(ModFluids.INK_TIER2.bucket().get());
                 output.accept(ModItems.SCRIBING_TABLE.get());
                 output.accept(ModItems.CAULDRON_TIER0.get());
             }).build());

@@ -23,5 +23,8 @@ public final class ModFluids {
     public static final EnchantFluid INK_TIER1 = EnchantFluid.register(EnchantMod.MODID, "ink_tier1", 0xFF0A1440,
             FLUID_TYPES, FLUIDS, ModBlocks.BLOCKS, ModItems.ITEMS);
 
+    public static final EnchantFluid INK_TIER2 = EnchantFluid.register(EnchantMod.MODID, "ink_tier2", 0xFF050A24,
+            FLUID_TYPES, FLUIDS, ModBlocks.BLOCKS, ModItems.ITEMS);
+
     private ModFluids() {}
 }

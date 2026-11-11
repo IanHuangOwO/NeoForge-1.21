@@ -18,6 +18,10 @@
   "block.enchantmod.ink_tier1": "Glowing Lapis Ink",
   "item.enchantmod.ink_tier0_bucket": "Lapis Ink Bucket",
   "item.enchantmod.ink_tier1_bucket": "Glowing Lapis Ink Bucket",
+  "item.enchantmod.inkwell_tier2": "Dragon Inkwell",
+  "item.enchantmod.quill_tier2": "Obsidian Quill",
+  "block.enchantmod.ink_tier2": "Dragon Ink",
+  "item.enchantmod.ink_tier2_bucket": "Dragon Ink Bucket",
   "block.enchantmod.liquid_of_enchanting": "Liquid of Enchanting",
   "item.enchantmod.liquid_of_enchanting_bucket": "Liquid of Enchanting Bucket"
 }

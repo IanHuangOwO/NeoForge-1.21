@@ -19,7 +19,8 @@ public final class CauldronColors {
             ResourceLocation.withDefaultNamespace("water"), 0x326ED7,
             ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "liquid_of_enchanting"), 0x2D64B8,
             ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "ink_tier0"), 0x122482,
-            ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "ink_tier1"), 0x0A1440);
+            ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "ink_tier1"), 0x0A1440,
+            ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "ink_tier2"), 0x050A24);
 
     public static int of(ResourceLocation fluidId) {
         Integer color = COLORS.get(fluidId);
