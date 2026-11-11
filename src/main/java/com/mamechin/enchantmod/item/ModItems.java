@@ -24,7 +24,7 @@ public final class ModItems {
     public static final DeferredItem<QuillTier2Item> QUILL_TIER2 = ITEMS.registerItem("quill_tier2", QuillTier2Item::new);
     public static final DeferredItem<InkwellTier2Item> INKWELL_TIER2 = ITEMS.registerItem("inkwell_tier2", InkwellTier2Item::new);
     public static final DeferredItem<BlockItem> SCRIBING_TABLE = ITEMS.registerSimpleBlockItem("scribing_table", ModBlocks.SCRIBING_TABLE);
-    public static final DeferredItem<BlockItem> CAULDRON_TIER0 = ITEMS.registerSimpleBlockItem("cauldron_tier0", ModBlocks.CAULDRON_TIER0);
+    public static final DeferredItem<BlockItem> SMALL_CAULDRON = ITEMS.registerSimpleBlockItem("small_cauldron", ModBlocks.SMALL_CAULDRON);
 
     private ModItems() {}
 }

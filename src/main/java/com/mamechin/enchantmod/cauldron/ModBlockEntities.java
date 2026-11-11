@@ -12,8 +12,13 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 public final class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, EnchantMod.MODID);
 
-    public static final Supplier<BlockEntityType<CauldronTier0BlockEntity>> CAULDRON_TIER0 = BLOCK_ENTITIES.register("cauldron_tier0",
-            () -> BlockEntityType.Builder.of(CauldronTier0BlockEntity::new, ModBlocks.CAULDRON_TIER0.get()).build(null));
+    public static final Supplier<BlockEntityType<CauldronBlockEntity>> SMALL_CAULDRON = BLOCK_ENTITIES.register("small_cauldron",
+            () -> BlockEntityType.Builder.of((pos, state) -> new CauldronBlockEntity(ModBlockEntities.SMALL_CAULDRON.get(), CauldronSize.SMALL, pos, state),
+                    ModBlocks.SMALL_CAULDRON.get()).build(null));
+
+    public static final Supplier<BlockEntityType<CauldronBlockEntity>> LARGE_CAULDRON = BLOCK_ENTITIES.register("large_cauldron",
+            () -> BlockEntityType.Builder.of((pos, state) -> new CauldronBlockEntity(ModBlockEntities.LARGE_CAULDRON.get(), CauldronSize.LARGE, pos, state),
+                    ModBlocks.LARGE_CAULDRON.get()).build(null));
 
     private ModBlockEntities() {}
 }

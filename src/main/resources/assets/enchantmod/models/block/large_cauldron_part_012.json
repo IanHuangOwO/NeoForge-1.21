@@ -1,0 +1,54 @@
+{
+  "textures": {
+    "particle": "minecraft:block/smooth_basalt",
+    "side": "enchantmod:block/small_cauldron_side",
+    "top": "enchantmod:block/small_cauldron_top",
+    "bottom": "enchantmod:block/small_cauldron_bottom",
+    "inner": "enchantmod:block/small_cauldron_inner"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            10.6667,
+            8,
+            16.0,
+            16
+          ],
+          "texture": "#side",
+          "cullface": "west"
+        },
+        "south": {
+          "uv": [
+            0.0,
+            8,
+            5.3333,
+            16
+          ],
+          "texture": "#side",
+          "cullface": "south"
+        },
+        "down": {
+          "uv": [
+            0.0,
+            0.0,
+            5.3333,
+            5.3333
+          ],
+          "texture": "#bottom"
+        }
+      }
+    }
+  ]
+}

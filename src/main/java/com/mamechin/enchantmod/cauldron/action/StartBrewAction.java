@@ -2,9 +2,8 @@ package com.mamechin.enchantmod.cauldron.action;
 
 import java.util.Comparator;
 
-import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
-import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -17,14 +16,14 @@ import net.minecraft.world.item.crafting.RecipeHolder;
  */
 public class StartBrewAction implements CauldronAction {
     @Override
-    public boolean useEmptyHand(CauldronTier0BlockEntity c, Player player) {
+    public boolean useEmptyHand(CauldronBlockEntity c, Player player) {
         if (player.isShiftKeyDown() || c.isBrewing() || c.getAmountMl() == 0) return false;
         // The client has no recipe data cache; it predicts success and the server decides.
         if (c.getLevel().isClientSide) return true;
 
         var options = c.satisfiedRecipes().stream().filter(h -> c.holdsBaseOf(h.value())).toList();
         if (options.isEmpty()) return false;
-        int heat = CauldronHeat.tierBelow(c.getLevel(), c.getBlockPos());
+        int heat = c.heatTier();
         RecipeHolder<CauldronBrewingRecipe> best = options.stream()
                 .filter(h -> heat >= h.value().minHeat())
                 .max(Comparator.comparingInt(h -> h.value().minHeat()))

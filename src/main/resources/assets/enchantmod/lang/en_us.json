@@ -1,7 +1,7 @@
 {
   "itemGroup.enchantmod": "EnchantMod",
   "block.enchantmod.scribing_table": "Scribing Table",
-  "block.enchantmod.cauldron_tier0": "Calcite Cauldron",
+  "block.enchantmod.small_cauldron": "Calcite Cauldron",
   "message.enchantmod.cauldron.no_heat": "The cauldron needs a hotter heat source underneath",
   "item.enchantmod.inkwell_tier0": "Lapis Inkwell",
   "item.enchantmod.inkwell_tier1": "Glowing Lapis Inkwell",
@@ -23,5 +23,8 @@
   "block.enchantmod.ink_tier2": "Dragon Ink",
   "item.enchantmod.ink_tier2_bucket": "Dragon Ink Bucket",
   "block.enchantmod.liquid_of_enchanting": "Liquid of Enchanting",
-  "item.enchantmod.liquid_of_enchanting_bucket": "Liquid of Enchanting Bucket"
+  "item.enchantmod.liquid_of_enchanting_bucket": "Liquid of Enchanting Bucket",
+  "block.enchantmod.large_cauldron": "Large Cauldron",
+  "block.enchantmod.large_cauldron_part": "Large Cauldron",
+  "message.enchantmod.cauldron.bad_structure": "The large cauldron needs a smooth basalt body on four smooth basalt legs around the cauldron, air between the legs and an open top. Wrong block at %s, %s, %s"
 }

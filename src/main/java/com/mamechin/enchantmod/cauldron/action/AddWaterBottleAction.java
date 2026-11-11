@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.cauldron.action;
 
-import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 
 import net.minecraft.core.component.DataComponents;
@@ -15,14 +15,14 @@ import net.minecraft.world.item.alchemy.Potions;
 /** Water bottle adds BOTTLE_ML of water to plain water (never to ink). */
 public class AddWaterBottleAction implements CauldronAction {
     @Override
-    public boolean useItem(CauldronTier0BlockEntity c, ItemStack stack, Player player, InteractionHand hand) {
+    public boolean useItem(CauldronBlockEntity c, ItemStack stack, Player player, InteractionHand hand) {
         PotionContents contents = stack.get(DataComponents.POTION_CONTENTS);
         if (!stack.is(Items.POTION) || contents == null || !contents.is(Potions.WATER)
                 || c.getContent() != CauldronContent.WATER
-                || c.getAmountMl() + CauldronTier0BlockEntity.BOTTLE_ML > CauldronTier0BlockEntity.CAPACITY_ML) return false;
+                || c.getAmountMl() + CauldronBlockEntity.BOTTLE_ML > c.capacityMl()) return false;
         if (!c.getLevel().isClientSide) {
             CauldronActions.swapHeld(player, hand, stack, new ItemStack(Items.GLASS_BOTTLE));
-            c.setAmountMl(c.getAmountMl() + CauldronTier0BlockEntity.BOTTLE_ML);
+            c.setAmountMl(c.getAmountMl() + CauldronBlockEntity.BOTTLE_ML);
             CauldronActions.play(c, SoundEvents.BOTTLE_EMPTY);
         }
         return true;

@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.cauldron.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -15,6 +15,7 @@ import net.minecraft.world.item.ItemUtils;
 /** Ordered action list: the first action that applies wins. Addons may add to it during setup. */
 public final class CauldronActions {
     public static final List<CauldronAction> ACTIONS = new ArrayList<>(List.of(
+            new FormLargeCauldronAction(),
             new FluidContainerAction(),
             new AddWaterBottleAction(),
             new BottleInkAction(),
@@ -27,7 +28,7 @@ public final class CauldronActions {
         player.setItemInHand(hand, held.getMaxStackSize() == 1 ? returned : ItemUtils.createFilledResult(held, player, returned));
     }
 
-    static void play(CauldronTier0BlockEntity cauldron, SoundEvent sound) {
+    static void play(CauldronBlockEntity cauldron, SoundEvent sound) {
         cauldron.getLevel().playSound(null, cauldron.getBlockPos(), sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 

@@ -31,7 +31,7 @@ public final class ModCreativeTabs {
                 output.accept(ModFluids.INK_TIER1.bucket().get());
                 output.accept(ModFluids.INK_TIER2.bucket().get());
                 output.accept(ModItems.SCRIBING_TABLE.get());
-                output.accept(ModItems.CAULDRON_TIER0.get());
+                output.accept(ModItems.SMALL_CAULDRON.get());
             }).build());
 
     private ModCreativeTabs() {}

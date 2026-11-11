@@ -3,8 +3,9 @@ package com.mamechin.enchantmod.cauldron.client;
 import java.util.List;
 
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.cauldron.CauldronTier0Block;
-import com.mamechin.enchantmod.cauldron.CauldronTier0BlockEntity;
+import com.mamechin.enchantmod.cauldron.SmallCauldronBlock;
+import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronSize;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -34,9 +35,8 @@ import net.minecraft.world.item.ItemStack;
  * bottom-right, bobbing mostly up/down with a slight sideways wobble. When a brew starts they rise and
  * dive into the liquid one after another.
  */
-public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0BlockEntity> {
+public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity> {
     private static final float ITEM_SCALE = 0.45F;
-    private static final float HOVER_HEIGHT = 1.5F;  // centre of the block above the cauldron
     private static final float MAX_DRIFT_XZ = 0.25F; // furthest the item strays sideways from its anchor
     private static final float MAX_DRIFT_Y = 0.5F;   // furthest it strays up or down
     private static final float LIQUID_ALPHA = 190.0F / 255.0F; // how see-through the liquid is (1 = solid)
@@ -51,19 +51,19 @@ public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0B
     private final ItemRenderer itemRenderer;
     private final Font font;
 
-    public CauldronTier0Renderer(BlockEntityRendererProvider.Context context) {
+    public CauldronRenderer(BlockEntityRendererProvider.Context context) {
         this.itemRenderer = context.getItemRenderer();
         this.font = context.getFont();
     }
 
     @Override
-    public void render(CauldronTier0BlockEntity cauldron, float partialTick, PoseStack pose,
+    public void render(CauldronBlockEntity cauldron, float partialTick, PoseStack pose,
             MultiBufferSource buffer, int ignoredLight, int overlay) {
         var level = cauldron.getLevel();
         if (level == null) return;
 
         float time = level.getGameTime() + partialTick;
-        boolean brewing = cauldron.getBlockState().getValue(CauldronTier0Block.CONTENT) == CauldronContent.BREWING;
+        boolean brewing = cauldron.getBlockState().getValue(SmallCauldronBlock.CONTENT) == CauldronContent.BREWING;
         // Client-only animation clock: starts when we first see the BREWING state, resets when it ends.
         if (!brewing) {
             cauldron.brewAnimStart = -1;
@@ -79,7 +79,7 @@ public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0B
 
         int light = LevelRenderer.getLightColor(level, cauldron.getBlockPos().above());
         float camYaw = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
-        int lvl = cauldron.getBlockState().getValue(CauldronTier0Block.LEVEL);
+        int lvl = cauldron.getBlockState().getValue(SmallCauldronBlock.LEVEL);
         float surface = (lvl == 0 ? 4.0F : 6.0F + 3.0F * lvl) / 16.0F;
         float spacing = types.size() == 1 ? 0 : Math.min(SPACING, 0.9F / (types.size() - 1));
 
@@ -92,7 +92,7 @@ public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0B
             float dy = MAX_DRIFT_Y * wander(time, seed + 23.0F, 0.043F, 0.029F, 0.061F);
             float x = 0.5F + dx;
             float z = 0.5F + dz;
-            float y = HOVER_HEIGHT + dy;
+            float y = cauldron.size().hoverHeight() + dy; // small: centre of the block above; large: above the shell's rim
             float local = (i - (types.size() - 1) / 2.0F) * spacing;          // along the viewer's right
             float scale = 1.0F;
             boolean showCount = true;
@@ -147,16 +147,16 @@ public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0B
      * and colour ease toward their targets. While brewing the target colour runs from the base fluid to the result.
      * Colours: CauldronColors; opacity: LIQUID_ALPHA.
      */
-    private void renderLiquid(CauldronTier0BlockEntity cauldron, net.minecraft.world.level.Level level,
+    private void renderLiquid(CauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
             PoseStack pose, MultiBufferSource buffer, int light, float time, boolean brewing) {
-        int lvl = cauldron.getBlockState().getValue(CauldronTier0Block.LEVEL);
+        int lvl = cauldron.getBlockState().getValue(SmallCauldronBlock.LEVEL);
         LiquidView view = cauldron.liquidView;
         if (lvl == 0 && view.alpha < 0.01F) return; // empty and fully faded: nothing to draw or ease
 
         int rgb = CauldronColors.of(BuiltInRegistries.FLUID.getKey(cauldron.getFluid()));
         if (brewing && cauldron.getActiveRecipeId() != null
                 && level.getRecipeManager().byKey(cauldron.getActiveRecipeId()).map(h -> h.value()).orElse(null) instanceof CauldronBrewingRecipe recipe) {
-            float t = Mth.clamp((time - cauldron.brewAnimStart) / recipe.brewTicks(), 0.0F, 1.0F);
+            float t = Mth.clamp((time - cauldron.brewAnimStart) / cauldron.brewTicks(recipe), 0.0F, 1.0F);
             int from = CauldronColors.of(recipe.baseFluid());
             int to = CauldronColors.of(recipe.resultFluid());
             rgb = (int) Mth.lerp(t, from >> 16 & 255, to >> 16 & 255) << 16
@@ -167,9 +167,10 @@ public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0B
         view.update(time, lvl == 0 && view.top == 0 ? FLOOR : targetTop, lvl == 0 ? 0.0F : LIQUID_ALPHA, rgb);
         if (view.alpha < 0.01F) return;
 
-        float min = 2.0F / 16.0F, max = 14.0F / 16.0F;
+        boolean large = cauldron.size() == CauldronSize.LARGE; // the large cavity is the full block
+        float min = large ? 0.0F : 2.0F / 16.0F, max = large ? 1.0F : 14.0F / 16.0F;
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-                .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/cauldron_tier0_liquid_mask"));
+                .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/small_cauldron_liquid_mask"));
         VertexConsumer vc = buffer.getBuffer(RenderType.translucent());
         Matrix4f m = pose.last().pose();
         float[][] corners = {{min, min, sprite.getU0(), sprite.getV0()}, {min, max, sprite.getU0(), sprite.getV1()},
@@ -186,8 +187,10 @@ public class CauldronTier0Renderer implements BlockEntityRenderer<CauldronTier0B
     }
 
     @Override
-    public net.minecraft.world.phys.AABB getRenderBoundingBox(CauldronTier0BlockEntity be) {
+    public net.minecraft.world.phys.AABB getRenderBoundingBox(CauldronBlockEntity be) {
         // items hover one block above the cauldron, outside the block's own bounding box
-        return new net.minecraft.world.phys.AABB(be.getBlockPos()).expandTowards(0, 1.5, 0).inflate(1, 0, 1);
+        var box = new net.minecraft.world.phys.AABB(be.getBlockPos());
+        // the large one is the legs, the body and the opening around the core, with the items floating above it
+        return be.size() == CauldronSize.LARGE ? box.inflate(1, 0, 1).expandTowards(0, -1, 0).expandTowards(0, 2.5, 0) : box.expandTowards(0, 1.5, 0).inflate(1, 0, 1);
     }
 }

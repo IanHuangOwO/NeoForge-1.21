@@ -1,0 +1,85 @@
+{
+  "variants": {
+    "dx=0,dy=0,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_000"
+    },
+    "dx=0,dy=0,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_unused"
+    },
+    "dx=0,dy=0,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_002"
+    },
+    "dx=0,dy=1,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_010"
+    },
+    "dx=0,dy=1,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_011"
+    },
+    "dx=0,dy=1,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_012"
+    },
+    "dx=0,dy=2,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_020"
+    },
+    "dx=0,dy=2,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_021"
+    },
+    "dx=0,dy=2,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_022"
+    },
+    "dx=1,dy=0,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_unused"
+    },
+    "dx=1,dy=0,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_unused"
+    },
+    "dx=1,dy=0,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_unused"
+    },
+    "dx=1,dy=1,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_110"
+    },
+    "dx=1,dy=1,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_unused"
+    },
+    "dx=1,dy=1,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_112"
+    },
+    "dx=1,dy=2,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_120"
+    },
+    "dx=1,dy=2,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_unused"
+    },
+    "dx=1,dy=2,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_122"
+    },
+    "dx=2,dy=0,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_200"
+    },
+    "dx=2,dy=0,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_unused"
+    },
+    "dx=2,dy=0,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_202"
+    },
+    "dx=2,dy=1,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_210"
+    },
+    "dx=2,dy=1,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_211"
+    },
+    "dx=2,dy=1,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_212"
+    },
+    "dx=2,dy=2,dz=0": {
+      "model": "enchantmod:block/large_cauldron_part_220"
+    },
+    "dx=2,dy=2,dz=1": {
+      "model": "enchantmod:block/large_cauldron_part_221"
+    },
+    "dx=2,dy=2,dz=2": {
+      "model": "enchantmod:block/large_cauldron_part_222"
+    }
+  }
+}

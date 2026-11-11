@@ -21,8 +21,8 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
 /**
- * data/&lt;ns&gt;/recipe/*.json of type enchantmod:cauldron_brewing. Each listed ingredient needs one stored item and
- * the cauldron must hold base_fluid; on completion the contents become result_fluid. min_heat is compared with the
+ * data/&lt;ns&gt;/recipe/*.json of type enchantmod:cauldron_brewing. Each listed ingredient is needed exactly once per 1000 mB
+ * of fluid (rounded up) and the cauldron must hold base_fluid; on completion the contents become result_fluid. min_heat is compared with the
  * heat tier under the cauldron.
  */
 public record CauldronBrewingRecipe(List<Ingredient> ingredients, ResourceLocation baseFluid, ResourceLocation resultFluid, int brewTicks, int minHeat)
@@ -30,28 +30,38 @@ public record CauldronBrewingRecipe(List<Ingredient> ingredients, ResourceLocati
 
     @Override
     public boolean matches(CauldronInput input, Level level) {
+        return matches(input, 1);
+    }
+
+    /** True when every ingredient is stored exactly {@code batches} times (one batch brews 1000 mB); too few or too many fails. */
+    public boolean matches(CauldronInput input, int batches) {
         int[] left = new int[input.size()];
         for (int i = 0; i < left.length; i++) left[i] = input.getItem(i).getCount();
         for (Ingredient ingredient : ingredients) {
-            boolean found = false;
-            for (int i = 0; i < left.length && !found; i++) {
+            int need = batches;
+            for (int i = 0; i < left.length && need > 0; i++) {
                 if (left[i] > 0 && ingredient.test(input.getItem(i))) {
-                    left[i]--;
-                    found = true;
+                    int take = Math.min(left[i], need);
+                    left[i] -= take;
+                    need -= take;
                 }
             }
-            if (!found) return false;
+            if (need > 0) return false;
+            // surplus of this ingredient means the items do not fit the fluid amount: no brew
+            for (int i = 0; i < left.length; i++) {
+                if (left[i] > 0 && ingredient.test(input.getItem(i))) return false;
+            }
         }
         return true;
     }
 
-    /** Takes one item per ingredient out of the inventory. */
-    public void consume(IItemHandler inv) {
+    /** Takes {@code batches} items per ingredient out of the inventory. */
+    public void consume(IItemHandler inv, int batches) {
         for (Ingredient ingredient : ingredients) {
-            for (int i = 0; i < inv.getSlots(); i++) {
+            int need = batches;
+            for (int i = 0; i < inv.getSlots() && need > 0; i++) {
                 if (!inv.getStackInSlot(i).isEmpty() && ingredient.test(inv.getStackInSlot(i))) {
-                    inv.extractItem(i, 1, false);
-                    break;
+                    need -= inv.extractItem(i, need, false).getCount();
                 }
             }
         }

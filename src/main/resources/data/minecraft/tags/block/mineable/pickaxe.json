@@ -1,1 +1,7 @@
-{ "values": [ "enchantmod:cauldron_tier0" ] }
+{
+  "values": [
+    "enchantmod:small_cauldron",
+    "enchantmod:large_cauldron",
+    "enchantmod:large_cauldron_part"
+  ]
+}

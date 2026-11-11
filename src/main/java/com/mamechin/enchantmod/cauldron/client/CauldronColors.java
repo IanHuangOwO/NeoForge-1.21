@@ -11,7 +11,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 /**
  * Colour (0xRRGGBB) of each fluid as shown inside the cauldron. The brew gradient fades from the base fluid's colour
  * to the result fluid's colour, so edit the values below to change it. Keep them close to the fluid's liquid texture
- * in assets/enchantmod/textures/block (cauldron_tier0_*.png), otherwise the liquid visibly jumps when a brew ends.
+ * in assets/enchantmod/textures/block (small_cauldron_*.png), otherwise the liquid visibly jumps when a brew ends.
  * A fluid that is not listed falls back to its placed-fluid tint.
  */
 public final class CauldronColors {

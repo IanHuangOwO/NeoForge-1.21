@@ -3,6 +3,7 @@ package com.mamechin.enchantmod;
 import org.slf4j.Logger;
 
 import com.mamechin.enchantmod.block.ModBlocks;
+import com.mamechin.enchantmod.cauldron.LargeCauldronAutoForm;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
 import com.mamechin.enchantmod.cauldron.brewing.ModCauldronRecipes;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
@@ -32,6 +33,8 @@ public class EnchantMod {
         ModCauldronRecipes.TYPES.register(modEventBus);
         ModCauldronRecipes.SERIALIZERS.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(CauldronRecipes::onDatapackSync);
+        NeoForge.EVENT_BUS.addListener(LargeCauldronAutoForm::onPlace);
+        NeoForge.EVENT_BUS.addListener(LargeCauldronAutoForm::onBreak);
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);

@@ -1,0 +1,41 @@
+{
+  "textures": {
+    "particle": "minecraft:block/smooth_basalt",
+    "inner": "enchantmod:block/small_cauldron_inner",
+    "bottom": "enchantmod:block/small_cauldron_bottom"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        4,
+        16
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#inner"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#bottom"
+        }
+      }
+    }
+  ]
+}

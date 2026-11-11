@@ -25,19 +25,21 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 /**
  * Holds one fluid (water, liquid of enchanting or an ink tier) in exact ml, the 8-slot ingredient inventory and the
  * brew progress. The blockstate (LEVEL, CONTENT) is only a coarse copy for models and comparators.
  */
-public class CauldronTier0BlockEntity extends BlockEntity {
-    public static final int CAPACITY_ML = 1000;
+public class CauldronBlockEntity extends BlockEntity {
+    public static final int BATCH_ML = 1000;
     public static final int BOTTLE_ML = 250;
     public static final int INK_ML_PER_USE = 10;
     public static final int CHECK_TICKS = 20;
@@ -45,21 +47,26 @@ public class CauldronTier0BlockEntity extends BlockEntity {
 
     private static final ResourceLocation WATER = BuiltInRegistries.FLUID.getKey(Fluids.WATER);
 
-    public final ItemStackHandler inventory = new ItemStackHandler(8) {
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return getLevel() == null || CauldronRecipes.accepts(getLevel(), stack);
-        }
+    public final ItemStackHandler inventory;
+    private final CauldronSize size;
 
-        @Override
-        protected void onContentsChanged(int slot) {
-            inventoryDirty = true;
-            displayDirty = true;
-            setChanged();
-            // the client renders the stored items, so it needs the new inventory
-            if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-    };
+    private ItemStackHandler newInventory(int slots) {
+        return new ItemStackHandler(slots) {
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return getLevel() == null || CauldronRecipes.accepts(getLevel(), stack);
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                inventoryDirty = true;
+                displayDirty = true;
+                setChanged();
+                // the client renders the stored items, so it needs the new inventory
+                if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+            }
+        };
+    }
 
     // Derived from the inventory; recomputed lazily, only after it changed.
     private boolean inventoryDirty = true;
@@ -130,7 +137,7 @@ public class CauldronTier0BlockEntity extends BlockEntity {
 
         @Override
         public int getTankCapacity(int tank) {
-            return CAPACITY_ML;
+            return size.capacityMl();
         }
 
         @Override
@@ -140,7 +147,7 @@ public class CauldronTier0BlockEntity extends BlockEntity {
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
-            int room = CAPACITY_ML - amountMl;
+            int room = size.capacityMl() - amountMl;
             if (resource.isEmpty() || brewing || room <= 0 || !isAccepted(resource.getFluid())) return 0;
             ResourceLocation id = BuiltInRegistries.FLUID.getKey(resource.getFluid());
             if (amountMl > 0 && !id.equals(fluidId)) return 0; // never mix fluids
@@ -176,8 +183,33 @@ public class CauldronTier0BlockEntity extends BlockEntity {
         return amountMl == 0 ? FluidStack.EMPTY : new FluidStack(getFluid(), amountMl);
     }
 
-    public CauldronTier0BlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.CAULDRON_TIER0.get(), pos, state);
+    public CauldronBlockEntity(BlockEntityType<?> type, CauldronSize size, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+        this.size = size;
+        this.inventory = newInventory(size.slots());
+    }
+
+    public CauldronSize size() {
+        return size;
+    }
+
+    public int capacityMl() {
+        return size.capacityMl();
+    }
+
+    /** Brew duration for this cauldron: the recipe's time shortened by the cauldron's speed. */
+    public int brewTicks(CauldronBrewingRecipe recipe) {
+        return Math.max(1, recipe.brewTicks() / size.speed());
+    }
+
+    /** Heat tier of the block under this cauldron (under the shell for the large one). */
+    public int heatTier() {
+        return CauldronHeat.tier(level.getBlockState(worldPosition.below(size.heatDepth())));
+    }
+
+    /** Brews convert the whole tank: ingredients are needed once per 1000 mB, rounded up. */
+    public int batches() {
+        return Math.max(1, (amountMl + BATCH_ML - 1) / BATCH_ML);
     }
 
     public int getAmountMl() {
@@ -214,7 +246,7 @@ public class CauldronTier0BlockEntity extends BlockEntity {
         if (level == null || level.isClientSide) return;
         if (!inventoryDirty && cachedGeneration == CauldronRecipes.generation()) return;
         CauldronInput input = CauldronInput.of(inventory);
-        satisfied = CauldronRecipes.all(level).stream().filter(h -> h.value().matches(input, level)).toList();
+        satisfied = CauldronRecipes.all(level).stream().filter(h -> h.value().matches(input, batches())).toList();
         hasRoom = false;
         for (int i = 0; i < inventory.getSlots() && !hasRoom; i++) {
             ItemStack s = inventory.getStackInSlot(i);
@@ -243,7 +275,8 @@ public class CauldronTier0BlockEntity extends BlockEntity {
     }
 
     public void setAmountMl(int ml) {
-        amountMl = Mth.clamp(ml, 0, CAPACITY_ML);
+        amountMl = Mth.clamp(ml, 0, size.capacityMl());
+        inventoryDirty = true; // which recipes the items cover depends on the amount
         if (amountMl == 0) {
             fluidId = WATER;
             progress = 0;
@@ -288,15 +321,15 @@ public class CauldronTier0BlockEntity extends BlockEntity {
         }
         CauldronBrewingRecipe recipe = holder.value();
         progress++;
-        if (progress % CHECK_TICKS != 0 && progress < recipe.brewTicks()) return;
+        if (progress % CHECK_TICKS != 0 && progress < brewTicks(recipe)) return;
 
         refresh();
-        if (!satisfied.contains(holder) || !getBlockState().getValue(CauldronTier0Block.HEATED)
-                || CauldronHeat.tierBelow(level, worldPosition) < recipe.minHeat()) {
+        if (!satisfied.contains(holder) || !getBlockState().getValue(SmallCauldronBlock.HEATED)
+                || heatTier() < recipe.minHeat()) {
             stopBrewing();
             syncState();
-        } else if (progress >= recipe.brewTicks()) {
-            recipe.consume(inventory);
+        } else if (progress >= brewTicks(recipe)) {
+            recipe.consume(inventory, batches());
             fluidId = recipe.resultFluid();
             stopBrewing();
             level.playSound(null, worldPosition, SoundEvents.BREWING_STAND_BREW, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -308,7 +341,7 @@ public class CauldronTier0BlockEntity extends BlockEntity {
     /** A burst of small bubbles popping off the liquid when a brew finishes. */
     private void burst() {
         if (!(level instanceof ServerLevel server)) return;
-        int lvl = getBlockState().getValue(CauldronTier0Block.LEVEL);
+        int lvl = getBlockState().getValue(SmallCauldronBlock.LEVEL);
         double surface = worldPosition.getY() + (6.0 + 3.0 * lvl) / 16.0;
         // count 0 = the offset is a velocity, so every bubble rises straight up from a random spot on the surface
         for (int i = 0; i < BURST_COUNT; i++) {
@@ -318,13 +351,26 @@ public class CauldronTier0BlockEntity extends BlockEntity {
         }
     }
 
-    private void syncState() {
+    /** Moves the fluid and ingredients into a cauldron of another size; a running brew is dropped. Returns the items that did not fit. */
+    public List<ItemStack> moveTo(CauldronBlockEntity target) {
+        target.fluidId = fluidId;
+        target.amountMl = Math.min(amountMl, target.capacityMl());
+        List<ItemStack> overflow = new ArrayList<>();
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack rest = ItemHandlerHelper.insertItem(target.inventory, inventory.getStackInSlot(i), false);
+            if (!rest.isEmpty()) overflow.add(rest);
+        }
+        target.syncState();
+        return overflow;
+    }
+
+    void syncState() {
         setChanged();
         if (level != null) {
-            int lvl = (amountMl * 3 + CAPACITY_ML - 1) / CAPACITY_ML; // ceil: 1-333 ml = 1, up to 1000 ml = 3
+            int lvl = (amountMl * 3 + size.capacityMl() - 1) / size.capacityMl(); // ceil: 1-333 ml = 1, up to 1000 ml = 3
             level.setBlock(worldPosition, getBlockState()
-                    .setValue(CauldronTier0Block.LEVEL, lvl)
-                    .setValue(CauldronTier0Block.CONTENT, getContent()), 3);
+                    .setValue(SmallCauldronBlock.LEVEL, lvl)
+                    .setValue(SmallCauldronBlock.CONTENT, getContent()), 3);
         }
     }
 
