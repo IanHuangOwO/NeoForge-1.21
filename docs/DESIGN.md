@@ -8,7 +8,27 @@ A magic mod centred on enchanting. Mod id `enchantmod`, package `com.mamechin.en
 
 The core loop: brew ink in cauldrons, store it in inkwells, write with quills at a Scribing Table.
 
-**TBD:** the end goal of the loop (what the Scribing Table produces, how it relates to vanilla enchanting), progression beyond tier 2, any other systems planned.
+## Vision (the author's words, recorded 2026-11-12)
+
+- **Goal:** expand and modify Minecraft's enchanting system. The author finds vanilla enchanting not fun. This is the author's claim and has **not** been researched or checked yet; collect the concrete problems (see "Open questions") before designing against them.
+- **Setting:** fantasy, built on runes and the power of ancient characters (writing as magic). The place where words are most common is a huge library, so the world feel is a labyrinth library.
+- **Colour direction:** golden and coppery, labyrinth-library. Many mods share this palette, so the mod needs something of its own that sets it apart. **TBD:** what that distinguishing element is (a second accent colour, a shape language, a material or texture motif).
+- **Inspirations:** Thaumcraft 5, Applied Energistics 2, and "Ars Nuevo" (read as Ars Nouveau; the feature wanted is that players create their own spells). **TBD:** which parts of each to take. From the roadmap so far, the guess is: Thaumcraft for research and discovery, AE2 for crafting and networks, Ars Nouveau for player-built spells.
+
+## Open questions
+
+Answer these to fill the big picture. Record answers here.
+
+1. What exactly is wrong with vanilla enchanting for the author? (random outcomes, no choice, one-time level grind, enchantments that nobody uses, etc.)
+2. Which part of Thaumcraft 5 appeals: research and discovery, the knowledge-gated progression, aspects, the arcane workbench, or the tone?
+3. Which part of AE2: the logistics network, the autocrafting, the multiblocks, or the clean tech-magic look?
+4. Which part of Ars Nouveau: building a spell from parts, the glyph and book style, or the mana system?
+5. Is "create your own spell" a core feature, and does a spell built from written glyphs fit the quill-and-ink loop?
+6. Is there a library structure (a generated labyrinth, shelves, books) to explore, or is the library only a visual theme for the player's own base?
+7. Does the player learn glyphs by discovery (found, researched) or by crafting?
+8. What is the end of progression: an ultimate item, a spell power ceiling, a mastery title?
+
+**TBD:** progression beyond tier 2, other systems.
 
 ## How we work
 
