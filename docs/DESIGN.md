@@ -31,23 +31,33 @@ Status: **tentative**. Not final design; use it to guide, not to constrain.
 
 - **Collecting:** the player does not gather piles of items into chests. Like Thaumcraft's scanning glass, the player explores the world, finds ancient characters (runes) around and collects them by scanning. They are stored in a research tablet, not in inventory.
 - **Record keeping:** the author likes the Thaumonomicon idea (the Thaumcraft research book): one book-like item that stores and records all progress. Here that is the research tablet.
-- **Making enchants as a game:** pair enchant making with mini-games like Thaumcraft's research puzzle, and similar games the author named ("artifact" and Ars Nouveau; the author's "artifact" may be a different mod, **TBD**).
+- **Making enchants as a game:** pair enchant making with mini-games like Thaumcraft's research puzzle, and similar games the author named (artifact and relic mods, Ars Nouveau).
 - **Slots by tier:** the higher the tier, the more characters can be written onto an item.
 - **Item limit and risk:** every item can only withstand so many characters. The more characters added, the lower the chance that the fixation of the enchant succeeds at the altar. Risk grows with load, which is the answer to the "one best pattern" problem (the best enchant is a gamble, not a formula).
 - **Altar:** where fixation happens (the final step that makes the written characters bind to the item).
 
 Resulting loop in one line: explore and scan characters, record them in the research tablet, write them with quill and ink, then fix them on an item at the altar, with success depending on tier and character load.
 
-## Open questions
+## Decisions from the second round (2026-11-12)
 
-1. Scanning: what is the tool (a lens, a glass, a scribe's tool) and what is scanned (blocks, structures, mobs, the library)? Is there a range or a cost?
-2. Failure: what happens when fixation fails? (lose the ink, damage the item, lose the item, a curse, a partial enchant)
-3. Mini-game: which shape fits? (a grid puzzle, connecting characters, arranging them in order, timing) Is it at the research tablet, the Scribing Table or the altar?
-4. How do characters combine into an effect? Is the effect fixed per character set, or does the player choose a meaning?
-5. Does a character have a cost or weight, so some use more of the item's limit than others?
-6. What sets an item's character limit: item material, rarity, or enchantability? And what does the tier of ink, quill and table add?
-7. Altar: a multiblock like the cauldron, or pedestals around a centre?
-8. Create-like freedom and gears: are there machines, or only the altar and tables?
+- **Scanning, first version:** very simple. Shift-click on certain blocks (spawners, stone, ores and the like) to scan them. Later, world generation will add blocks that carry characters; scanning will extend to those.
+- **Failed fixation:** its own class of event, like the Thaumcraft altar's instability events, not a simple lose-the-item penalty. Details **deferred**.
+- **Blueprint at the Scribing Table:** the player completes the blueprint of an enchantment at the Scribing Table. The finished template can be saved into the research tablet and reused. What the mini-game is will be a **separate discussion**.
+- **How characters combine into an effect:** **deferred**, its own discussion.
+- **Character weight:** yes, characters have different weights, but **deferred**.
+- **Item limit:** set by both the item's material and its rarity.
+- **Altar:** a multiblock.
+- **Items that progress:** the author likes artifact-style items that grow within the item (see the inspirations above). Fit with enchants **TBD**.
+
+## Open discussions (each is its own topic, to take one at a time)
+
+1. The blueprint mini-game at the Scribing Table.
+2. How characters combine into effects, and character weights.
+3. The altar event system (what can go wrong and how the player reacts).
+4. World generation: character blocks and the library structures.
+5. Research tablet contents and layout.
+6. Create-like machines: are there gears, or only stations?
+7. Whether items gain progression like artifact mods.
 
 **TBD:** progression beyond tier 2, other systems.
 
