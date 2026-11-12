@@ -15,18 +15,24 @@ The core loop: brew ink in cauldrons, store it in inkwells, write with quills at
 - **Colour direction:** golden and coppery, labyrinth-library. Many mods share this palette, so the mod needs something of its own that sets it apart. **TBD:** what that distinguishing element is (a second accent colour, a shape language, a material or texture motif).
 - **Inspirations:** Thaumcraft 5, Applied Energistics 2, and "Ars Nuevo" (read as Ars Nouveau; the feature wanted is that players create their own spells). **TBD:** which parts of each to take. From the roadmap so far, the guess is: Thaumcraft for research and discovery, AE2 for crafting and networks, Ars Nouveau for player-built spells.
 
+## Direction answers (2026-11-12)
+
+- **Problem with vanilla:** it is boring. Once a player reaches a stable level 30 enchant there is one best pattern of enchantments and it no longer feels magical. Design goal: enchanting stays a choice with many good answers and feels magical. (Author's view, not yet researched.)
+- **Thaumcraft 5:** wants the tone and discovery, but not a copy. Exact use **TBD**, to be explored later.
+- **Applied Energistics 2:** wants the clean look and the unique logic that pulls a player in as they explore its possibilities (systems with depth that reward experimenting).
+- **Ars Nouveau:** only a concept so far: the player builds their own enchants. Not a defined feature yet.
+- **Library:** a visual theme, and possibly the altar setup the author imagines (**TBD**, details not described yet).
+- **Core gameplay:** not decided yet. The author has no clear picture of it; this is the main thing to work out next.
+- **Look and feel:** the fantasy-magic version of Create: lots of player freedom, with gears and some steampunk blended into the magic. Combined with the golden-copper library palette, this is the distinguishing element (gears, brass machinery and written runes together).
+
 ## Open questions
 
-Answer these to fill the big picture. Record answers here.
-
-1. What exactly is wrong with vanilla enchanting for the author? (random outcomes, no choice, one-time level grind, enchantments that nobody uses, etc.)
-2. Which part of Thaumcraft 5 appeals: research and discovery, the knowledge-gated progression, aspects, the arcane workbench, or the tone?
-3. Which part of AE2: the logistics network, the autocrafting, the multiblocks, or the clean tech-magic look?
-4. Which part of Ars Nouveau: building a spell from parts, the glyph and book style, or the mana system?
-5. Is "create your own spell" a core feature, and does a spell built from written glyphs fit the quill-and-ink loop?
-6. Is there a library structure (a generated labyrinth, shelves, books) to explore, or is the library only a visual theme for the player's own base?
-7. Does the player learn glyphs by discovery (found, researched) or by crafting?
-8. What is the end of progression: an ultimate item, a spell power ceiling, a mastery title?
+1. Core loop: what does the player do for an hour with this mod? (gather, brew, build machines, write, test enchants)
+2. "Build your own enchants": what are the parts? (runes or glyphs combined, effects with costs, a power budget)
+3. Create-like freedom: are there machines with moving parts (gears, belts, rotation) or only magical stations?
+4. Altar: what does it do? (a ritual setup around a centre block, items placed on pedestals, reading and writing runes)
+5. Discovery: how does the player learn new runes? (found in loot, research, experimenting, library structures)
+6. What replaces the "best pattern" problem: tradeoffs, limited slots, rare ingredients, or random discovery?
 
 **TBD:** progression beyond tier 2, other systems.
 
