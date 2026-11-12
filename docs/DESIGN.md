@@ -25,14 +25,29 @@ The core loop: brew ink in cauldrons, store it in inkwells, write with quills at
 - **Core gameplay:** not decided yet. The author has no clear picture of it; this is the main thing to work out next.
 - **Look and feel:** the fantasy-magic version of Create: lots of player freedom, with gears and some steampunk blended into the magic. Combined with the golden-copper library palette, this is the distinguishing element (gears, brass machinery and written runes together).
 
+## Tentative core loop (author's brief thoughts, "a grain of salt", 2026-11-12)
+
+Status: **tentative**. Not final design; use it to guide, not to constrain.
+
+- **Collecting:** the player does not gather piles of items into chests. Like Thaumcraft's scanning glass, the player explores the world, finds ancient characters (runes) around and collects them by scanning. They are stored in a research tablet, not in inventory.
+- **Record keeping:** the author likes the Thaumonomicon idea (the Thaumcraft research book): one book-like item that stores and records all progress. Here that is the research tablet.
+- **Making enchants as a game:** pair enchant making with mini-games like Thaumcraft's research puzzle, and similar games the author named ("artifact" and Ars Nouveau; the author's "artifact" may be a different mod, **TBD**).
+- **Slots by tier:** the higher the tier, the more characters can be written onto an item.
+- **Item limit and risk:** every item can only withstand so many characters. The more characters added, the lower the chance that the fixation of the enchant succeeds at the altar. Risk grows with load, which is the answer to the "one best pattern" problem (the best enchant is a gamble, not a formula).
+- **Altar:** where fixation happens (the final step that makes the written characters bind to the item).
+
+Resulting loop in one line: explore and scan characters, record them in the research tablet, write them with quill and ink, then fix them on an item at the altar, with success depending on tier and character load.
+
 ## Open questions
 
-1. Core loop: what does the player do for an hour with this mod? (gather, brew, build machines, write, test enchants)
-2. "Build your own enchants": what are the parts? (runes or glyphs combined, effects with costs, a power budget)
-3. Create-like freedom: are there machines with moving parts (gears, belts, rotation) or only magical stations?
-4. Altar: what does it do? (a ritual setup around a centre block, items placed on pedestals, reading and writing runes)
-5. Discovery: how does the player learn new runes? (found in loot, research, experimenting, library structures)
-6. What replaces the "best pattern" problem: tradeoffs, limited slots, rare ingredients, or random discovery?
+1. Scanning: what is the tool (a lens, a glass, a scribe's tool) and what is scanned (blocks, structures, mobs, the library)? Is there a range or a cost?
+2. Failure: what happens when fixation fails? (lose the ink, damage the item, lose the item, a curse, a partial enchant)
+3. Mini-game: which shape fits? (a grid puzzle, connecting characters, arranging them in order, timing) Is it at the research tablet, the Scribing Table or the altar?
+4. How do characters combine into an effect? Is the effect fixed per character set, or does the player choose a meaning?
+5. Does a character have a cost or weight, so some use more of the item's limit than others?
+6. What sets an item's character limit: item material, rarity, or enchantability? And what does the tier of ink, quill and table add?
+7. Altar: a multiblock like the cauldron, or pedestals around a centre?
+8. Create-like freedom and gears: are there machines, or only the altar and tables?
 
 **TBD:** progression beyond tier 2, other systems.
 
