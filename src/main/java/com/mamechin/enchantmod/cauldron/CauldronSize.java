@@ -15,7 +15,7 @@ public record CauldronSize(int capacityMl, int slots, int speed, int heatDepth, 
 
     /** Liquid surface height for a LEVEL 0..3, in blocks above the core's base. The large bowl is the 3D model: floor, belly, neck. */
     public float surface(int level) {
-        if (this == LARGE) return new float[] {-9, 0, 10, 26}[level] / 16.0F;
+        if (this == LARGE) return new float[] {-8, 0, 10, 26}[level] / 16.0F;
         return (level == 0 ? 4.0F : 6.0F + 3.0F * level) / 16.0F;
     }
 

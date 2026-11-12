@@ -199,7 +199,7 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
     /** Inner radius of the large bowl (in blocks) at a height above the core's base, from the model: floor, belly, neck. */
     private static float bowlRadius(float top) {
         float px = top * 16.0F;
-        float[][] profile = {{-9, 13}, {0, 20.5F}, {10, 21.5F}, {26, 15.5F}}; // {height px, radius px}
+        float[][] profile = {{-8, 13}, {0, 20.5F}, {10, 21F}, {26, 14F}}; // {height px, radius px}
         if (px <= profile[0][0]) return profile[0][1] / 16.0F;
         for (int i = 1; i < profile.length; i++) {
             if (px <= profile[i][0]) return Mth.lerp((px - profile[i - 1][0]) / (profile[i][0] - profile[i - 1][0]), profile[i - 1][1], profile[i][1]) / 16.0F;
