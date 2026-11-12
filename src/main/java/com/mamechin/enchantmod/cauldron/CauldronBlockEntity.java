@@ -342,12 +342,12 @@ public class CauldronBlockEntity extends BlockEntity {
     private void burst() {
         if (!(level instanceof ServerLevel server)) return;
         int lvl = getBlockState().getValue(SmallCauldronBlock.LEVEL);
-        double surface = worldPosition.getY() + (6.0 + 3.0 * lvl) / 16.0;
+        double surface = worldPosition.getY() + size.surface(lvl), spread = size.bubbleSpread();
         // count 0 = the offset is a velocity, so every bubble rises straight up from a random spot on the surface
         for (int i = 0; i < BURST_COUNT; i++) {
             server.sendParticles(ParticleTypes.BUBBLE_POP,
-                    worldPosition.getX() + 0.2 + level.random.nextDouble() * 0.6, surface + 0.02,
-                    worldPosition.getZ() + 0.2 + level.random.nextDouble() * 0.6, 0, 0.0, 1.0, 0.0, 0.015);
+                    worldPosition.getX() + 0.5 + (level.random.nextDouble() * 2 - 1) * spread, surface + 0.02,
+                    worldPosition.getZ() + 0.5 + (level.random.nextDouble() * 2 - 1) * spread, 0, 0.0, 1.0, 0.0, 0.015);
         }
     }
 

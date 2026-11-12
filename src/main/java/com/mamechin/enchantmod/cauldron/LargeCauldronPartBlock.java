@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -58,12 +59,18 @@ public class LargeCauldronPartBlock extends Block {
         return controller.useWithoutItem(level, player, hit.withPosition(core));
     }
 
-    /** Legs are narrow corner columns, the body blocks are full. */
+    /** The controller draws the whole 3D model, so parts draw nothing. */
+    @Override
+    protected RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
+    }
+
+    /** Legs are short columns by the corner nearest the core (as in the model), the body blocks are full. */
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         if (state.getValue(DY) != 0) return Shapes.block();
-        double x = state.getValue(DX) == 0 ? 0 : 11.0 / 16.0, z = state.getValue(DZ) == 0 ? 0 : 11.0 / 16.0;
-        return Shapes.box(x, 0, z, x + 5.0 / 16.0, 1, z + 5.0 / 16.0);
+        double x = state.getValue(DX) == 0 ? 11.0 / 16.0 : 0, z = state.getValue(DZ) == 0 ? 11.0 / 16.0 : 0;
+        return Shapes.box(x, 0, z, x + 5.0 / 16.0, 10.0 / 16.0, z + 5.0 / 16.0);
     }
 
     @Override

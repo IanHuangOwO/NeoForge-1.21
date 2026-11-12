@@ -1,5 +1,7 @@
 package com.mamechin.enchantmod.cauldron.client;
 
+import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
+import com.mamechin.enchantmod.cauldron.CauldronSize;
 import com.mamechin.enchantmod.cauldron.SmallCauldronBlock;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 
@@ -24,11 +26,12 @@ public final class CauldronBubbles {
         RandomSource random = level.random;
         int bubbles = state.getValue(SmallCauldronBlock.CONTENT) == CauldronContent.BREWING
                 ? BREWING_BUBBLES : (random.nextFloat() < IDLE_CHANCE ? 1 : 0);
-        double surface = pos.getY() + (6.0 + 3.0 * lvl) / 16.0 + 0.02;
+        var size = level.getBlockEntity(pos) instanceof CauldronBlockEntity c ? c.size() : CauldronSize.SMALL;
+        double surface = pos.getY() + size.surface(lvl) + 0.02, spread = size.bubbleSpread();
         var engine = Minecraft.getInstance().particleEngine;
         for (int i = 0; i < bubbles; i++) {
             Particle bubble = engine.createParticle(ParticleTypes.BUBBLE_POP,
-                    pos.getX() + 0.2 + random.nextDouble() * 0.6, surface, pos.getZ() + 0.2 + random.nextDouble() * 0.6,
+                    pos.getX() + 0.5 + (random.nextDouble() * 2 - 1) * spread, surface, pos.getZ() + 0.5 + (random.nextDouble() * 2 - 1) * spread,
                     0.0, 0.02, 0.0);
             if (bubble != null) {
                 bubble.scale(SIZE);

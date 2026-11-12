@@ -16,11 +16,10 @@ import com.mamechin.enchantmod.block.ModBlocks;
 
 /**
  * The core of a formed large cauldron: the same behaviour as the small one (clicks, brewing, storage) with the sizes of
- * CauldronSize.LARGE. Only the floor is solid; the walls are the surrounding LargeCauldronPartBlocks.
+ * CauldronSize.LARGE. Drawn as one 3D model (large_cauldron.json, 3 blocks wide and tall); the surrounding LargeCauldronPartBlocks are invisible.
  */
 public class LargeCauldronBlock extends SmallCauldronBlock {
     public static final MapCodec<LargeCauldronBlock> CODEC = simpleCodec(LargeCauldronBlock::new);
-    private static final VoxelShape FLOOR = Shapes.box(0, 0, 0, 1, 4.0 / 16.0, 1);
 
     public LargeCauldronBlock(Properties properties) {
         super(properties);
@@ -38,17 +37,17 @@ public class LargeCauldronBlock extends SmallCauldronBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return FLOOR;
+        return Shapes.block(); // a click from above must land here; the bowl itself is drawn by the model, 3 blocks big
     }
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return FLOOR;
+        return Shapes.empty(); // the cavity: the heat source block below is the floor
     }
 
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return FLOOR;
+        return Shapes.block();
     }
 
     /** A removed core takes the whole structure with it; a swap with the small cauldron is handled by LargeCauldronStructure. */
