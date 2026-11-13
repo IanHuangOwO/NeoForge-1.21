@@ -93,9 +93,26 @@ Why it works: it is a dependency graph. Sharing supports saves weight and space,
 - Break checks are rolled at the altar and shown as an animation: enchanting power floods from the lowest tier characters up to the highest. A broken line or deactivated supporter stops the flood at that point, so the player sees which part of the network failed.
 
 **Still open:**
-1. Does the player see the computed chance of success before fixing?
-2. Exact break formula (per cell rate, cap, minimum), to be tuned in play.
-3. What "major" and "minor" connection means in numbers (for example the share of a character's supporters that remain).
+- No success preview: the game does not state the chance; the player learns by trial and error (author, 2026-11-13).
+- The author leaves the exact numbers (break formula, major and minor weights) to Claude to decide, then tune in play.
+
+## First enchant: Efficiency I to V (proposed, 2026-11-13)
+
+Efficiency is the first family to build. Each level is one character, and each character's tier equals its level.
+
+| Character | Tier | Enchantment | Needs connected |
+|-----------|------|-------------|-----------------|
+| Efficiency I | 0 | Efficiency I | nothing |
+| Efficiency II | 1 | Efficiency II | I |
+| Efficiency III | 2 | Efficiency III | II and I |
+| Efficiency IV | 3 | Efficiency IV | III and II |
+| Efficiency V | 4 | Efficiency V | IV and III |
+
+Each level connects to the two levels below it. One character of each level is enough, and the lower ones are shared: II feeds III, IV and V's chain, so a complete Efficiency V network is five characters and seven lines.
+
+Failure behaviour: the item gets the highest level whose supporters are all still connected. If a line breaks, the effect drops down the chain (for example V loses the line to III and the result falls to IV). If the base character I fails, nothing activates. The altar animation floods from I upward and stops where a link is broken.
+
+Known weakness: this layout is a flat strip with no crossings, so it does not use layers. Layers matter once enchants mix (a second family, or a booster character connected to several), which is for the next step.
 
 ## Open discussions (each is its own topic, to take one at a time)
 
