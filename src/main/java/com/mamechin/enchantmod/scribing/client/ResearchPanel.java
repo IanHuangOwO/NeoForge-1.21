@@ -85,13 +85,15 @@ public class ResearchPanel {
         });
     }
 
-    private static final int CAT_W = 24, CAT_H = 22;
+    // the tool tabs are the left-hand tab textures turned a quarter and drawn at half size, so six fit within the page width
+    private static final int CAT_W = 14, CAT_H = 12, CAT_PITCH = 15;
+    private static final ResourceLocation CAT_OFF = research("cat_off"), CAT_ON = research("cat_on");
 
     /** The tool tab under the mouse (they sit along the top of the page), or -1. */
     private int categoryAt(double mouseX, double mouseY) {
         if (!browse || mouseY < y - CAT_H || mouseY >= y) return -1;
-        int i = (int) ((mouseX - (x + 4)) / (CAT_W + 2));
-        return mouseX >= x + 4 && i >= 0 && i < categories().size() && mouseX < x + 4 + i * (CAT_W + 2) + CAT_W ? i : -1;
+        int i = (int) Math.floor((mouseX - (x + 4)) / CAT_PITCH);
+        return mouseX >= x + 4 && i >= 0 && i < categories().size() && mouseX < x + 4 + i * CAT_PITCH + CAT_W ? i : -1;
     }
 
     /** "Vanilla" for Minecraft, the mod's id for any other mod until it gets a name of its own. */
@@ -140,11 +142,19 @@ public class ResearchPanel {
         String number = (pos + 1) + "/" + tabPages().size();
         graphics.drawString(font, number, x + (WIDTH - font.width(number)) / 2, buttonY() + 2, INK, false);
         List<String> cats = categories();
-        for (int i = 0; i < cats.size(); i++) { // flat colours until the tool tabs have a texture
-            int cx = x + 4 + i * (CAT_W + 2), cy = y - CAT_H, bottom = i == category ? y + 2 : y;
-            graphics.fill(cx, cy, cx + CAT_W, bottom, 0xFF8A5A2B);
-            graphics.fill(cx + 1, cy + 1, cx + CAT_W - 1, bottom - (i == category ? 0 : 1), i == category ? 0xFFCEBC92 : 0xFFA86C4C);
-            graphics.renderItem(categoryIcon(cats.get(i)), cx + 4, cy + 4);
+        for (int i = 0; i < cats.size(); i++) {
+            int cx = x + 4 + i * CAT_PITCH, cy = y - CAT_H;
+            graphics.pose().pushPose();
+            graphics.pose().translate(cx, cy, 0);
+            graphics.pose().scale(0.5F, 0.5F, 1.0F);
+            if (i == category) graphics.blit(CAT_ON, 0, 0, 0, 0, 28, 28, 28, 28); // the open tab reaches 2 px into the page
+            else graphics.blit(CAT_OFF, 0, 0, 0, 0, 28, 24, 28, 24);
+            graphics.pose().popPose();
+            graphics.pose().pushPose();
+            graphics.pose().translate(cx + 3, cy + 3, 0);
+            graphics.pose().scale(0.5F, 0.5F, 1.0F);
+            graphics.renderItem(categoryIcon(cats.get(i)), 0, 0);
+            graphics.pose().popPose();
         }
         for (int i = 0; i < tabs.size(); i++) {
             int ty = tabY(i); // the open tab is wider and joins the page
