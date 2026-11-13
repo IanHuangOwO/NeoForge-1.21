@@ -33,7 +33,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     // Every rune sits on the same dark slate board; the glyph colour tells the kind apart.
     private static final int CORE_GLYPH = 0xFFFFE290, BOOST_GLYPH = 0xFFF08C78, STABILIZER_GLYPH = 0xFF8CAAFF;
-    private static final int LINE = 0xFF24163F, LINE_PREVIEW = 0x8024163F, TEXT = 0xFFE2D4AC; // lines are dark ink on parchment
+    private static final int LINE = 0xFFB8764A, LINE_PREVIEW = 0x80B8764A, TEXT = 0xFFE2D4AC; // lines are copper
 
     private static final ResourceLocation BACKGROUND = gui("scribing_table"), CELL_TEXTURE = gui("rune_cell"),
             PALETTE_SLOT = gui("palette_slot"), PALETTE_SELECTED = gui("palette_selected");
@@ -249,7 +249,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         return new int[] {x, y};
     }
 
-    /** Draws a line half a pixel thick from the edge of rune a along the path cells to the edge of rune b (or open ended when b is -1). */
+    /** Draws a line one and a half pixels thick from the edge of rune a along the path cells to the edge of rune b (or open ended when b is -1). */
     private void drawLine(GuiGraphics graphics, int a, List<Integer> path, int b, int color) {
         if (path.isEmpty()) return;
         List<int[]> points = new ArrayList<>();
@@ -260,7 +260,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         graphics.pose().scale(0.5F, 0.5F, 1.0F);
         for (int i = 0; i + 1 < points.size(); i++) {
             int[] p = points.get(i), q = points.get(i + 1);
-            graphics.fill(Math.min(p[0], q[0]), Math.min(p[1], q[1]), Math.max(p[0], q[0]) + 1, Math.max(p[1], q[1]) + 1, color);
+            graphics.fill(Math.min(p[0], q[0]) - 1, Math.min(p[1], q[1]) - 1, Math.max(p[0], q[0]) + 2, Math.max(p[1], q[1]) + 2, color); // 3 half pixels thick, centred
         }
         graphics.pose().popPose();
     }
