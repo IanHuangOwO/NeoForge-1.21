@@ -49,9 +49,32 @@ Resulting loop in one line: explore and scan characters, record them in the rese
 - **Altar:** a multiblock.
 - **Items that progress:** the author likes artifact-style items that grow within the item (see the inspirations above). Fit with enchants **TBD**.
 
+## Blueprint mini-game direction: circuit routing (author's idea, 2026-11-13, proposed)
+
+Design principle: small simple rules that give a large logical setup, like AE2's limited channels and cellular automata. Rejected so far: heavy maths (GF(2) stacking, knapsack, matrix products) as too complex; cellular-automaton stability was one option but the author preferred this one.
+
+The player lays out an enchant blueprint like a chip or circuit board:
+
+- Characters are components on a grid. They are connected by lines (traces).
+- **Neighbour rule:** characters cannot sit side by side. If allowed, adjacency reduces the enchant's strength (**TBD** which).
+- **Crossing rule:** lines cannot cross on the same sheet. A crossing needs a different sheet, so components and lines move between stacked layers of paper.
+- **Length and stability rule:** the longer a line, the less stable it is. Stability feeds into the altar's fixation chance.
+- **Stabilizers:** stabilizer characters or modules can be added to raise stability (like repeaters on long lines).
+- Sheets are layers; higher tiers allow more characters or more layers per item (tier and item limit rules above still apply).
+
+Why it works: the goal "fit the desired enchant into the smallest, most stable layout" has many good answers, so there is no single best pattern, and skill shows in short routes and clever layer use. Real concepts behind it: circuit layout and routing, planar graphs, vias between layers, wire length, signal repeaters.
+
+**Open for this design:**
+1. What does a line mean? Which characters must connect, and who decides (the enchant's recipe, the player)?
+2. Do lines carry anything (ink flow, a signal), or do they only link?
+3. How do layers connect? A special via character, or any cell stacked above another?
+4. What is the unit of stability: a number per line, per sheet, or per whole blueprint?
+5. How does a stabilizer work: placed on a line, or next to one, and what does it cost in weight?
+6. Is there a fixed enchant goal (a target netlist) or do players design freely and the result decides the enchant?
+
 ## Open discussions (each is its own topic, to take one at a time)
 
-1. The blueprint mini-game at the Scribing Table.
+1. The blueprint mini-game at the Scribing Table (direction: circuit routing, see above).
 2. How characters combine into effects, and character weights.
 3. The altar event system (what can go wrong and how the player reacts).
 4. World generation: character blocks and the library structures.
