@@ -15,6 +15,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -30,8 +31,16 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     private static final int GRID_X = 34, GRID_Y = 18, CELL = 9;
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
-    private static final int PANEL = 0xFF2B1D12, PANEL_EDGE = 0xFF8A5A2B, SLOT = 0xFF120C07;
-    private static final int GRID = 0xFF3A2918, GRID_RUNE = 0xFF5C3F20, GLYPH = 0xFFFFE8B0, BOOST_GLYPH = 0xFFFF6B5E, BOOST_BG = 0xFF5A2222, STABILIZER_GLYPH = 0xFF6BA8FF, STABILIZER_BG = 0xFF1F3560, LINE = GLYPH, LINE_PREVIEW = 0x80FFE8B0;
+    private static final int GLYPH = 0xFF24163F, LINE = GLYPH, LINE_PREVIEW = 0x8024163F, TEXT = 0xFFE2D4AC; // dark ink on parchment
+
+    private static final ResourceLocation BACKGROUND = gui("scribing_table"), CELL_TEXTURE = gui("rune_cell"),
+            CELL_CORE = gui("rune_cell_filled"), CELL_BOOST = gui("rune_cell_boost"), CELL_STABILIZER = gui("rune_cell_stabilizer"),
+            PALETTE_TEXTURE = gui("palette_cell");
+    private static final ResourceLocation[] SLOT_GHOSTS = {gui("slot_inkwell"), gui("slot_quill"), gui("slot_template")};
+
+    private static ResourceLocation gui(String name) {
+        return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
+    }
 
     private Rune held;                               // rune dragged out of the palette
     private int lineStart = -1;                      // rune cell a line is being drawn from
@@ -45,24 +54,18 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     }
 
     private int cellAt(double mouseX, double mouseY) {
-        if (!menu.hasTemplate()) return -1;
         int x = (int) Math.floor((mouseX - leftPos - GRID_X) / CELL), y = (int) Math.floor((mouseY - topPos - GRID_Y) / CELL);
         return x < 0 || y < 0 || x >= BlueprintRules.WIDTH || y >= BlueprintRules.HEIGHT ? -1 : y * BlueprintRules.WIDTH + x;
     }
 
     private int paletteAt(double mouseX, double mouseY) {
-        if (!menu.hasTemplate()) return -1;
         int x = (int) Math.floor((mouseX - leftPos - PALETTE_X) / PALETTE_CELL), y = (int) Math.floor((mouseY - topPos - PALETTE_Y) / PALETTE_CELL);
         int index = y * PALETTE_COLUMNS + x;
         return x < 0 || x >= PALETTE_COLUMNS || y < 0 || index >= Rune.values().length ? -1 : index;
     }
 
-    private static int glyphColor(Rune rune) {
-        return rune == Rune.URUZ ? BOOST_GLYPH : rune.isUtility() ? STABILIZER_GLYPH : GLYPH;
-    }
-
-    private static int runeBackground(Rune rune) {
-        return rune == Rune.URUZ ? BOOST_BG : rune.isUtility() ? STABILIZER_BG : GRID_RUNE;
+    private static ResourceLocation cellTexture(Rune rune) {
+        return rune == Rune.URUZ ? CELL_BOOST : rune.isUtility() ? CELL_STABILIZER : CELL_CORE;
     }
 
     /** Cell centre in half pixels, so a line can be half a pixel thick. */
@@ -147,10 +150,6 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        if (!menu.hasTemplate()) {
-            held = null;
-            cancelLine();
-        }
         extendLine(mouseX, mouseY);
         super.render(graphics, mouseX, mouseY, partialTick);
         if (held != null) {
@@ -190,29 +189,26 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        graphics.fill(leftPos, topPos, leftPos + imageWidth, topPos + imageHeight, PANEL_EDGE);
-        graphics.fill(leftPos + 2, topPos + 2, leftPos + imageWidth - 2, topPos + imageHeight - 2, PANEL);
-        for (Slot slot : menu.slots) {
-            graphics.fill(leftPos + slot.x - 1, topPos + slot.y - 1, leftPos + slot.x + 17, topPos + slot.y + 17, SLOT);
+        graphics.blit(BACKGROUND, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
+        for (int i = 0; i < SLOT_GHOSTS.length; i++) {
+            Slot slot = menu.slots.get(i);
+            if (!slot.hasItem()) graphics.blit(SLOT_GHOSTS[i], leftPos + slot.x, topPos + slot.y, 0, 0, 16, 16, 16, 16);
         }
 
-        if (!menu.hasTemplate()) {
-            drawDesk(graphics);
-            return;
-        }
         Blueprint blueprint = menu.blueprint();
         Set<Integer> runeCells = BlueprintRules.runeCells(blueprint);
         for (int cell = 0; cell < BlueprintRules.CELLS; cell++) {
-            int x = leftPos + GRID_X + (cell % BlueprintRules.WIDTH) * CELL, y = topPos + GRID_Y + (cell / BlueprintRules.WIDTH) * CELL;
-            graphics.fill(x, y, x + CELL - 1, y + CELL - 1, runeCells.contains(cell) ? GRID_RUNE : GRID);
+            if (!runeCells.contains(cell)) blitCell(graphics, CELL_TEXTURE, cell);
         }
         for (Blueprint.RuneAt placed : blueprint.runes()) {
             Rune rune = Rune.byId(placed.rune());
             if (rune == null) continue;
             int[] b = bounds(placed);
-            int x0 = leftPos + GRID_X + b[0] * CELL, y0 = topPos + GRID_Y + b[1] * CELL, side = rune.size() * CELL - 1;
-            graphics.fill(x0, y0, x0 + side, y0 + side, runeBackground(rune));
-            drawGlyph(graphics, rune, x0 + side / 2.0F, y0 + side / 2.0F, rune.size());
+            for (int y = b[1]; y <= b[3]; y++) {
+                for (int x = b[0]; x <= b[2]; x++) blitCell(graphics, cellTexture(rune), y * BlueprintRules.WIDTH + x);
+            }
+            int side = rune.size() * CELL - 1;
+            drawGlyph(graphics, rune, leftPos + GRID_X + b[0] * CELL + side / 2.0F, topPos + GRID_Y + b[1] * CELL + side / 2.0F, rune.size());
         }
         for (Blueprint.Line line : blueprint.lines()) drawLine(graphics, line.a(), line.path(), line.b(), LINE);
         if (lineStart >= 0) drawLine(graphics, lineStart, linePath, -1, LINE_PREVIEW);
@@ -220,24 +216,13 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         Rune[] runes = Rune.values();
         for (int i = 0; i < runes.length; i++) {
             int x = leftPos + PALETTE_X + (i % PALETTE_COLUMNS) * PALETTE_CELL, y = topPos + PALETTE_Y + (i / PALETTE_COLUMNS) * PALETTE_CELL;
-            graphics.fill(x, y, x + PALETTE_CELL - 1, y + PALETTE_CELL - 1, GRID);
+            graphics.blit(PALETTE_TEXTURE, x, y, 0, 0, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL);
             drawGlyph(graphics, runes[i], x + PALETTE_CELL / 2.0F, y + PALETTE_CELL / 2.0F, 1);
         }
     }
 
-    /** Bare wooden planks where the grid and palette go, shown until a template is put in. */
-    private void drawDesk(GuiGraphics graphics) {
-        int x0 = leftPos + GRID_X - 4, y0 = topPos + GRID_Y - 4;
-        int x1 = leftPos + PALETTE_X + PALETTE_COLUMNS * PALETTE_CELL + 4, y1 = topPos + GRID_Y + BlueprintRules.HEIGHT * CELL + 4;
-        int plank = 11;
-        for (int y = y0, i = 0; y < y1; y += plank, i++) {
-            int bottom = Math.min(y + plank, y1);
-            graphics.fill(x0, y, x1, bottom, i % 2 == 0 ? 0xFF6B4A2B : 0xFF5F4125);
-            graphics.fill(x0, bottom - 1, x1, bottom, 0xFF3A2514); // seam
-            for (int x = x0 + 7 + (i * 29) % 23; x < x1; x += 37) { // a few grain marks, the same every frame
-                graphics.fill(x, y + 3 + (x % 5), x + 9, y + 4 + (x % 5), 0xFF7B5733);
-            }
-        }
+    private void blitCell(GuiGraphics graphics, ResourceLocation texture, int cell) {
+        graphics.blit(texture, leftPos + GRID_X + (cell % BlueprintRules.WIDTH) * CELL, topPos + GRID_Y + (cell / BlueprintRules.WIDTH) * CELL, 0, 0, CELL, CELL, CELL, CELL);
     }
 
     /** The point on the edge of a rune where a line cell next to it meets it, in half pixels. */
@@ -275,16 +260,17 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         graphics.pose().translate(centreX, centreY, 0);
         graphics.pose().scale(scale, scale, 1.0F);
         graphics.pose().translate(-font.width(text) / 2.0F, -4.0F, 0); // fractional, so scaled glyphs stay centred
-        graphics.drawString(font, text, 0, 0, glyphColor(rune), false);
+        graphics.drawString(font, text, 0, 0, GLYPH, false);
         graphics.pose().popPose();
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, 8, 6, 0xFFE8C98A, false);
-        graphics.drawString(font, playerInventoryTitle, 47, inventoryLabelY, 0xFFE8C98A, false);
+        graphics.drawString(font, title, 8, 6, TEXT, false);
+        graphics.drawString(font, playerInventoryTitle, 47, inventoryLabelY, TEXT, false);
         if (!menu.canEdit()) {
-            graphics.drawString(font, Component.translatable("gui.enchantmod.scribing_table.need_tools"), GRID_X, GRID_Y + BlueprintRules.HEIGHT * CELL + 3, 0xFFB86B4B, false);
+            Component hint = Component.translatable("gui.enchantmod.scribing_table.need_tools");
+            graphics.drawString(font, hint, imageWidth - 8 - font.width(hint), 6, 0xFFD98A6A, false);
         }
     }
 
