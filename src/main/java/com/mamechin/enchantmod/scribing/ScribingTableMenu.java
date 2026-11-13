@@ -102,9 +102,10 @@ public class ScribingTableMenu extends AbstractContainerMenu {
             default -> null;
         };
         if (next == null) return;
-        ItemStack template = inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE);
+        // write through the handler so the block entity is marked dirty and the edit is saved
+        ItemStack template = inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE).copy();
         template.set(ModDataComponents.BLUEPRINT.get(), next);
-        slots.get(ScribingTableBlockEntity.TEMPLATE).setChanged();
+        inventory.setStackInSlot(ScribingTableBlockEntity.TEMPLATE, template);
         broadcastChanges();
     }
 

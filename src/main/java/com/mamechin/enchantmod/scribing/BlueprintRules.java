@@ -40,6 +40,7 @@ public final class BlueprintRules {
     }
 
     public static Blueprint place(Blueprint bp, int cell, String runeId) {
+        // shortcut: any rune is accepted; once runes are discovered, check the player's known runes here
         if (!inGrid(cell) || Rune.byId(runeId) == null || occupied(bp).contains(cell)) return null;
         List<Blueprint.RuneAt> runes = new ArrayList<>(bp.runes());
         runes.add(new Blueprint.RuneAt(cell, runeId));
@@ -62,7 +63,12 @@ public final class BlueprintRules {
 
     /** Adds a line from rune a to rune b along path (the cells in between, in order). Parallel lines are allowed. */
     public static Blueprint addLine(Blueprint bp, int a, int b, List<Integer> path) {
-        if (a == b || !hasRune(bp, a) || !hasRune(bp, b) || path.size() > CELLS) return null;
+        if (a == b || !hasRune(bp, a) || !hasRune(bp, b) || path.size() > CELLS || bp.lines().size() >= CELLS) return null;
+        if (path.isEmpty()) { // a direct line takes no cell, so only one per pair; more would be free redundancy
+            for (Blueprint.Line l : bp.lines()) {
+                if (l.path().isEmpty() && ((l.a() == a && l.b() == b) || (l.a() == b && l.b() == a))) return null;
+            }
+        }
         Set<Integer> taken = occupied(bp);
         Set<Integer> seen = new HashSet<>();
         int previous = a;

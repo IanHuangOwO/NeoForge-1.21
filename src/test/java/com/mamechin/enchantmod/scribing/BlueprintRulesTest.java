@@ -44,6 +44,17 @@ class BlueprintRulesTest {
     }
 
     @Test
+    void onlyOneDirectLinePerPairAndLineCountIsBounded() {
+        Blueprint bp = BlueprintRules.place(BlueprintRules.place(Blueprint.EMPTY, 0, "isa"), 1, "isa");
+        bp = BlueprintRules.addLine(bp, 0, 1, List.of());
+        assertNotNull(bp);
+        assertNull(BlueprintRules.addLine(bp, 0, 1, List.of()));
+        assertNull(BlueprintRules.addLine(bp, 1, 0, List.of()));
+        List<Blueprint.Line> many = java.util.Collections.nCopies(BlueprintRules.CELLS, new Blueprint.Line(0, 1, List.of(5)));
+        assertNull(BlueprintRules.addLine(new Blueprint(bp.runes(), many), 0, 1, List.of(W, W + 1)));
+    }
+
+    @Test
     void lineCellsAreOccupiedSoLinesNeverCross() {
         Blueprint bp = BlueprintRules.place(Blueprint.EMPTY, W, "isa");
         bp = BlueprintRules.place(bp, W + 3, "isa");
