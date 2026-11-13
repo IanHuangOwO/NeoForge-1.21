@@ -279,14 +279,14 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, 8, 6, TEXT, false);
+        graphics.drawString(font, title, 8, 3, TEXT, false);
         graphics.drawString(font, playerInventoryTitle, 47, inventoryLabelY, TEXT, false);
         if (!menu.canEdit()) {
             Component hint = Component.translatable("gui.enchantmod.scribing_table.need_tools");
-            graphics.drawString(font, hint, imageWidth - 8 - font.width(hint), 6, 0xFFD98A6A, false);
+            graphics.drawString(font, hint, imageWidth - 8 - font.width(hint), 3, 0xFFD98A6A, false);
         } else if (menu.ink() == 0) {
             Component dry = Component.translatable("gui.enchantmod.scribing_table.no_ink");
-            graphics.drawString(font, dry, imageWidth - 8 - font.width(dry), 6, 0xFFD98A6A, false);
+            graphics.drawString(font, dry, imageWidth - 8 - font.width(dry), 3, 0xFFD98A6A, false);
         }
     }
 
