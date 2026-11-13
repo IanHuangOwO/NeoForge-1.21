@@ -73,21 +73,15 @@ public class ResearchPanel {
         int top = y + 8;
         top = paragraph(graphics, Component.translatable("enchantment.minecraft." + core.enchant()), top, TITLE) + 4;
 
-        // first what each rune means, then what the enchant does, then how to link them
-        graphics.drawString(font, Component.translatable("gui.enchantmod.research.runes"), x + 8, top, TITLE, false);
-        top += 11;
+        // first a short story for each rune, then what the enchant does, then how to link them
         for (String id : core.runes()) {
             Rune rune = Rune.byId(id);
             if (rune == null) continue;
             graphics.blit(BOARD_1X1, x + 8, top, 0, 0, 9, 9, 9, 9);
             glyph(graphics, rune, x + 8 + 4.0F, top + 4.0F, 1.0F);
-            Component meaning = Component.translatable("rune.enchantmod." + id).append(": ").append(Component.translatable("rune.enchantmod." + id + ".meaning"));
-            int start = top;
-            for (FormattedCharSequence line : font.split(meaning, WIDTH - 16 - 14)) {
-                graphics.drawString(font, line, x + 22, start, INK, false);
-                start += 10;
-            }
-            top = Math.max(top + 11, start + 1);
+            // rune name beside its board, then its short story below
+            graphics.drawString(font, Component.translatable("rune.enchantmod." + id), x + 22, top + 1, TITLE, false);
+            top = paragraph(graphics, Component.translatable("rune.enchantmod." + id + ".meaning"), top + 12, INK) + 2;
         }
         top += 4;
 
