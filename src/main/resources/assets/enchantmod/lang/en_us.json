@@ -162,5 +162,10 @@
   "research.enchantmod.flame.why": "The yew bow loosed with a torch's fire.",
   "research.enchantmod.punch.why": "The yew bow, with a thorn's driving force.",
   "research.enchantmod.infinity.why": "The yew bow and the year: the quiver renews itself.",
-  "gui.enchantmod.research.role": "Role"
+  "gui.enchantmod.research.role": "Role",
+  "gui.enchantmod.research.tab.runes": "Runes",
+  "gui.enchantmod.research.tab.tools": "Tools",
+  "gui.enchantmod.research.tab.weapons": "Weapons",
+  "gui.enchantmod.research.tab.armor": "Armor",
+  "gui.enchantmod.research.tab.bows": "Bows"
 }

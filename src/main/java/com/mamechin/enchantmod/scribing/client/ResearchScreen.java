@@ -17,12 +17,14 @@ import net.minecraft.world.item.Items;
  * Esc or right click goes back to the map. Flat colours for now. Every node is shown until there is a progression system.
  */
 public class ResearchScreen extends Screen {
-    private static final int NODE = 22, LIMIT = 260;
-    private static final int BACKDROP = 0xFF1E1628, FRAME = 0xFF8A5A2B, LINK = 0x99B8764A, NODE_FILL = 0xFF3A2D4A, NODE_HOVER = 0xFF5A4670;
+    private static final int NODE = 22, LIMIT = 260, TAB_W = 58, TAB_H = 22;
+    private static final int BACKDROP = 0xFF1E1628, FRAME = 0xFF8A5A2B, LINK = 0x99B8764A, NODE_FILL = 0xFF3A2D4A, NODE_HOVER = 0xFF5A4670, TAB_ON = 0xFF5A4670, TAB_TEXT = 0xFFE2D4AC;
     private static double panX, panY; // kept between openings
 
     private final ResearchPanel panel;
-    private final List<ResearchMap.Node> nodes = ResearchMap.nodes();
+    private final List<ResearchMap.Tab> tabs = ResearchMap.tabs();
+    private int tab;
+    private List<ResearchMap.Node> nodes = tabs.get(0).nodes();
     private boolean reading;
     private double dragged;
 
@@ -36,7 +38,7 @@ public class ResearchScreen extends Screen {
     }
 
     private int originX() {
-        return width / 2 + (int) panX;
+        return (TAB_W + width) / 2 + (int) panX;
     }
 
     private int originY() {
@@ -53,7 +55,7 @@ public class ResearchScreen extends Screen {
         }
         graphics.fill(0, 0, width, height, FRAME);
         graphics.fill(4, 4, width - 4, height - 4, BACKDROP);
-        graphics.enableScissor(4, 4, width - 4, height - 4);
+        graphics.enableScissor(TAB_W, 4, width - 4, height - 4);
         int runes = Rune.values().length;
         for (ResearchMap.Node node : nodes) {
             for (int link : node.links()) {
@@ -72,7 +74,17 @@ public class ResearchScreen extends Screen {
             else graphics.renderItem(new ItemStack(Items.ENCHANTED_BOOK), nx + 3, ny + 3);
         }
         graphics.disableScissor();
+        for (int i = 0; i < tabs.size(); i++) {
+            int ty = tabY(i);
+            graphics.fill(4, ty, TAB_W, ty + TAB_H, FRAME);
+            graphics.fill(5, ty + 1, TAB_W, ty + TAB_H - 1, i == tab ? TAB_ON : NODE_FILL);
+            graphics.drawString(font, Component.translatable("gui.enchantmod.research.tab." + tabs.get(i).key()), 9, ty + 7, TAB_TEXT, false);
+        }
         if (hovered != null) graphics.renderTooltip(font, nameOf(hovered), mouseX, mouseY);
+    }
+
+    private int tabY(int i) {
+        return 12 + i * (TAB_H + 3);
     }
 
     private static Component nameOf(ResearchMap.Node node) {
@@ -93,7 +105,7 @@ public class ResearchScreen extends Screen {
     }
 
     private ResearchMap.Node nodeAt(double mouseX, double mouseY) {
-        if (reading) return null;
+        if (reading || mouseX < TAB_W) return null;
         for (ResearchMap.Node node : nodes) {
             if (Math.abs(mouseX - (originX() + node.x())) <= NODE / 2.0 && Math.abs(mouseY - (originY() + node.y())) <= NODE / 2.0) return node;
         }
@@ -107,6 +119,17 @@ public class ResearchScreen extends Screen {
             return panel.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
         }
         dragged = 0;
+        if (button == 0 && mouseX < TAB_W) {
+            for (int i = 0; i < tabs.size(); i++) {
+                if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) {
+                    tab = i;
+                    nodes = tabs.get(i).nodes();
+                    panX = 0;
+                    panY = 0;
+                }
+            }
+            dragged = LIMIT; // a click on the tabs never opens a node
+        }
         return true;
     }
 
