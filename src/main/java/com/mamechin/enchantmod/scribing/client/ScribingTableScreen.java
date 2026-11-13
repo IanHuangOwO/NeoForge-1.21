@@ -45,11 +45,13 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     }
 
     private int cellAt(double mouseX, double mouseY) {
+        if (!menu.hasTemplate()) return -1;
         int x = (int) Math.floor((mouseX - leftPos - GRID_X) / CELL), y = (int) Math.floor((mouseY - topPos - GRID_Y) / CELL);
         return x < 0 || y < 0 || x >= BlueprintRules.WIDTH || y >= BlueprintRules.HEIGHT ? -1 : y * BlueprintRules.WIDTH + x;
     }
 
     private int paletteAt(double mouseX, double mouseY) {
+        if (!menu.hasTemplate()) return -1;
         int x = (int) Math.floor((mouseX - leftPos - PALETTE_X) / PALETTE_CELL), y = (int) Math.floor((mouseY - topPos - PALETTE_Y) / PALETTE_CELL);
         int index = y * PALETTE_COLUMNS + x;
         return x < 0 || x >= PALETTE_COLUMNS || y < 0 || index >= Rune.values().length ? -1 : index;
@@ -145,6 +147,10 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        if (!menu.hasTemplate()) {
+            held = null;
+            cancelLine();
+        }
         extendLine(mouseX, mouseY);
         super.render(graphics, mouseX, mouseY, partialTick);
         if (held != null) {
@@ -190,6 +196,10 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             graphics.fill(leftPos + slot.x - 1, topPos + slot.y - 1, leftPos + slot.x + 17, topPos + slot.y + 17, SLOT);
         }
 
+        if (!menu.hasTemplate()) {
+            drawDesk(graphics);
+            return;
+        }
         Blueprint blueprint = menu.blueprint();
         Set<Integer> runeCells = BlueprintRules.runeCells(blueprint);
         for (int cell = 0; cell < BlueprintRules.CELLS; cell++) {
@@ -212,6 +222,21 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             int x = leftPos + PALETTE_X + (i % PALETTE_COLUMNS) * PALETTE_CELL, y = topPos + PALETTE_Y + (i / PALETTE_COLUMNS) * PALETTE_CELL;
             graphics.fill(x, y, x + PALETTE_CELL - 1, y + PALETTE_CELL - 1, GRID);
             drawGlyph(graphics, runes[i], x + PALETTE_CELL / 2.0F, y + PALETTE_CELL / 2.0F, 1);
+        }
+    }
+
+    /** Bare wooden planks where the grid and palette go, shown until a template is put in. */
+    private void drawDesk(GuiGraphics graphics) {
+        int x0 = leftPos + GRID_X - 4, y0 = topPos + GRID_Y - 4;
+        int x1 = leftPos + PALETTE_X + PALETTE_COLUMNS * PALETTE_CELL + 4, y1 = topPos + GRID_Y + BlueprintRules.HEIGHT * CELL + 4;
+        int plank = 11;
+        for (int y = y0, i = 0; y < y1; y += plank, i++) {
+            int bottom = Math.min(y + plank, y1);
+            graphics.fill(x0, y, x1, bottom, i % 2 == 0 ? 0xFF6B4A2B : 0xFF5F4125);
+            graphics.fill(x0, bottom - 1, x1, bottom, 0xFF3A2514); // seam
+            for (int x = x0 + 7 + (i * 29) % 23; x < x1; x += 37) { // a few grain marks, the same every frame
+                graphics.fill(x, y + 3 + (x % 5), x + 9, y + 4 + (x % 5), 0xFF7B5733);
+            }
         }
     }
 

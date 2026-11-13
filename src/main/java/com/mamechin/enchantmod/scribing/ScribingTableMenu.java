@@ -85,6 +85,10 @@ public class ScribingTableMenu extends AbstractContainerMenu {
     }
 
     /** Editing needs an inkwell, a quill and a template in the table. (Nothing is used up yet.) */
+    public boolean hasTemplate() {
+        return !inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE).isEmpty();
+    }
+
     public boolean canEdit() {
         return !inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL).isEmpty()
                 && !inventory.getStackInSlot(ScribingTableBlockEntity.QUILL).isEmpty()
