@@ -77,5 +77,8 @@
   "rune.enchantmod.dagaz": "Dagaz",
   "rune.enchantmod.dagaz.desc": "Dawn. Stabilizer rune: needed from level 10.",
   "rune.enchantmod.othala": "Othala",
-  "rune.enchantmod.othala.desc": "Heritage. Not used by any core yet."
+  "rune.enchantmod.othala.desc": "Heritage. Not used by any core yet.",
+  "tooltip.enchantmod.forecast.none": "No enchant formed yet",
+  "tooltip.enchantmod.forecast.level": "  Level %s: %s",
+  "tooltip.enchantmod.forecast.fails": "  Fails: %s"
 }

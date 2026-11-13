@@ -93,7 +93,7 @@ Why it works: it is a dependency graph. Sharing supports saves weight and space,
 - Break checks are rolled at the altar and shown as an animation: enchanting power floods from the lowest tier characters up to the highest. A broken line or deactivated supporter stops the flood at that point, so the player sees which part of the network failed.
 
 **Still open:**
-- No success preview: the game does not state the chance; the player learns by trial and error (author, 2026-11-13).
+- ~~No success preview~~ **Reversed (author, 2026-11-13):** the enchant template's tooltip shows the enchants the blueprint makes and the exact chance of each level, always visible for now. A later unlock (such as a scanning lens) may gate it. Numbers: see "Forecast model" below.
 - The author leaves the exact numbers (break formula, major and minor weights) to Claude to decide, then tune in play.
 
 ## First enchant: Efficiency I to V (SUPERSEDED by the rune and core model below, 2026-11-13)
@@ -183,6 +183,10 @@ What exists (package `scribing`):
 Decisions made by Claude (change freely): grid size 16 x 11 (grew from 12 x 8 because 3x3 runes need room; the 3D model's 12 x 8 inlay is now only decoration); a 2x2 rune is anchored at the top left of its middle; the first-version "Click another rune next to the line's end" now means next to any cell of that rune; one layer only; the palette shows all runes because "discovered runes" does not exist yet (`shortcut:` to replace when discovery is designed); parallel lines allowed; a template is not a vanilla paper.
 
 Not built: layers, ink and quill use, the rune and core rules (core table, boost and stabilizer runes, break chances), the altar, discovery, saving templates to the research tablet.
+
+## Forecast model (built 2026-11-13, numbers are Claude's defaults, change freely)
+
+`EnchantForecast` (pure code, unit tested) reads a blueprint. A group of core runes joined by lines that matches a core table row exactly is an enchant (the table in the code is the first 26 rows above). Each Uruz joined to any rune of the group adds one level on top of level 1. Mannaz is needed from level 5, Dagaz from level 10 and one more Dagaz for each further 10 levels, or the level stops below the threshold. A line breaks with 4% plus 1% per path cell (at most 95%); a link between two runes breaks only when all its parallel lines do. If the link inside a two-rune core breaks, the enchant fails. The chances are exact, worked out over every combination of surviving links. Shown in the template item's tooltip (`EnchantTemplateItem`). Rune sharing between cores is still left out.
 
 ## Open discussions (each is its own topic, to take one at a time)
 
