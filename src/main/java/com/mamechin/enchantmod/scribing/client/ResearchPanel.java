@@ -72,12 +72,27 @@ public class ResearchPanel {
     private void renderCore(GuiGraphics graphics, EnchantForecast.Core core) {
         int top = y + 8;
         top = paragraph(graphics, Component.translatable("enchantment.minecraft." + core.enchant()), top, TITLE) + 4;
-        top = paragraph(graphics, Component.translatable("research.enchantmod." + core.enchant()), top, INK) + 6;
 
-        StringBuilder names = new StringBuilder();
-        for (String id : core.runes()) names.append(names.isEmpty() ? "" : " + ").append(Component.translatable("rune.enchantmod." + id).getString());
+        // first what each rune means, then what the enchant does, then how to link them
         graphics.drawString(font, Component.translatable("gui.enchantmod.research.runes"), x + 8, top, TITLE, false);
-        top = paragraph(graphics, Component.literal(names.toString()), top + 10, INK) + 6;
+        top += 11;
+        for (String id : core.runes()) {
+            Rune rune = Rune.byId(id);
+            if (rune == null) continue;
+            graphics.blit(BOARD_1X1, x + 8, top, 0, 0, 9, 9, 9, 9);
+            glyph(graphics, rune, x + 8 + 4.0F, top + 4.0F, 1.0F);
+            Component meaning = Component.translatable("rune.enchantmod." + id).append(": ").append(Component.translatable("rune.enchantmod." + id + ".meaning"));
+            int start = top;
+            for (FormattedCharSequence line : font.split(meaning, WIDTH - 16 - 14)) {
+                graphics.drawString(font, line, x + 22, start, INK, false);
+                start += 10;
+            }
+            top = Math.max(top + 11, start + 1);
+        }
+        top += 4;
+
+        graphics.drawString(font, Component.translatable("gui.enchantmod.research.effect"), x + 8, top, TITLE, false);
+        top = paragraph(graphics, Component.translatable("research.enchantmod." + core.enchant()), top + 11, INK) + 6;
 
         graphics.drawString(font, Component.translatable("gui.enchantmod.research.example"), x + 8, top, TITLE, false);
         top += 12;
