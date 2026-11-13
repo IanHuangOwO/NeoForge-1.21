@@ -5,6 +5,7 @@ import java.util.List;
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.block.ModBlocks;
 import com.mamechin.enchantmod.item.ModItems;
+import com.mamechin.enchantmod.item.inkwell.EnchantInkwellItem;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -84,7 +85,12 @@ public class ScribingTableMenu extends AbstractContainerMenu {
         return inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE).getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY);
     }
 
-    /** Editing needs an inkwell, a quill and a template in the table. (Nothing is used up yet.) */
+    /** Ink left in the inkwell in the table: how many more cells can be drawn. */
+    public int ink() {
+        return EnchantInkwellItem.remaining(inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL));
+    }
+
+    /** Editing needs an inkwell, a quill and a template in the table; every cell drawn wears the inkwell down. */
     public boolean canEdit() {
         return !inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL).isEmpty()
                 && !inventory.getStackInSlot(ScribingTableBlockEntity.QUILL).isEmpty()
@@ -102,10 +108,17 @@ public class ScribingTableMenu extends AbstractContainerMenu {
             default -> null;
         };
         if (next == null) return;
+        int cost = BlueprintRules.cost(current, next);
+        if (cost > ink()) return; // not enough ink left; the inkwell never breaks, it just runs dry
         // write through the handler so the block entity is marked dirty and the edit is saved
         ItemStack template = inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE).copy();
         template.set(ModDataComponents.BLUEPRINT.get(), next);
         inventory.setStackInSlot(ScribingTableBlockEntity.TEMPLATE, template);
+        if (cost > 0) {
+            ItemStack inkwell = inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL).copy();
+            EnchantInkwellItem.spend(inkwell, cost);
+            inventory.setStackInSlot(ScribingTableBlockEntity.INKWELL, inkwell);
+        }
         broadcastChanges();
     }
 

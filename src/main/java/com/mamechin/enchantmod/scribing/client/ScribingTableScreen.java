@@ -167,7 +167,9 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             int cell = cellAt(mouseX, mouseY);
             if (cell >= 0) {
                 Set<Integer> cells = BlueprintRules.footprint(cell, held.size());
-                int color = BlueprintRules.place(menu.blueprint(), cell, held.id()) != null ? 0x6040C040 : 0x60C04040;
+                Blueprint placed = BlueprintRules.place(menu.blueprint(), cell, held.id());
+                boolean fine = placed != null && BlueprintRules.cost(menu.blueprint(), placed) <= menu.ink();
+                int color = fine ? 0x6040C040 : 0x60C04040;
                 for (int c : cells == null ? Set.of(cell) : cells) {
                     int x = leftPos + GRID_X + (c % BlueprintRules.WIDTH) * CELL, y = topPos + GRID_Y + (c / BlueprintRules.WIDTH) * CELL;
                     graphics.fill(x, y, x + CELL - 1, y + CELL - 1, color);
@@ -282,6 +284,9 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         if (!menu.canEdit()) {
             Component hint = Component.translatable("gui.enchantmod.scribing_table.need_tools");
             graphics.drawString(font, hint, imageWidth - 8 - font.width(hint), 6, 0xFFD98A6A, false);
+        } else if (menu.ink() == 0) {
+            Component dry = Component.translatable("gui.enchantmod.scribing_table.no_ink");
+            graphics.drawString(font, dry, imageWidth - 8 - font.width(dry), 6, 0xFFD98A6A, false);
         }
     }
 

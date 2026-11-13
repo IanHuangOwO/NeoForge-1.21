@@ -22,6 +22,16 @@ public abstract class EnchantInkwellItem extends Item {
         return inkFluid.get();
     }
 
+    /** Uses left in the stack; an item that cannot wear down never runs out. */
+    public static int remaining(ItemStack stack) {
+        return stack.isDamageableItem() ? stack.getMaxDamage() - stack.getDamageValue() : Integer.MAX_VALUE;
+    }
+
+    /** Spends ink for drawing: wears the stack down to 0 left but never breaks it. */
+    public static void spend(ItemStack stack, int amount) {
+        if (stack.isDamageableItem()) stack.setDamageValue(Math.min(stack.getMaxDamage(), stack.getDamageValue() + amount));
+    }
+
     /** Spend one use of the given stack. Breaks it at 0 durability. */
     public void wear(ItemStack stack, LivingEntity user, EquipmentSlot slot) {
         stack.hurtAndBreak(1, user, slot);

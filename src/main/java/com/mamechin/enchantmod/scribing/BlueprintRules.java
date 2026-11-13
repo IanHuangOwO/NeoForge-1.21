@@ -138,5 +138,10 @@ public final class BlueprintRules {
         return new Blueprint(bp.runes(), lines);
     }
 
+    /** Ink an edit costs: one durability for each cell it fills, so a core rune costs 9 and a line costs its length. Erasing is free. */
+    public static int cost(Blueprint before, Blueprint after) {
+        return Math.max(0, occupied(after).size() - occupied(before).size());
+    }
+
     private BlueprintRules() {}
 }

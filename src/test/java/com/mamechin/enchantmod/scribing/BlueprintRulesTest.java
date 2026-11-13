@@ -99,6 +99,19 @@ class BlueprintRulesTest {
     }
 
     @Test
+    void everyCellDrawnCostsOneInkAndErasingIsFree() {
+        Blueprint empty = Blueprint.EMPTY;
+        Blueprint core = BlueprintRules.place(empty, c(1, 1), "berkana");
+        assertEquals(9, BlueprintRules.cost(empty, core));                                   // a core rune
+        Blueprint pair = BlueprintRules.place(core, c(5, 1), "isa");
+        assertEquals(9, BlueprintRules.cost(core, pair));
+        assertEquals(4, BlueprintRules.cost(empty, BlueprintRules.place(empty, c(1, 1), "mannaz")));  // a stabilizer
+        Blueprint line = BlueprintRules.addLine(pair, c(1, 1), c(5, 1), List.of(c(3, 1)));
+        assertEquals(1, BlueprintRules.cost(pair, line));                                    // a line costs its length
+        assertEquals(0, BlueprintRules.cost(line, BlueprintRules.erase(line, c(3, 1))));
+    }
+
+    @Test
     void parallelLinesAreAllowed() {
         Blueprint bp = twoRunes();
         bp = BlueprintRules.addLine(bp, c(1, 1), c(5, 1), List.of(c(3, 1)));
