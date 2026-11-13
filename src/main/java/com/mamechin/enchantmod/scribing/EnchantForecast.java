@@ -24,7 +24,18 @@ public final class EnchantForecast {
     /** Core table: sorted rune ids joined by "+" to the vanilla enchantment id. A shortcut until the full table is designed. */
     private static final Map<String, String> CORES = new HashMap<>();
 
+    /** One row of the core table, for the research tablet. */
+    public record Core(String enchant, List<String> runes) {}
+
+    private static final List<Core> TABLE = new ArrayList<>();
+
+    /** The core table in display order. */
+    public static List<Core> table() {
+        return TABLE;
+    }
+
     private static void core(String enchant, String... runes) {
+        TABLE.add(new Core(enchant, List.of(runes)));
         List<String> sorted = new ArrayList<>(List.of(runes));
         sorted.sort(null);
         CORES.put(String.join("+", sorted), enchant);

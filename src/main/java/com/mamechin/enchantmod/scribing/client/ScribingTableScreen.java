@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.mamechin.enchantmod.item.ModItems;
 import com.mamechin.enchantmod.scribing.Blueprint;
 import com.mamechin.enchantmod.scribing.BlueprintRules;
 import com.mamechin.enchantmod.scribing.EditBlueprintPayload;
@@ -12,6 +13,7 @@ import com.mamechin.enchantmod.scribing.Rune;
 import com.mamechin.enchantmod.scribing.ScribingTableMenu;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -44,12 +46,14 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
     }
 
+    private ResearchPanel research;                // pages of the research tablet, shown while the player carries one
     private Rune held;                               // rune dragged out of the palette
     private int lineStart = -1;                      // rune cell a line is being drawn from
     private final List<Integer> linePath = new ArrayList<>();
 
     public ScribingTableScreen(ScribingTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
+        research = new ResearchPanel(Minecraft.getInstance().font);
         imageWidth = 256;
         imageHeight = 222;
         inventoryLabelY = 130;
@@ -66,7 +70,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         return x < 0 || x >= PALETTE_COLUMNS || y < 0 || index >= Rune.values().length ? -1 : index;
     }
 
-    private static int glyphColor(Rune rune) {
+    static int glyphColor(Rune rune) {
         return rune == Rune.URUZ ? BOOST_GLYPH : rune.isUtility() ? STABILIZER_GLYPH : CORE_GLYPH;
     }
 
@@ -202,6 +206,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        if (hasTablet()) research.render(graphics, leftPos - ResearchPanel.WIDTH - 2, topPos, imageHeight);
         graphics.blit(BACKGROUND, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
         for (int i = 0; i < SLOT_GHOSTS.length; i++) {
             Slot slot = menu.slots.get(i);
@@ -290,8 +295,19 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         }
     }
 
+    private boolean hasTablet() {
+        return minecraft != null && minecraft.player != null && minecraft.player.getInventory().hasAnyMatching(stack -> stack.is(ModItems.RESEARCH_TABLET.get()));
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (hasTablet() && research.mouseScrolled(mouseX, mouseY, scrollY)) return true;
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (hasTablet() && research.mouseClicked(mouseX, mouseY, button)) return true;
         if (lineStart >= 0) {
             int cell = cellAt(mouseX, mouseY);
             Blueprint.RuneAt end = cell < 0 ? null : BlueprintRules.runeAt(menu.blueprint(), cell);

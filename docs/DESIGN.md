@@ -188,6 +188,10 @@ Not built: layers, ink and quill use, the rune and core rules (core table, boost
 
 `EnchantForecast` (pure code, unit tested) reads a blueprint. A group of core runes joined by lines that matches a core table row exactly is an enchant (the table in the code is the first 26 rows above). Each Uruz joined to any rune of the group adds one level on top of level 1. Mannaz is needed from level 5, Dagaz from level 10 and one more Dagaz for each further 10 levels, or the level stops below the threshold. A line breaks with 4% plus 1% per path cell (at most 95%); a link between two runes breaks only when all its parallel lines do. If the link inside a two-rune core breaks, the enchant fails. The chances are exact, worked out over every combination of surviving links. Shown in the template item's tooltip (`EnchantTemplateItem`). Rune sharing between cores is still left out.
 
+## Research tablet, first version (built 2026-11-13, not yet tried in game)
+
+Item `research_tablet` (named Research Tablet to match the earlier notes; creative tab only, no recipe, vanilla knowledge book look). For now it holds fixed pages: one row per enchant of the core table with the runes it needs, then a page on the utility runes (boost and stabilizers). While the player carries one anywhere in the inventory, the scribing table screen shows the pages in a panel on its left, with arrow buttons and mouse wheel to turn them. Later it should hold scanned and discovered runes, and show only what the player has found. The panel is flat colours, to be redrawn as a texture. The inkwell tooltip now shows "Ink: remaining / maximum"; the inkwell slot itself shows nothing extra yet.
+
 ## Open discussions (each is its own topic, to take one at a time)
 
 1. The blueprint mini-game at the Scribing Table (direction: circuit routing, see above).

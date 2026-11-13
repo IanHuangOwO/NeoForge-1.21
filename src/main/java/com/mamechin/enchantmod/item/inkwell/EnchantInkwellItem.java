@@ -1,6 +1,11 @@
 package com.mamechin.enchantmod.item.inkwell;
 
+import java.util.List;
 import java.util.function.Supplier;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.TooltipFlag;
 
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -15,6 +20,14 @@ public abstract class EnchantInkwellItem extends Item {
     protected EnchantInkwellItem(Properties properties, Supplier<? extends Fluid> inkFluid) {
         super(properties);
         this.inkFluid = inkFluid;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        super.appendHoverText(stack, context, tooltip, flag);
+        if (stack.isDamageableItem()) {
+            tooltip.add(Component.translatable("tooltip.enchantmod.ink", remaining(stack), stack.getMaxDamage()).withStyle(ChatFormatting.GRAY));
+        }
     }
 
     /** The placeable ink fluid of this tier (what the cauldron holds when it makes this inkwell). */
