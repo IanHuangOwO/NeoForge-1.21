@@ -15,7 +15,7 @@ import java.util.Set;
  * never over one; erasing a rune also erases its lines.
  */
 public final class BlueprintRules {
-    public static final int WIDTH = 16;
+    public static final int WIDTH = 15;
     public static final int HEIGHT = 11;
     public static final int CELLS = WIDTH * HEIGHT;
 
