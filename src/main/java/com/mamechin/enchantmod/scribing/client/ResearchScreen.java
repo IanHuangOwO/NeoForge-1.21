@@ -2,7 +2,6 @@ package com.mamechin.enchantmod.scribing.client;
 
 import java.util.List;
 
-import com.mamechin.enchantmod.item.ModItems;
 import com.mamechin.enchantmod.scribing.EnchantForecast;
 import com.mamechin.enchantmod.scribing.Rune;
 
@@ -31,7 +30,7 @@ public class ResearchScreen extends Screen {
 
     public ResearchScreen() {
         super(Component.translatable("item.enchantmod.research_tablet"));
-        panel = new ResearchPanel(Minecraft.getInstance().font);
+        panel = new ResearchPanel(Minecraft.getInstance().font, false);
     }
 
     public static void open() {
@@ -50,8 +49,9 @@ public class ResearchScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
         if (reading) {
-            int h = Math.min(height - 20, 200);
+            int h = Math.min(height - 30, 200);
             panel.render(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2, h);
+            closeButton(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2 - 12, mouseX, mouseY);
             return;
         }
         graphics.fill(TAB_W - 4, 4, width - 4, height - 4, FRAME);
@@ -75,15 +75,32 @@ public class ResearchScreen extends Screen {
             else graphics.renderItem(new ItemStack(Items.ENCHANTED_BOOK), nx + 3, ny + 3);
         }
         graphics.disableScissor();
+        closeButton(graphics, TAB_W + 2, 10, mouseX, mouseY);
         for (int i = 0; i < tabs.size(); i++) {
             int ty = tabY(i), right = i == tab ? TAB_W : TAB_W - 4; // the open tab joins the map
             graphics.fill(2, ty, right, ty + TAB_H, FRAME);
             graphics.fill(3, ty + 1, right - (i == tab ? 0 : 1), ty + TAB_H - 1, i == tab ? BACKDROP : NODE_FILL);
-            graphics.renderItem(iconOf(tabs.get(i).key()), 7, ty + 6);
+            graphics.renderItem(ResearchPanel.tabIcon(tabs.get(i).key()), 7, ty + 6);
         }
         int hoveredTab = tabAt(mouseX, mouseY);
         if (hoveredTab >= 0) graphics.renderTooltip(font, Component.translatable("gui.enchantmod.research.tab." + tabs.get(hoveredTab).key()), mouseX, mouseY);
         if (hovered != null) graphics.renderTooltip(font, nameOf(hovered), mouseX, mouseY);
+    }
+
+    private int closeX, closeY;
+
+    /** The X at the top left of the map and of a page; remembers where it is for the click. */
+    private void closeButton(GuiGraphics graphics, int cx, int cy, int mouseX, int mouseY) {
+        closeX = cx;
+        closeY = cy;
+        boolean over = isOverClose(mouseX, mouseY);
+        graphics.fill(cx, cy, cx + 10, cy + 10, FRAME);
+        graphics.fill(cx + 1, cy + 1, cx + 9, cy + 9, over ? 0xFFB04030 : 0xFF7A3A30);
+        graphics.drawString(font, "x", cx + 3, cy + 1, TAB_TEXT, false);
+    }
+
+    private boolean isOverClose(double mouseX, double mouseY) {
+        return mouseX >= closeX && mouseX < closeX + 10 && mouseY >= closeY && mouseY < closeY + 10;
     }
 
     private int tabY(int i) {
@@ -94,16 +111,6 @@ public class ResearchScreen extends Screen {
         if (reading || mouseX < 2 || mouseX >= TAB_W) return -1;
         for (int i = 0; i < tabs.size(); i++) if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) return i;
         return -1;
-    }
-
-    private static ItemStack iconOf(String key) {
-        return new ItemStack(switch (key) {
-            case "tools" -> Items.DIAMOND_PICKAXE;
-            case "weapons" -> Items.DIAMOND_SWORD;
-            case "armor" -> Items.DIAMOND_CHESTPLATE;
-            case "bows" -> Items.BOW;
-            default -> ModItems.ENCHANT_TEMPLATE.get();
-        });
     }
 
     private static Component nameOf(ResearchMap.Node node) {
@@ -133,9 +140,13 @@ public class ResearchScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && isOverClose(mouseX, mouseY)) {
+            if (reading) reading = false; else onClose(); // on a page X returns to the map, on the map it closes the tablet
+            return true;
+        }
         if (reading) {
-            if (button == 1) { reading = false; return true; }
-            return panel.mouseClicked(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
+            if (button == 1) reading = false;
+            return true;
         }
         dragged = 0;
         int clicked = tabAt(mouseX, mouseY);
@@ -178,11 +189,6 @@ public class ResearchScreen extends Screen {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        return reading && panel.mouseScrolled(mouseX, mouseY, scrollY) || super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override

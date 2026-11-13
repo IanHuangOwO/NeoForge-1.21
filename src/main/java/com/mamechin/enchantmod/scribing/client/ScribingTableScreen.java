@@ -46,14 +46,14 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
     }
 
-    private ResearchPanel research;                // pages of the research tablet, shown while the player carries one
+    private ResearchPanel research;                // enchant pages of the research tablet, shown while the player carries one
     private Rune held;                               // rune dragged out of the palette
     private int lineStart = -1;                      // rune cell a line is being drawn from
     private final List<Integer> linePath = new ArrayList<>();
 
     public ScribingTableScreen(ScribingTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        research = new ResearchPanel(Minecraft.getInstance().font);
+        research = new ResearchPanel(Minecraft.getInstance().font, true);
         imageWidth = 256;
         imageHeight = 222;
         inventoryLabelY = 130;
@@ -192,6 +192,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         } else {
             renderTooltip(graphics, mouseX, mouseY);
         }
+        if (hasTablet()) research.renderTooltip(graphics, mouseX, mouseY);
     }
 
     /** The rune in the palette or on the grid under the cursor, or null. */

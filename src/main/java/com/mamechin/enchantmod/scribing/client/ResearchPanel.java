@@ -1,7 +1,9 @@
 package com.mamechin.enchantmod.scribing.client;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.mamechin.enchantmod.item.ModItems;
 import com.mamechin.enchantmod.scribing.EnchantForecast;
 import com.mamechin.enchantmod.scribing.Rune;
 
@@ -10,10 +12,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /**
- * The pages of the research tablet: first one page per rune with its short story (utility runes add their role), then one
- * page per enchant with why those runes make it, what it does and a small example of how to link them.
+ * The pages of the research tablet. Opened from the map it shows one page. Beside the scribing table it shows enchant pages
+ * only, in tabs, with arrows to turn them. Pages: first one per rune with its short story (utility runes add their role), then one
+ * per enchant with why those runes make it, what it does and a small example of how to link them.
  * Flat colours for now, to be replaced by a drawn texture.
  */
 public class ResearchPanel {
@@ -22,12 +27,46 @@ public class ResearchPanel {
     private static final int EDGE = 0xFF8A5A2B, PAPER = 0xFFCEBC92, INK = 0xFF3A2918, TITLE = 0xFF5A2E12, BUTTON = 0xFFA86C4C, LINE = 0xFFB8764A;
     private static final ResourceLocation BOARD_3X3 = gui("rune_board_3x3");
 
+    private static final int TAB_W = 28, TAB_H = 28;
+
     private final Font font;
-    private int page;
+    private final boolean browse;  // true beside the scribing table: enchant pages only, grouped in tabs, turnable
+    private final List<ResearchMap.Tab> tabs = new ArrayList<>(); // browse only: every tab but the runes
+    private int tab, pos;          // browse only: the open tab and the page within it
+    private int page;              // otherwise: the one page shown
     private int x, y, height; // set on every render, used by the click handler
 
-    public ResearchPanel(Font font) {
+    public ResearchPanel(Font font, boolean browse) {
         this.font = font;
+        this.browse = browse;
+        if (browse) for (ResearchMap.Tab t : ResearchMap.tabs()) if (!t.key().equals("runes")) tabs.add(t);
+    }
+
+    static ItemStack tabIcon(String key) {
+        return new ItemStack(switch (key) {
+            case "general" -> Items.ANVIL;
+            case "tools" -> Items.DIAMOND_PICKAXE;
+            case "weapons" -> Items.DIAMOND_SWORD;
+            case "armor" -> Items.DIAMOND_CHESTPLATE;
+            case "bows" -> Items.BOW;
+            default -> ModItems.ENCHANT_TEMPLATE.get();
+        });
+    }
+
+    /** The enchant pages of the open tab, in order. */
+    private List<Integer> tabPages() {
+        int runes = Rune.values().length;
+        return tabs.get(tab).nodes().stream().map(ResearchMap.Node::page).filter(p -> p >= runes).distinct().sorted().toList();
+    }
+
+    private int tabY(int i) {
+        return y + 8 + i * (TAB_H + 2);
+    }
+
+    private int tabAt(double mouseX, double mouseY) {
+        if (!browse || mouseX < x - TAB_W || mouseX >= x + 2) return -1;
+        for (int i = 0; i < tabs.size(); i++) if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) return i;
+        return -1;
     }
 
     private static ResourceLocation gui(String name) {
@@ -38,9 +77,6 @@ public class ResearchPanel {
         this.page = page;
     }
 
-    private static int pages() {
-        return Rune.values().length + EnchantForecast.table().size(); // one per rune, then one per enchant
-    }
 
     public void render(GuiGraphics graphics, int x, int y, int height) {
         this.x = x;
@@ -51,14 +87,28 @@ public class ResearchPanel {
 
         List<EnchantForecast.Core> rows = EnchantForecast.table();
         int runes = Rune.values().length;
-        if (page < runes) renderRune(graphics, Rune.values()[page]); else renderCore(graphics, rows.get(page - runes));
+        int shown = browse ? tabPages().get(pos) : page;
+        if (shown < runes) renderRune(graphics, Rune.values()[shown]); else renderCore(graphics, rows.get(shown - runes));
 
+        if (!browse) return;
         graphics.fill(x + 8, buttonY(), x + 8 + BUTTON_W, buttonY() + BUTTON_H, BUTTON);
         graphics.drawString(font, "<", x + 8 + 5, buttonY() + 2, INK, false);
         graphics.fill(x + WIDTH - 8 - BUTTON_W, buttonY(), x + WIDTH - 8, buttonY() + BUTTON_H, BUTTON);
         graphics.drawString(font, ">", x + WIDTH - 8 - BUTTON_W + 5, buttonY() + 2, INK, false);
-        String number = (page + 1) + "/" + pages();
+        String number = (pos + 1) + "/" + tabPages().size();
         graphics.drawString(font, number, x + (WIDTH - font.width(number)) / 2, buttonY() + 2, INK, false);
+        for (int i = 0; i < tabs.size(); i++) {
+            int ty = tabY(i), left = i == tab ? x - TAB_W : x - TAB_W + 3; // the open tab joins the page
+            graphics.fill(left, ty, x + 2, ty + TAB_H, EDGE);
+            graphics.fill(left + 1, ty + 1, x + 2, ty + TAB_H - 1, i == tab ? PAPER : BUTTON);
+            graphics.renderItem(tabIcon(tabs.get(i).key()), x - TAB_W + 6, ty + 6);
+        }
+    }
+
+    /** Names the tab under the mouse; the owner calls this after its own tooltips so it is not drawn over. */
+    public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        int hovered = tabAt(mouseX, mouseY);
+        if (hovered >= 0) graphics.renderTooltip(font, Component.translatable("gui.enchantmod.research.tab." + tabs.get(hovered).key()), mouseX, mouseY);
     }
 
     private int buttonY() {
@@ -142,12 +192,18 @@ public class ResearchPanel {
     }
 
     public boolean contains(double mouseX, double mouseY) {
-        return mouseX >= x && mouseX < x + WIDTH && mouseY >= y && mouseY < y + height;
+        return tabAt(mouseX, mouseY) >= 0 || mouseX >= x && mouseX < x + WIDTH && mouseY >= y && mouseY < y + height;
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button != 0 || !contains(mouseX, mouseY)) return false;
-        if (mouseY >= buttonY() && mouseY < buttonY() + BUTTON_H) {
+        int clicked = tabAt(mouseX, mouseY);
+        if (clicked >= 0) {
+            tab = clicked;
+            pos = 0;
+            return true;
+        }
+        if (browse && mouseY >= buttonY() && mouseY < buttonY() + BUTTON_H) {
             if (mouseX < x + 8 + BUTTON_W) turn(-1);
             else if (mouseX >= x + WIDTH - 8 - BUTTON_W) turn(1);
         }
@@ -155,12 +211,12 @@ public class ResearchPanel {
     }
 
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
-        if (!contains(mouseX, mouseY) || scrollY == 0) return false;
+        if (!browse || !contains(mouseX, mouseY) || scrollY == 0) return false;
         turn(scrollY > 0 ? -1 : 1);
         return true;
     }
 
     private void turn(int by) {
-        page = Math.max(0, Math.min(pages() - 1, page + by));
+        pos = Math.max(0, Math.min(tabPages().size() - 1, pos + by));
     }
 }

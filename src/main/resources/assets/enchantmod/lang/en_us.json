@@ -167,5 +167,6 @@
   "gui.enchantmod.research.tab.tools": "Tools",
   "gui.enchantmod.research.tab.weapons": "Weapons",
   "gui.enchantmod.research.tab.armor": "Armor",
-  "gui.enchantmod.research.tab.bows": "Bows"
+  "gui.enchantmod.research.tab.bows": "Bows",
+  "gui.enchantmod.research.tab.general": "General"
 }

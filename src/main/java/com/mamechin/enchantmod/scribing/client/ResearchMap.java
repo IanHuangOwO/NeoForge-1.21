@@ -23,7 +23,8 @@ public final class ResearchMap {
     public record Tab(String key, List<Node> nodes) {}
 
     private static final String[][] GROUPS = {
-        {"tools", "efficiency", "unbreaking", "fortune", "mending", "silk_touch"},
+        {"general", "unbreaking", "mending"}, // fit any tool
+        {"tools", "efficiency", "fortune", "silk_touch"},
         {"weapons", "sharpness", "smite", "bane_of_arthropods", "knockback", "fire_aspect", "looting", "sweeping_edge"},
         {"armor", "protection", "fire_protection", "blast_protection", "feather_falling", "respiration", "thorns", "depth_strider", "frost_walker", "soul_speed", "swift_sneak"},
         {"bows", "power", "flame", "punch", "infinity"},
