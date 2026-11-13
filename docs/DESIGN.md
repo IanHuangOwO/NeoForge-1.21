@@ -75,13 +75,23 @@ Why it works: the goal "fit the desired enchant into the smallest, most stable l
 
 Why it works: it is a dependency graph. Sharing supports saves weight and space, so players are rewarded for building one compact network that powers many enchants rather than one layout per enchant.
 
+## Hierarchy and altar rules, round two (author, 2026-11-13, proposed)
+
+- **Support chains:** support passes through. A character may connect directly to its supporters and also through chains (A needs B, B needs its own supporters).
+- **Mixing:** a character connected to several supporters mixes their effects. Example: A connected to B and D gets an effect from the mix of B and D. B and D need their own supporters. A can also connect to C to boost or alter the effect of A.
+- **Sharing limit:** a cap on how many characters one supporter can feed (AE2-style) is **left out of the first version**. Add it if the first design turns out too easy.
+- **Unlocking higher tiers:** its own discussion, later.
+- **Strict requirements:** as in the hierarchy section above (some characters need a set number of supporters).
+- **Lines can break at the altar.** Each line has a chance to disconnect during fixation, for example 10%. A player can lay several parallel lines between the same two characters, so all of them must break for the link to fail (three lines at 10% each is about 0.1%). Characters have different sizes, which gives larger characters more places to attach lines.
+- **When a link is lost:** a supporter that disconnects or deactivates weakens the effect or stops it from activating, depending on how important the supporter is (a major supporter stops it, a minor one weakens it).
+- **Interaction with the earlier rule:** longer lines are less stable, so the break chance should rise with line length. Redundant lines use up room on the sheet and cannot cross on the same sheet, so reliability costs space and layers.
+
 **Open for this design:**
-1. Is a connection a line to the supporter, or a chain of supporters? (does support pass through)
-2. What does a supporter change: the level of the enchant, or which enchant it becomes?
-3. Do supporters get used up when shared (a limited number of connections, like AE2 channels), or can many characters use one for free?
-4. Where does the first tier come from (scanned, found, always known), and do higher tiers unlock through research?
-5. Strict requirements: exact counts ("needs exactly 3"), minimums, or specific types?
-6. Does a wrong or missing supporter fail activation or give a weaker effect?
+1. Does break chance depend on line length (as the earlier rule implies)? A fixed 10% per line, or a rate per cell?
+2. How is "major" versus "minor" supporter decided: by the character's definition, or by the connection?
+3. Do characters of different size have a fixed number of attachment points, or can lines attach anywhere on the edge?
+4. Are the break checks rolled once at fixation, or does the altar play them as visible events?
+5. Does the player get feedback before fixation, such as the computed chance of success?
 
 ## Open discussions (each is its own topic, to take one at a time)
 
