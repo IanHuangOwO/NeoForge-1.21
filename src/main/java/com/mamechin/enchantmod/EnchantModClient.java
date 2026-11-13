@@ -36,15 +36,15 @@ public class EnchantModClient {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
-    // left click with the tablet in hand opens the pages too; a left click on a block must not also break it
+    // left click with the handbook in hand opens the pages too; a left click on a block must not also break it
     @SubscribeEvent
     static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
-        if (event.getItemStack().is(ModItems.RESEARCH_TABLET.get())) ResearchScreen.open();
+        if (event.getItemStack().is(ModItems.RESEARCH_HANDBOOK.get())) ResearchScreen.open();
     }
 
     @SubscribeEvent
     static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        if (event.getLevel().isClientSide && event.getItemStack().is(ModItems.RESEARCH_TABLET.get())) {
+        if (event.getLevel().isClientSide && event.getItemStack().is(ModItems.RESEARCH_HANDBOOK.get())) {
             event.setCanceled(true);
             ResearchScreen.open();
         }

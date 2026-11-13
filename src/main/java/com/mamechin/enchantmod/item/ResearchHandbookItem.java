@@ -9,8 +9,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public class ResearchTabletItem extends Item {
-    public ResearchTabletItem(Properties properties) {
+public class ResearchHandbookItem extends Item {
+    public ResearchHandbookItem(Properties properties) {
         super(properties);
     }
 

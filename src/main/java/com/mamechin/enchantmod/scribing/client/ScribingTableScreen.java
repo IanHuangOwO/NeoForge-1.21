@@ -46,7 +46,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
     }
 
-    private ResearchPanel research;                // enchant pages of the research tablet, shown while the player carries one
+    private ResearchPanel research;                // enchant pages of the research handbook, shown while the player carries one
     private Rune held;                               // rune dragged out of the palette
     private int lineStart = -1;                      // rune cell a line is being drawn from
     private final List<Integer> linePath = new ArrayList<>();
@@ -192,7 +192,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         } else {
             renderTooltip(graphics, mouseX, mouseY);
         }
-        if (hasTablet()) research.renderTooltip(graphics, mouseX, mouseY);
+        if (hasHandbook()) research.renderTooltip(graphics, mouseX, mouseY);
     }
 
     /** The rune in the palette or on the grid under the cursor, or null. */
@@ -207,7 +207,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        if (hasTablet()) research.render(graphics, leftPos - ResearchPanel.WIDTH - 2, topPos, imageHeight, mouseX, mouseY);
+        if (hasHandbook()) research.render(graphics, leftPos - ResearchPanel.WIDTH - 2, topPos, imageHeight, mouseX, mouseY);
         graphics.blit(BACKGROUND, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
         for (int i = 0; i < SLOT_GHOSTS.length; i++) {
             Slot slot = menu.slots.get(i);
@@ -296,19 +296,19 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         }
     }
 
-    private boolean hasTablet() {
-        return minecraft != null && minecraft.player != null && minecraft.player.getInventory().hasAnyMatching(stack -> stack.is(ModItems.RESEARCH_TABLET.get()));
+    private boolean hasHandbook() {
+        return minecraft != null && minecraft.player != null && minecraft.player.getInventory().hasAnyMatching(stack -> stack.is(ModItems.RESEARCH_HANDBOOK.get()));
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (hasTablet() && research.mouseScrolled(mouseX, mouseY, scrollY)) return true;
+        if (hasHandbook() && research.mouseScrolled(mouseX, mouseY, scrollY)) return true;
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (hasTablet() && research.mouseClicked(mouseX, mouseY, button)) return true;
+        if (hasHandbook() && research.mouseClicked(mouseX, mouseY, button)) return true;
         if (lineStart >= 0) {
             int cell = cellAt(mouseX, mouseY);
             Blueprint.RuneAt end = cell < 0 ? null : BlueprintRules.runeAt(menu.blueprint(), cell);

@@ -18,7 +18,7 @@ public final class ModCreativeTabs {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ENCHANTMOD_TAB = TABS.register("enchantmod_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.enchantmod"))
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> Items.LAPIS_LAZULI.getDefaultInstance())
+            .icon(() -> ModItems.RESEARCH_HANDBOOK.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(ModItems.QUILL_TIER0.get());
                 output.accept(ModItems.QUILL_TIER1.get());
@@ -32,7 +32,7 @@ public final class ModCreativeTabs {
                 output.accept(ModFluids.INK_TIER2.bucket().get());
                 output.accept(ModItems.SCRIBING_TABLE.get());
                 output.accept(ModItems.ENCHANT_TEMPLATE.get());
-                output.accept(ModItems.RESEARCH_TABLET.get());
+                output.accept(ModItems.RESEARCH_HANDBOOK.get());
                 output.accept(ModItems.SMALL_CAULDRON.get());
             }).build());
 

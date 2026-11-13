@@ -28,7 +28,7 @@
   "block.enchantmod.large_cauldron_part": "Large Cauldron",
   "message.enchantmod.cauldron.bad_structure": "The large cauldron needs a smooth basalt body on four smooth basalt legs around the cauldron, air between the legs and an open top. Wrong block at %s, %s, %s",
   "item.enchantmod.enchant_template": "Enchant Template",
-  "item.enchantmod.research_tablet": "Research Tablet",
+  "item.enchantmod.research_handbook": "Research Handbook",
   "gui.enchantmod.research.title": "Research",
   "tooltip.enchantmod.ink": "Ink: %s / %s",
   "container.enchantmod.scribing_table": "Scribing Table",

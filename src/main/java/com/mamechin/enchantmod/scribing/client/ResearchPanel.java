@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * The pages of the research tablet. Opened from the map it shows one page. Beside the scribing table it shows enchant pages
+ * The pages of the research handbook. Opened from the map it shows one page. Beside the scribing table it shows enchant pages
  * only, in tabs, with arrows to turn them. Pages: first one per rune with its short story (utility runes add their role), then one
  * per enchant with why those runes make it, what it does and a small example of how to link them.
  * Flat colours for now, to be replaced by a drawn texture.

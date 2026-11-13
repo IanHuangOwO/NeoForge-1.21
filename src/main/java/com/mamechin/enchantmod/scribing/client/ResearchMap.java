@@ -10,7 +10,7 @@ import com.mamechin.enchantmod.scribing.EnchantForecast;
 import com.mamechin.enchantmod.scribing.Rune;
 
 /**
- * Where each knowledge node sits on the research tablet's maps, one map per side tab: a Runes tab, then one tab per mod
+ * Where each knowledge node sits on the research handbook's maps, one map per side tab: a Runes tab, then one tab per mod
  * that adds enchants (so far only vanilla). On an enchant tab each enchant sits inside a ring of the runes it needs; the
  * all-purpose enchants are in the middle and enchants for one kind of tool are clustered around them. Pure and
  * deterministic, so the maps look the same every time. A node's page is its global index: runes first, then enchants in

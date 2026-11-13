@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 /**
- * The research tablet: a map the player drags around, with one node per rune and enchant. Clicking a node opens its page;
+ * The research handbook: a map the player drags around, with one node per rune and enchant. Clicking a node opens its page;
  * Esc or right click goes back to the map. Flat colours for now. Every node is shown until there is a progression system.
  */
 public class ResearchScreen extends Screen {
@@ -35,7 +35,7 @@ public class ResearchScreen extends Screen {
     private double dragged;
 
     public ResearchScreen() {
-        super(Component.translatable("item.enchantmod.research_tablet"));
+        super(Component.translatable("item.enchantmod.research_handbook"));
         panel = new ResearchPanel(Minecraft.getInstance().font, false);
     }
 
@@ -145,7 +145,7 @@ public class ResearchScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && isOverClose(mouseX, mouseY)) {
-            if (reading) reading = false; else onClose(); // on a page X returns to the map, on the map it closes the tablet
+            if (reading) reading = false; else onClose(); // on a page X returns to the map, on the map it closes the handbook
             return true;
         }
         if (reading) {

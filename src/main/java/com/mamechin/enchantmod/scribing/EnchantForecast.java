@@ -24,7 +24,7 @@ public final class EnchantForecast {
     /** Core table: sorted rune ids joined by "+" to the vanilla enchantment id. A shortcut until the full table is designed. */
     private static final Map<String, String> CORES = new HashMap<>();
 
-    /** One row of the core table, for the research tablet. */
+    /** One row of the core table, for the research handbook. */
     public record Core(String enchant, List<String> runes) {}
 
     private static final List<Core> TABLE = new ArrayList<>();
