@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -17,8 +18,13 @@ import net.minecraft.world.item.Items;
  * Esc or right click goes back to the map. Flat colours for now. Every node is shown until there is a progression system.
  */
 public class ResearchScreen extends Screen {
-    private static final int NODE = 22, LIMIT = 260, TAB_W = 30, TAB_H = 28;
-    private static final int BACKDROP = 0xFF1E1628, FRAME = 0xFF8A5A2B, LINK = 0x99B8764A, NODE_FILL = 0xFF3A2D4A, NODE_HOVER = 0xFF5A4670, TAB_ON = 0xFF5A4670, TAB_TEXT = 0xFFE2D4AC; // TAB_W is the tab strip; tabs overlap the map frame by 2 px, as creative tabs do
+    private static final int NODE = 24, LIMIT = 260, TAB_W = 30, TAB_H = 28;
+    private static final ResourceLocation MAP_BG = tex("map_bg"), MAP_FRAME = tex("map_frame"), TAB_OFF = tex("tab_off"), TAB_ON = tex("tab_on_map");
+    private static final int LINK = 0x99B8764A;
+    private static ResourceLocation tex(String name) {
+        return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/research/" + name + ".png");
+    }
+
     private static double panX, panY; // kept between openings
 
     private final ResearchPanel panel;
@@ -50,13 +56,12 @@ public class ResearchScreen extends Screen {
         super.render(graphics, mouseX, mouseY, partialTick);
         if (reading) {
             int h = Math.min(height - 30, 200);
-            panel.render(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2, h);
+            panel.render(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2, h, mouseX, mouseY);
             closeButton(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2 - 12, mouseX, mouseY);
             return;
         }
-        graphics.fill(TAB_W - 4, 4, width - 4, height - 4, FRAME);
-        graphics.fill(TAB_W - 2, 6, width - 6, height - 6, BACKDROP);
-        graphics.enableScissor(TAB_W - 2, 6, width - 6, height - 6);
+        NineSlice.tile(graphics, MAP_BG, TAB_W - 4, 4, width - TAB_W, height - 8, 0, 0, 16, 16, 16);
+        graphics.enableScissor(TAB_W + 2, 10, width - 10, height - 10);
         int runes = Rune.values().length;
         for (ResearchMap.Node node : nodes) {
             for (int link : node.links()) {
@@ -69,18 +74,19 @@ public class ResearchScreen extends Screen {
         ResearchMap.Node hovered = nodeAt(mouseX, mouseY);
         for (ResearchMap.Node node : nodes) {
             int nx = originX() + node.x() - NODE / 2, ny = originY() + node.y() - NODE / 2;
-            graphics.fill(nx - 1, ny - 1, nx + NODE + 1, ny + NODE + 1, FRAME);
-            graphics.fill(nx, ny, nx + NODE, ny + NODE, node == hovered ? NODE_HOVER : NODE_FILL);
+            boolean rune = node.page() < runes;
+            graphics.blit(tex((rune ? "node_rune" : "node_enchant") + (node == hovered ? "_hover" : "")), nx, ny, 0, 0, NODE, NODE, NODE, NODE);
             if (node.page() < runes) glyph(graphics, Rune.values()[node.page()], nx + NODE / 2.0F, ny + NODE / 2.0F);
-            else graphics.renderItem(new ItemStack(Items.ENCHANTED_BOOK), nx + 3, ny + 3);
+            else graphics.renderItem(new ItemStack(Items.ENCHANTED_BOOK), nx + 4, ny + 4);
         }
         graphics.disableScissor();
+        NineSlice.draw(graphics, MAP_FRAME, TAB_W - 4, 4, width - TAB_W, height - 8, 32, 6, false);
         closeButton(graphics, TAB_W + 2, 10, mouseX, mouseY);
         for (int i = 0; i < tabs.size(); i++) {
-            int ty = tabY(i), right = i == tab ? TAB_W : TAB_W - 4; // the open tab joins the map
-            graphics.fill(2, ty, right, ty + TAB_H, FRAME);
-            graphics.fill(3, ty + 1, right - (i == tab ? 0 : 1), ty + TAB_H - 1, i == tab ? BACKDROP : NODE_FILL);
-            graphics.renderItem(ResearchPanel.tabIcon(tabs.get(i).key()), 7, ty + 6);
+            int ty = tabY(i); // the open tab is wider and joins the frame
+            if (i == tab) graphics.blit(TAB_ON, 2, ty, 0, 0, 28, TAB_H, 28, TAB_H);
+            else graphics.blit(TAB_OFF, 2, ty, 0, 0, 24, TAB_H, 24, TAB_H);
+            graphics.renderItem(ResearchPanel.tabIcon(tabs.get(i).key()), 8, ty + 6);
         }
         int hoveredTab = tabAt(mouseX, mouseY);
         if (hoveredTab >= 0) graphics.renderTooltip(font, ResearchPanel.tabName(tabs.get(hoveredTab).key()), mouseX, mouseY);
@@ -94,9 +100,7 @@ public class ResearchScreen extends Screen {
         closeX = cx;
         closeY = cy;
         boolean over = isOverClose(mouseX, mouseY);
-        graphics.fill(cx, cy, cx + 10, cy + 10, FRAME);
-        graphics.fill(cx + 1, cy + 1, cx + 9, cy + 9, over ? 0xFFB04030 : 0xFF7A3A30);
-        graphics.drawString(font, "x", cx + 3, cy + 1, TAB_TEXT, false);
+        graphics.blit(tex(over ? "close_hover" : "close"), cx, cy, 0, 0, 10, 10, 10, 10);
     }
 
     private boolean isOverClose(double mouseX, double mouseY) {

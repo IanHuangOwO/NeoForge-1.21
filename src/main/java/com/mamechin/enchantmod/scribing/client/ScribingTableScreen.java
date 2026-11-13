@@ -207,7 +207,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
-        if (hasTablet()) research.render(graphics, leftPos - ResearchPanel.WIDTH - 2, topPos, imageHeight);
+        if (hasTablet()) research.render(graphics, leftPos - ResearchPanel.WIDTH - 2, topPos, imageHeight, mouseX, mouseY);
         graphics.blit(BACKGROUND, leftPos, topPos, 0, 0, imageWidth, imageHeight, 256, 256);
         for (int i = 0; i < SLOT_GHOSTS.length; i++) {
             Slot slot = menu.slots.get(i);

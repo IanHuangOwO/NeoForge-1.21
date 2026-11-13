@@ -24,10 +24,10 @@ import net.minecraft.world.item.Items;
 public class ResearchPanel {
     public static final int WIDTH = 112;
     private static final int BUTTON_W = 14, BUTTON_H = 12, BOARD = 26, GAP = 9; // the example uses the same 3x3 boards as the grid
-    private static final int EDGE = 0xFF8A5A2B, PAPER = 0xFFCEBC92, INK = 0xFF3A2918, TITLE = 0xFF5A2E12, BUTTON = 0xFFA86C4C, LINE = 0xFFB8764A;
-    private static final ResourceLocation BOARD_3X3 = gui("rune_board_3x3");
+    private static final int INK = 0xFF3A2918, TITLE = 0xFF5A2E12, LINE = 0xFFB8764A;
+    private static final ResourceLocation BOARD_3X3 = gui("rune_board_3x3"), PAGE = research("page_panel"), TAB_OFF = research("tab_off"), TAB_ON = research("tab_on_page");
 
-    private static final int TAB_W = 28, TAB_H = 28;
+    private static final int TAB_OFF_W = 24, TAB_ON_W = 28, TAB_H = 28;
 
     private final Font font;
     private final boolean browse;  // true beside the scribing table: enchant pages only, grouped in tabs, turnable
@@ -65,9 +65,13 @@ public class ResearchPanel {
     }
 
     private int tabAt(double mouseX, double mouseY) {
-        if (!browse || mouseX < x - TAB_W || mouseX >= x + 2) return -1;
+        if (!browse || mouseX < x - TAB_OFF_W || mouseX >= x) return -1;
         for (int i = 0; i < tabs.size(); i++) if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) return i;
         return -1;
+    }
+
+    private static ResourceLocation research(String name) {
+        return gui("research/" + name);
     }
 
     private static ResourceLocation gui(String name) {
@@ -79,12 +83,11 @@ public class ResearchPanel {
     }
 
 
-    public void render(GuiGraphics graphics, int x, int y, int height) {
+    public void render(GuiGraphics graphics, int x, int y, int height, int mouseX, int mouseY) {
         this.x = x;
         this.y = y;
         this.height = height;
-        graphics.fill(x, y, x + WIDTH, y + height, EDGE);
-        graphics.fill(x + 2, y + 2, x + WIDTH - 2, y + height - 2, PAPER);
+        NineSlice.draw(graphics, PAGE, x, y, WIDTH, height, 48, 8, true);
 
         List<EnchantForecast.Core> rows = EnchantForecast.table();
         int runes = Rune.values().length;
@@ -92,18 +95,21 @@ public class ResearchPanel {
         if (shown < runes) renderRune(graphics, Rune.values()[shown]); else renderCore(graphics, rows.get(shown - runes));
 
         if (!browse) return;
-        graphics.fill(x + 8, buttonY(), x + 8 + BUTTON_W, buttonY() + BUTTON_H, BUTTON);
-        graphics.drawString(font, "<", x + 8 + 5, buttonY() + 2, INK, false);
-        graphics.fill(x + WIDTH - 8 - BUTTON_W, buttonY(), x + WIDTH - 8, buttonY() + BUTTON_H, BUTTON);
-        graphics.drawString(font, ">", x + WIDTH - 8 - BUTTON_W + 5, buttonY() + 2, INK, false);
+        boolean overLeft = overButton(mouseX, mouseY, x + 8), overRight = overButton(mouseX, mouseY, x + WIDTH - 8 - BUTTON_W);
+        graphics.blit(research("arrow_left" + (overLeft ? "_hover" : "")), x + 8, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
+        graphics.blit(research("arrow_right" + (overRight ? "_hover" : "")), x + WIDTH - 8 - BUTTON_W, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
         String number = (pos + 1) + "/" + tabPages().size();
         graphics.drawString(font, number, x + (WIDTH - font.width(number)) / 2, buttonY() + 2, INK, false);
         for (int i = 0; i < tabs.size(); i++) {
-            int ty = tabY(i), left = i == tab ? x - TAB_W : x - TAB_W + 3; // the open tab joins the page
-            graphics.fill(left, ty, x + 2, ty + TAB_H, EDGE);
-            graphics.fill(left + 1, ty + 1, x + 2, ty + TAB_H - 1, i == tab ? PAPER : BUTTON);
-            graphics.renderItem(tabIcon(tabs.get(i).key()), x - TAB_W + 6, ty + 6);
+            int ty = tabY(i); // the open tab is wider and joins the page
+            if (i == tab) graphics.blit(TAB_ON, x - TAB_OFF_W, ty, 0, 0, TAB_ON_W, TAB_H, TAB_ON_W, TAB_H);
+            else graphics.blit(TAB_OFF, x - TAB_OFF_W, ty, 0, 0, TAB_OFF_W, TAB_H, TAB_OFF_W, TAB_H);
+            graphics.renderItem(tabIcon(tabs.get(i).key()), x - TAB_OFF_W + 6, ty + 6);
         }
+    }
+
+    private boolean overButton(int mouseX, int mouseY, int bx) {
+        return mouseX >= bx && mouseX < bx + BUTTON_W && mouseY >= buttonY() && mouseY < buttonY() + BUTTON_H;
     }
 
     /** Names the tab under the mouse; the owner calls this after its own tooltips so it is not drawn over. */
@@ -113,7 +119,7 @@ public class ResearchPanel {
     }
 
     private int buttonY() {
-        return y + height - 6 - BUTTON_H;
+        return y + height - 8 - BUTTON_H;
     }
 
     /** Draws wrapped text and returns the y just below it. */
