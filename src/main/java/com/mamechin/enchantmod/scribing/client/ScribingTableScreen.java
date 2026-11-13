@@ -31,7 +31,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
     private static final int PANEL = 0xFF2B1D12, PANEL_EDGE = 0xFF8A5A2B, SLOT = 0xFF120C07;
-    private static final int GRID = 0xFF3A2918, GRID_RUNE = 0xFF5C3F20, GLYPH = 0xFFFFE8B0, LINE = GLYPH, LINE_PREVIEW = 0x80FFE8B0;
+    private static final int GRID = 0xFF3A2918, GRID_RUNE = 0xFF5C3F20, GLYPH = 0xFFFFE8B0, BOOST_GLYPH = 0xFFFF6B5E, BOOST_BG = 0xFF5A2222, STABILIZER_GLYPH = 0xFF6BA8FF, STABILIZER_BG = 0xFF1F3560, LINE = GLYPH, LINE_PREVIEW = 0x80FFE8B0;
 
     private Rune held;                               // rune dragged out of the palette
     private int lineStart = -1;                      // rune cell a line is being drawn from
@@ -55,13 +55,21 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         return x < 0 || x >= PALETTE_COLUMNS || y < 0 || index >= Rune.values().length ? -1 : index;
     }
 
+    private static int glyphColor(Rune rune) {
+        return rune == Rune.URUZ ? BOOST_GLYPH : rune.isUtility() ? STABILIZER_GLYPH : GLYPH;
+    }
+
+    private static int runeBackground(Rune rune) {
+        return rune == Rune.URUZ ? BOOST_BG : rune.isUtility() ? STABILIZER_BG : GRID_RUNE;
+    }
+
     /** Cell centre in half pixels, so a line can be half a pixel thick. */
     private int centreX2(int cell) {
-        return 2 * (leftPos + GRID_X + (cell % BlueprintRules.WIDTH) * CELL) + CELL;
+        return 2 * (leftPos + GRID_X + (cell % BlueprintRules.WIDTH) * CELL) + CELL - 1; // a cell is drawn CELL - 1 pixels wide
     }
 
     private int centreY2(int cell) {
-        return 2 * (topPos + GRID_Y + (cell / BlueprintRules.WIDTH) * CELL) + CELL;
+        return 2 * (topPos + GRID_Y + (cell / BlueprintRules.WIDTH) * CELL) + CELL - 1;
     }
 
     /** First and last row or column of the cells a rune covers, as {minX, minY, maxX, maxY}. */
@@ -193,7 +201,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             if (rune == null) continue;
             int[] b = bounds(placed);
             int x0 = leftPos + GRID_X + b[0] * CELL, y0 = topPos + GRID_Y + b[1] * CELL, side = rune.size() * CELL - 1;
-            graphics.fill(x0, y0, x0 + side, y0 + side, GRID_RUNE);
+            graphics.fill(x0, y0, x0 + side, y0 + side, runeBackground(rune));
             drawGlyph(graphics, rune, x0 + side / 2.0F, y0 + side / 2.0F, rune.size());
         }
         for (Blueprint.Line line : blueprint.lines()) drawLine(graphics, line.a(), line.path(), line.b(), LINE);
@@ -241,7 +249,8 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         graphics.pose().pushPose();
         graphics.pose().translate(centreX, centreY, 0);
         graphics.pose().scale(scale, scale, 1.0F);
-        graphics.drawString(font, text, -font.width(text) / 2, -4, GLYPH, false);
+        graphics.pose().translate(-font.width(text) / 2.0F, -4.0F, 0); // fractional, so scaled glyphs stay centred
+        graphics.drawString(font, text, 0, 0, glyphColor(rune), false);
         graphics.pose().popPose();
     }
 
