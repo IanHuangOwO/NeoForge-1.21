@@ -4,6 +4,8 @@ import com.mamechin.enchantmod.cauldron.ModBlockEntities;
 import com.mamechin.enchantmod.cauldron.client.CauldronRenderer;
 import com.mamechin.enchantmod.fluid.EnchantFluid;
 import com.mamechin.enchantmod.scribing.ModMenus;
+import com.mamechin.enchantmod.item.ModItems;
+import com.mamechin.enchantmod.scribing.client.ResearchScreen;
 import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
 
 import net.minecraft.client.Minecraft;
@@ -20,6 +22,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = EnchantMod.MODID, dist = Dist.CLIENT)
@@ -31,6 +34,20 @@ public class EnchantModClient {
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
         // Do not forget to add translations for your config options to the en_us.json file.
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    // left click with the tablet in hand opens the pages too; a left click on a block must not also break it
+    @SubscribeEvent
+    static void onLeftClickEmpty(PlayerInteractEvent.LeftClickEmpty event) {
+        if (event.getItemStack().is(ModItems.RESEARCH_TABLET.get())) ResearchScreen.open();
+    }
+
+    @SubscribeEvent
+    static void onLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        if (event.getLevel().isClientSide && event.getItemStack().is(ModItems.RESEARCH_TABLET.get())) {
+            event.setCanceled(true);
+            ResearchScreen.open();
+        }
     }
 
     @SubscribeEvent
