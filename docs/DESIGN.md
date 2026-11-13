@@ -165,9 +165,9 @@ The rest of the vanilla list (Lure, Luck of the Sea, Impaling, Riptide, Loyalty,
 
 **Open:**
 1. Confirm the stabilizer thresholds (Mannaz from level 5, Dagaz from level 10) and the enchant level caps (above vanilla, up to X and beyond).
-2. Does a boost rune work only on the core rune itself, or on any rune in the core?
-3. Do runes have tiers and need unlocking (research), and which runes start known?
-4. How the first core, Berkana, is discovered.
+2. Which runes the player knows at the start and how they are discovered is its own discussion (deferred).
+
+**Decided (author, 2026-11-13):** a boost rune works when connected to any rune in a multi-rune core, not only a main one. The stabilizer thresholds (Mannaz from level 5, Dagaz from level 10) were not contradicted and stand as the working assumption; enchant level caps are still open.
 
 ## Open discussions (each is its own topic, to take one at a time)
 
