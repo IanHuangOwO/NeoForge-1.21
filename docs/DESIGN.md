@@ -86,12 +86,16 @@ Why it works: it is a dependency graph. Sharing supports saves weight and space,
 - **When a link is lost:** a supporter that disconnects or deactivates weakens the effect or stops it from activating, depending on how important the supporter is (a major supporter stops it, a minor one weakens it).
 - **Interaction with the earlier rule:** longer lines are less stable, so the break chance should rise with line length. Redundant lines use up room on the sheet and cannot cross on the same sheet, so reliability costs space and layers.
 
-**Open for this design:**
-1. Does break chance depend on line length (as the earlier rule implies)? A fixed 10% per line, or a rate per cell?
-2. How is "major" versus "minor" supporter decided: by the character's definition, or by the connection?
-3. Do characters of different size have a fixed number of attachment points, or can lines attach anywhere on the edge?
-4. Are the break checks rolled once at fixation, or does the altar play them as visible events?
-5. Does the player get feedback before fixation, such as the computed chance of success?
+**Decided (author, 2026-11-13):**
+- Break chance rises with line length (longer is less stable).
+- Whether a supporter is major or minor depends on how it is connected, not on the character alone.
+- Lines may attach on any side of a character (no fixed attachment points).
+- Break checks are rolled at the altar and shown as an animation: enchanting power floods from the lowest tier characters up to the highest. A broken line or deactivated supporter stops the flood at that point, so the player sees which part of the network failed.
+
+**Still open:**
+1. Does the player see the computed chance of success before fixing?
+2. Exact break formula (per cell rate, cap, minimum), to be tuned in play.
+3. What "major" and "minor" connection means in numbers (for example the share of a character's supporters that remain).
 
 ## Open discussions (each is its own topic, to take one at a time)
 
