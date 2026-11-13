@@ -57,7 +57,7 @@ public class ResearchScreen extends Screen {
         if (reading) {
             int h = Math.min(height - 30, 200);
             panel.render(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2, h, mouseX, mouseY);
-            closeButton(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2 - 12, mouseX, mouseY);
+            closeButton(graphics, (width + ResearchPanel.WIDTH) / 2 - 10, (height - h) / 2 - 12, mouseX, mouseY);
             return;
         }
         NineSlice.tile(graphics, MAP_BG, TAB_W - 4, 4, width - TAB_W, height - 8, 0, 0, 16, 16, 16);
@@ -81,7 +81,7 @@ public class ResearchScreen extends Screen {
         }
         graphics.disableScissor();
         NineSlice.draw(graphics, MAP_FRAME, TAB_W - 4, 4, width - TAB_W, height - 8, 32, 6, false);
-        closeButton(graphics, TAB_W + 2, 10, mouseX, mouseY);
+        closeButton(graphics, width - 22, 10, mouseX, mouseY);
         for (int i = 0; i < tabs.size(); i++) {
             int ty = tabY(i); // the open tab is wider and joins the frame
             if (i == tab) graphics.blit(TAB_ON, 2, ty, 0, 0, 28, TAB_H, 28, TAB_H);
@@ -95,7 +95,7 @@ public class ResearchScreen extends Screen {
 
     private int closeX, closeY;
 
-    /** The X at the top left of the map and of a page; remembers where it is for the click. */
+    /** The X at the top right of the map and of a page; remembers where it is for the click. */
     private void closeButton(GuiGraphics graphics, int cx, int cy, int mouseX, int mouseY) {
         closeX = cx;
         closeY = cy;
