@@ -3,7 +3,7 @@
 	"loader": "neoforge:obj",
 	"flip_v": true,
 	"automatic_culling": false,
-	"model": "enchantmod:models/block/scribing_table_right.obj",
+	"model": "enchantmod:models/block/scribing_table_empty_right.obj",
 	"render_type": "minecraft:cutout",
 	"ambientocclusion": false,
 	"textures": {
