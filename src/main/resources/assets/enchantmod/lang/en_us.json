@@ -164,5 +164,11 @@
   "research.enchantmod.infinity.why": "The yew bow and the year: the quiver renews itself.",
   "gui.enchantmod.research.role": "Role",
   "gui.enchantmod.research.tab.runes": "Runes",
-  "gui.enchantmod.research.tab.minecraft": "Vanilla"
+  "gui.enchantmod.research.tab.minecraft": "Vanilla",
+  "gui.enchantmod.research.category.all": "All enchants",
+  "gui.enchantmod.research.category.general": "General",
+  "gui.enchantmod.research.category.tools": "Tools",
+  "gui.enchantmod.research.category.weapons": "Weapons",
+  "gui.enchantmod.research.category.armor": "Armor",
+  "gui.enchantmod.research.category.bows": "Bows"
 }

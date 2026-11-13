@@ -33,6 +33,8 @@ public final class ResearchMap {
         {"power", "flame", "punch", "infinity"},
     };
 
+    private static final String[] CATEGORIES = {"tools", "weapons", "armor", "bows"}; // same order as CLUSTERS
+
     private static List<Tab> cache;
 
     private ResearchMap() {}
@@ -64,6 +66,17 @@ public final class ResearchMap {
         });
         return tabs;
     }
+
+    /** The kind of tool an enchant is for: tools, weapons, armor or bows, else "general" (all-purpose, or a mod's enchant with no grouping set up). */
+    public static String category(String enchant) {
+        for (int k = 0; k < CLUSTERS.length; k++) {
+            for (String id : CLUSTERS[k]) if (id.equals(enchant)) return CATEGORIES[k];
+        }
+        return "general";
+    }
+
+    /** Every category in display order. */
+    public static final List<String> CATEGORY_ORDER = List.of("general", "tools", "weapons", "armor", "bows");
 
     /** Where an enchant starts: the middle if all-purpose, else in the direction of its tool group. */
     private static double[] target(String enchant) {

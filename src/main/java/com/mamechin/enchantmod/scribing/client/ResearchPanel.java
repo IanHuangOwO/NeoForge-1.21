@@ -32,7 +32,8 @@ public class ResearchPanel {
     private final Font font;
     private final boolean browse;  // true beside the scribing table: enchant pages only, grouped in tabs, turnable
     private final List<ResearchMap.Tab> tabs = new ArrayList<>(); // browse only: every tab but the runes
-    private int tab, pos;          // browse only: the open tab and the page within it
+    private int tab, pos;          // browse only: the open mod tab and the page within it
+    private int category;          // browse only: index into categories(), 0 = all enchants of the mod
     private int page;              // otherwise: the one page shown
     private int x, y, height; // set on every render, used by the click handler
 
@@ -49,10 +50,48 @@ public class ResearchPanel {
         });
     }
 
-    /** The enchant pages of the open tab, in order. */
-    private List<Integer> tabPages() {
+    private String enchantOf(int page) {
+        return EnchantForecast.table().get(page - Rune.values().length).enchant();
+    }
+
+    /** The enchant pages of the open mod tab, in order. */
+    private List<Integer> modPages() {
         int runes = Rune.values().length;
         return tabs.get(tab).nodes().stream().map(ResearchMap.Node::page).filter(p -> p >= runes).distinct().sorted().toList();
+    }
+
+    /** "all" first, then each kind of tool the open mod has enchants for. */
+    private List<String> categories() {
+        List<String> found = modPages().stream().map(p -> ResearchMap.category(enchantOf(p))).distinct().toList();
+        List<String> list = new ArrayList<>(List.of("all"));
+        for (String c : ResearchMap.CATEGORY_ORDER) if (found.contains(c)) list.add(c);
+        return list;
+    }
+
+    /** The enchant pages of the open mod tab and tool tab, in order. */
+    private List<Integer> tabPages() {
+        String wanted = categories().get(category);
+        return modPages().stream().filter(p -> wanted.equals("all") || ResearchMap.category(enchantOf(p)).equals(wanted)).toList();
+    }
+
+    private static ItemStack categoryIcon(String key) {
+        return new ItemStack(switch (key) {
+            case "general" -> Items.ANVIL;
+            case "tools" -> Items.DIAMOND_PICKAXE;
+            case "weapons" -> Items.DIAMOND_SWORD;
+            case "armor" -> Items.DIAMOND_CHESTPLATE;
+            case "bows" -> Items.BOW;
+            default -> Items.NETHER_STAR; // all
+        });
+    }
+
+    private static final int CAT_W = 24, CAT_H = 22;
+
+    /** The tool tab under the mouse (they sit along the top of the page), or -1. */
+    private int categoryAt(double mouseX, double mouseY) {
+        if (!browse || mouseY < y - CAT_H || mouseY >= y) return -1;
+        int i = (int) ((mouseX - (x + 4)) / (CAT_W + 2));
+        return mouseX >= x + 4 && i >= 0 && i < categories().size() && mouseX < x + 4 + i * (CAT_W + 2) + CAT_W ? i : -1;
     }
 
     /** "Vanilla" for Minecraft, the mod's id for any other mod until it gets a name of its own. */
@@ -100,6 +139,13 @@ public class ResearchPanel {
         graphics.blit(research("arrow_right" + (overRight ? "_hover" : "")), x + WIDTH - 8 - BUTTON_W, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
         String number = (pos + 1) + "/" + tabPages().size();
         graphics.drawString(font, number, x + (WIDTH - font.width(number)) / 2, buttonY() + 2, INK, false);
+        List<String> cats = categories();
+        for (int i = 0; i < cats.size(); i++) { // flat colours until the tool tabs have a texture
+            int cx = x + 4 + i * (CAT_W + 2), cy = y - CAT_H, bottom = i == category ? y + 2 : y;
+            graphics.fill(cx, cy, cx + CAT_W, bottom, 0xFF8A5A2B);
+            graphics.fill(cx + 1, cy + 1, cx + CAT_W - 1, bottom - (i == category ? 0 : 1), i == category ? 0xFFCEBC92 : 0xFFA86C4C);
+            graphics.renderItem(categoryIcon(cats.get(i)), cx + 4, cy + 4);
+        }
         for (int i = 0; i < tabs.size(); i++) {
             int ty = tabY(i); // the open tab is wider and joins the page
             if (i == tab) graphics.blit(TAB_ON, x - TAB_OFF_W, ty, 0, 0, TAB_ON_W, TAB_H, TAB_ON_W, TAB_H);
@@ -114,6 +160,8 @@ public class ResearchPanel {
 
     /** Names the tab under the mouse; the owner calls this after its own tooltips so it is not drawn over. */
     public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        int cat = categoryAt(mouseX, mouseY);
+        if (cat >= 0) graphics.renderTooltip(font, Component.translatable("gui.enchantmod.research.category." + categories().get(cat)), mouseX, mouseY);
         int hovered = tabAt(mouseX, mouseY);
         if (hovered >= 0) graphics.renderTooltip(font, tabName(tabs.get(hovered).key()), mouseX, mouseY);
     }
@@ -199,14 +247,21 @@ public class ResearchPanel {
     }
 
     public boolean contains(double mouseX, double mouseY) {
-        return tabAt(mouseX, mouseY) >= 0 || mouseX >= x && mouseX < x + WIDTH && mouseY >= y && mouseY < y + height;
+        return tabAt(mouseX, mouseY) >= 0 || categoryAt(mouseX, mouseY) >= 0 || mouseX >= x && mouseX < x + WIDTH && mouseY >= y && mouseY < y + height;
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button != 0 || !contains(mouseX, mouseY)) return false;
+        int cat = categoryAt(mouseX, mouseY);
+        if (cat >= 0) {
+            category = cat;
+            pos = 0;
+            return true;
+        }
         int clicked = tabAt(mouseX, mouseY);
         if (clicked >= 0) {
             tab = clicked;
+            category = 0; // the new mod may not have the same kinds of tool
             pos = 0;
             return true;
         }
