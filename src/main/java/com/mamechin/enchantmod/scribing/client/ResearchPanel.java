@@ -12,14 +12,15 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
 /**
- * The pages of the research tablet, drawn beside the scribing table while the player carries one: which runes make which
- * enchant, then what the utility runes do. Flat colours for now, to be replaced by a drawn texture.
+ * The pages of the research tablet, drawn beside the scribing table while the player carries one: one enchant per page
+ * with what it does, the runes it needs and a small example of how to link them, then a last page on the utility runes.
+ * Flat colours for now, to be replaced by a drawn texture.
  */
 public class ResearchPanel {
     public static final int WIDTH = 112;
-    private static final int PER_PAGE = 8, ENTRY = 22, TOP = 22, BUTTON_W = 14, BUTTON_H = 12;
-    private static final int EDGE = 0xFF8A5A2B, PAPER = 0xFFCEBC92, INK = 0xFF3A2918, BUTTON = 0xFFA86C4C;
-    private static final ResourceLocation BOARD = ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/rune_board_1x1.png");
+    private static final int BUTTON_W = 14, BUTTON_H = 12, BOARD = 26, GAP = 9; // the example uses the same 3x3 boards as the grid
+    private static final int EDGE = 0xFF8A5A2B, PAPER = 0xFFCEBC92, INK = 0xFF3A2918, TITLE = 0xFF5A2E12, BUTTON = 0xFFA86C4C, LINE = 0xFFB8764A;
+    private static final ResourceLocation BOARD_1X1 = gui("rune_board_1x1"), BOARD_3X3 = gui("rune_board_3x3");
 
     private final Font font;
     private int page;
@@ -29,16 +30,12 @@ public class ResearchPanel {
         this.font = font;
     }
 
-    private static int coreRows() {
-        return EnchantForecast.table().size();
+    private static ResourceLocation gui(String name) {
+        return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
     }
 
     private static int pages() {
-        return (coreRows() + PER_PAGE - 1) / PER_PAGE + 1; // the last page holds the utility runes
-    }
-
-    private static boolean utilityPage(int page) {
-        return page == pages() - 1;
+        return EnchantForecast.table().size() + 1; // one per enchant, then the utility runes
     }
 
     public void render(GuiGraphics graphics, int x, int y, int height) {
@@ -47,18 +44,9 @@ public class ResearchPanel {
         this.height = height;
         graphics.fill(x, y, x + WIDTH, y + height, EDGE);
         graphics.fill(x + 2, y + 2, x + WIDTH - 2, y + height - 2, PAPER);
-        graphics.drawString(font, Component.translatable("gui.enchantmod.research.title"), x + 8, y + 7, INK, false);
 
-        if (utilityPage(page)) {
-            renderUtility(graphics);
-        } else {
-            List<EnchantForecast.Core> rows = EnchantForecast.table();
-            for (int i = 0; i < PER_PAGE; i++) {
-                int index = page * PER_PAGE + i;
-                if (index >= rows.size()) break;
-                renderCore(graphics, rows.get(index), x + 8, y + TOP + i * ENTRY);
-            }
-        }
+        List<EnchantForecast.Core> rows = EnchantForecast.table();
+        if (page < rows.size()) renderCore(graphics, rows.get(page)); else renderUtility(graphics);
 
         graphics.fill(x + 8, buttonY(), x + 8 + BUTTON_W, buttonY() + BUTTON_H, BUTTON);
         graphics.drawString(font, "<", x + 8 + 5, buttonY() + 2, INK, false);
@@ -72,39 +60,75 @@ public class ResearchPanel {
         return y + height - 6 - BUTTON_H;
     }
 
-    private void renderCore(GuiGraphics graphics, EnchantForecast.Core core, int left, int top) {
-        graphics.drawString(font, Component.translatable("enchantment.minecraft." + core.enchant()), left, top, INK, false);
-        int cursor = left;
-        for (int i = 0; i < core.runes().size(); i++) {
-            Rune rune = Rune.byId(core.runes().get(i));
+    /** Draws wrapped text and returns the y just below it. */
+    private int paragraph(GuiGraphics graphics, Component text, int top, int color) {
+        for (FormattedCharSequence line : font.split(text, WIDTH - 16)) {
+            graphics.drawString(font, line, x + 8, top, color, false);
+            top += 10;
+        }
+        return top;
+    }
+
+    private void renderCore(GuiGraphics graphics, EnchantForecast.Core core) {
+        int top = y + 8;
+        top = paragraph(graphics, Component.translatable("enchantment.minecraft." + core.enchant()), top, TITLE) + 4;
+        top = paragraph(graphics, Component.translatable("research.enchantmod." + core.enchant()), top, INK) + 6;
+
+        StringBuilder names = new StringBuilder();
+        for (String id : core.runes()) names.append(names.isEmpty() ? "" : " + ").append(Component.translatable("rune.enchantmod." + id).getString());
+        graphics.drawString(font, Component.translatable("gui.enchantmod.research.runes"), x + 8, top, TITLE, false);
+        top = paragraph(graphics, Component.literal(names.toString()), top + 10, INK) + 6;
+
+        graphics.drawString(font, Component.translatable("gui.enchantmod.research.example"), x + 8, top, TITLE, false);
+        top += 12;
+        renderExample(graphics, core.runes(), x + WIDTH / 2, top);
+        int below = top + (core.runes().size() >= 3 ? 2 * BOARD + GAP : BOARD) + 8;
+        paragraph(graphics, Component.translatable("gui.enchantmod.research.hint"), below, INK);
+    }
+
+    /** The runes on their boards with copper lines through the gap between them, laid out as they would be on the grid. */
+    private void renderExample(GuiGraphics graphics, List<String> runes, int centreX, int top) {
+        int n = runes.size();
+        int[][] at = new int[n][];
+        if (n == 1) {
+            at[0] = new int[] {centreX - BOARD / 2, top};
+        } else {
+            int left = centreX - (2 * BOARD + GAP) / 2;
+            at[0] = new int[] {left, top};
+            at[1] = new int[] {left + BOARD + GAP, top};
+            if (n >= 3) at[2] = new int[] {centreX - BOARD / 2, top + BOARD + GAP};
+        }
+        if (n >= 2) graphics.fill(at[0][0] + BOARD, top + BOARD / 2 - 1, at[1][0], top + BOARD / 2 + 1, LINE);
+        if (n >= 3) {
+            graphics.fill(centreX - 9, top + BOARD, centreX - 7, top + BOARD + GAP, LINE);
+            graphics.fill(centreX + 8, top + BOARD, centreX + 10, top + BOARD + GAP, LINE);
+        }
+        for (int i = 0; i < n; i++) {
+            Rune rune = Rune.byId(runes.get(i));
             if (rune == null) continue;
-            if (i > 0) {
-                graphics.drawString(font, "+", cursor + 2, top + 12, INK, false);
-                cursor += 10;
-            }
-            drawRune(graphics, rune, cursor, top + 10);
-            cursor += 11;
+            graphics.blit(BOARD_3X3, at[i][0], at[i][1], 0, 0, 27, 27, 27, 27);
+            glyph(graphics, rune, at[i][0] + BOARD / 2.0F, at[i][1] + BOARD / 2.0F, 2.5F);
         }
     }
 
-    private void drawRune(GuiGraphics graphics, Rune rune, int left, int top) {
-        graphics.blit(BOARD, left, top, 0, 0, 9, 9, 9, 9);
-        String glyph = String.valueOf(rune.glyph());
-        graphics.drawString(font, glyph, left + 4 - font.width(glyph) / 2, top, ScribingTableScreen.glyphColor(rune), false);
+    private void glyph(GuiGraphics graphics, Rune rune, float centreX, float centreY, float scale) {
+        String text = String.valueOf(rune.glyph());
+        graphics.pose().pushPose();
+        graphics.pose().translate(centreX, centreY, 0);
+        graphics.pose().scale(scale, scale, 1.0F);
+        graphics.pose().translate(-font.width(text) / 2.0F, -4.0F, 0);
+        graphics.drawString(font, text, 0, 0, ScribingTableScreen.glyphColor(rune), false);
+        graphics.pose().popPose();
     }
 
     private void renderUtility(GuiGraphics graphics) {
-        graphics.drawString(font, Component.translatable("gui.enchantmod.research.utility"), x + 8, y + TOP, INK, false);
-        int top = y + TOP + 14;
+        int top = paragraph(graphics, Component.translatable("gui.enchantmod.research.utility"), y + 8, TITLE) + 6;
         for (Rune rune : Rune.values()) {
             if (!rune.isUtility()) continue;
-            drawRune(graphics, rune, x + 8, top);
+            graphics.blit(BOARD_1X1, x + 8, top, 0, 0, 9, 9, 9, 9);
+            glyph(graphics, rune, x + 8 + 4.0F, top + 4.0F, 1.0F);
             graphics.drawString(font, Component.translatable("rune.enchantmod." + rune.id()), x + 22, top + 1, INK, false);
-            for (FormattedCharSequence line : font.split(Component.translatable("rune.enchantmod." + rune.id() + ".desc"), WIDTH - 16)) {
-                top += 10;
-                graphics.drawString(font, line, x + 8, top + 2, INK, false);
-            }
-            top += 18;
+            top = paragraph(graphics, Component.translatable("rune.enchantmod." + rune.id() + ".desc"), top + 12, INK) + 8;
         }
     }
 
