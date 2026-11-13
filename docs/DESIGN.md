@@ -96,7 +96,7 @@ Why it works: it is a dependency graph. Sharing supports saves weight and space,
 - No success preview: the game does not state the chance; the player learns by trial and error (author, 2026-11-13).
 - The author leaves the exact numbers (break formula, major and minor weights) to Claude to decide, then tune in play.
 
-## First enchant: Efficiency I to V (proposed, 2026-11-13)
+## First enchant: Efficiency I to V (SUPERSEDED by the rune and core model below, 2026-11-13)
 
 Efficiency is the first family to build. Each level is one character, and each character's tier equals its level.
 
@@ -113,6 +113,61 @@ Each level connects to the two levels below it. One character of each level is e
 Failure behaviour: the item gets the highest level whose supporters are all still connected. If a line breaks, the effect drops down the chain (for example V loses the line to III and the result falls to IV). If the base character I fails, nothing activates. The altar animation floods from I upward and stops where a link is broken.
 
 Known weakness: this layout is a flat strip with no crossings, so it does not use layers. Layers matter once enchants mix (a second family, or a booster character connected to several), which is for the next step.
+
+## Runes, enchant cores and utility runes (author's idea, Claude's suggestion, 2026-11-13, proposed)
+
+The author changed the model: a single character is not an enchant. Characters are **runes** (the Elder Futhark: Berkana, Mannaz, Dagaz and so on), and an **enchant core** is a group of connected runes that decides the enchant type.
+
+### Rules
+
+1. **Core:** a group of connected core runes that matches a row of the core table. A single rune can be a core (Berkana = Efficiency); a pair or triple of connected runes forms rarer cores.
+2. **Boost runes:** a utility rune connected to a core adds levels. Suggested: Uruz (strength), +1 level per connected Uruz.
+3. **Stabilizer runes:** high levels need them or the core is unstable. Suggested: Mannaz is needed from level 5, Dagaz from level 10 (assumption, the author's wording was loose: confirm).
+4. **Utility runes are never part of a core**, so a core can always be read without ambiguity. Utility set for now: Uruz (boost), Mannaz (stabilizer 1), Dagaz (stabilizer 2).
+5. **Sharing:** one rune may belong to two cores. Each shared rune raises the line break chance of every core that uses it (suggested +25% of the base per extra core). The more you share, the less stable.
+6. **Matching:** a connected group of core runes must match a table row exactly. Unmatched groups do nothing. If two rows could match, the larger one wins.
+7. Lines, layers, no crossing on one sheet, and break chance rising with length stay as above. Failure drops the level step by step; losing the core rune itself means no enchant.
+
+### Core table (first draft, meanings from the runes' traditional names)
+
+Rune meanings: Berkana growth, Isa ice or stillness, Fehu wealth, Jera year or renewal, Tiwaz victory (Tyr), Thurisaz thorn or force, Kenaz torch or fire, Sowilo sun, Algiz protection, Hagalaz hail, Laguz water, Ehwaz horse or movement, Ansuz breath or speech, Eihwaz yew (bows), Raidho journey, Gebo gift, Perthro hidden lot, Nauthiz need.
+
+| Enchant | Core runes | Reason |
+|---|---|---|
+| Efficiency | Berkana | growth of speed (author's choice) |
+| Unbreaking | Isa | stillness, holds its shape |
+| Fortune | Fehu | wealth |
+| Mending | Jera | renewal over time |
+| Silk Touch | Gebo + Isa | a gift taken whole, unchanged |
+| Sharpness | Tiwaz | victory, the spear god |
+| Smite | Tiwaz + Sowilo | victory plus sun (holy) |
+| Bane of Arthropods | Tiwaz + Thurisaz | victory plus thorn |
+| Knockback | Thurisaz | force |
+| Fire Aspect | Kenaz | torch |
+| Looting | Tiwaz + Fehu | victory plus wealth |
+| Sweeping Edge | Tiwaz + Ehwaz | victory plus movement |
+| Protection | Algiz | protection |
+| Fire Protection | Algiz + Kenaz | ward against torch |
+| Blast Protection | Algiz + Hagalaz | ward against hail |
+| Feather Falling | Algiz + Ansuz | ward plus breath |
+| Respiration | Algiz + Laguz | ward plus water |
+| Thorns | Algiz + Thurisaz | ward plus thorn |
+| Depth Strider | Laguz + Ehwaz | water plus movement |
+| Frost Walker | Laguz + Isa | water plus stillness |
+| Soul Speed | Ehwaz + Nauthiz | movement plus need |
+| Swift Sneak | Ehwaz + Perthro | movement plus hidden |
+| Power | Eihwaz | yew, the bow |
+| Flame | Eihwaz + Kenaz | bow plus torch |
+| Punch | Eihwaz + Thurisaz | bow plus force |
+| Infinity | Eihwaz + Jera | bow plus renewal |
+
+The rest of the vanilla list (Lure, Luck of the Sea, Impaling, Riptide, Loyalty, Channeling, Multishot, Piercing, Quick Charge, Aqua Affinity, Density, Breach, Wind Burst) follows the same pattern and is filled in later. Possible first-wave build: Efficiency, Unbreaking, Fortune, Sharpness, Protection (all single-rune).
+
+**Open:**
+1. Confirm the stabilizer thresholds (Mannaz from level 5, Dagaz from level 10) and the enchant level caps (above vanilla, up to X and beyond).
+2. Does a boost rune work only on the core rune itself, or on any rune in the core?
+3. Do runes have tiers and need unlocking (research), and which runes start known?
+4. How the first core, Berkana, is discovered.
 
 ## Open discussions (each is its own topic, to take one at a time)
 
