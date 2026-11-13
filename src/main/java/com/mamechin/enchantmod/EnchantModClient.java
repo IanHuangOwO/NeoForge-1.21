@@ -3,6 +3,8 @@ package com.mamechin.enchantmod;
 import com.mamechin.enchantmod.cauldron.ModBlockEntities;
 import com.mamechin.enchantmod.cauldron.client.CauldronRenderer;
 import com.mamechin.enchantmod.fluid.EnchantFluid;
+import com.mamechin.enchantmod.scribing.ModMenus;
+import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +16,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
@@ -28,6 +31,11 @@ public class EnchantModClient {
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.
         // Do not forget to add translations for your config options to the en_us.json file.
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
+
+    @SubscribeEvent
+    static void onRegisterScreens(RegisterMenuScreensEvent event) {
+        event.register(ModMenus.SCRIBING_TABLE.get(), ScribingTableScreen::new);
     }
 
     @SubscribeEvent

@@ -169,6 +169,19 @@ The rest of the vanilla list (Lure, Luck of the Sea, Impaling, Riptide, Loyalty,
 
 **Decided (author, 2026-11-13):** a boost rune works when connected to any rune in a multi-rune core, not only a main one. The stabilizer thresholds (Mannaz from level 5, Dagaz from level 10) were not contradicted and stand as the working assumption; enchant levels have **no explicit cap** (author, 2026-11-13): the paper (layers, space) and the line breaks decide how high a level gets. Consequence: the evaluator must handle any level, and past level 10 the stabilizer rule needs a decision (suggested: each further 10 levels needs one more Dagaz).
 
+## Scribing table UI, first version (built 2026-11-13, not yet tried in game)
+
+What exists (package `scribing`):
+- The table's left half holds a block entity with three slots: inkwell (tag `inkwells`), quill (tag `quills`) and an **enchant template** (new item `enchant_template`, paper look, stack of 1, creative tab only, no recipe yet). The right half forwards clicks. Contents drop when the table breaks.
+- The layout is stored on the template item as the data component `enchantmod:blueprint` (runes plus lines), so it travels with the item.
+- Screen: a 12 x 8 grid, a palette of all 24 Elder Futhark runes at the side (drawn as Unicode glyphs, no textures yet). Drag a rune from the palette onto the grid. Click a placed rune to start a line: it follows the cursor one cell at a time, orthogonal steps only, and stops at anything occupied; moving back over it retracts it. Click another rune next to the line's end to connect; right-click cancels. Right-click a rune erases it with all its lines; right-click a line cell erases that line (Claude's addition). A line cell is occupied, so nothing else can be placed on it, and lines can never cross on a sheet.
+- Editing needs an inkwell, a quill and a template in the table. Nothing is used up yet.
+- Every edit is a packet; the server validates it with `BlueprintRules` (unit tested) before changing the item.
+
+Decisions made by Claude (change freely): grid size 12 x 8; one layer only; the palette shows all runes because "discovered runes" does not exist yet (`shortcut:` to replace when discovery is designed); parallel lines allowed; a template is not a vanilla paper.
+
+Not built: layers, ink and quill use, the rune and core rules (core table, boost and stabilizer runes, break chances), the altar, discovery, saving templates to the research tablet.
+
 ## Open discussions (each is its own topic, to take one at a time)
 
 1. The blueprint mini-game at the Scribing Table (direction: circuit routing, see above).

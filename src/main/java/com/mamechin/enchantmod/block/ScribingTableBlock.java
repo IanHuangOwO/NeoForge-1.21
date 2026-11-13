@@ -5,13 +5,19 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
+import com.mamechin.enchantmod.scribing.ScribingTableBlockEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -22,7 +28,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
  * A two-block-wide table. FACING is the side its front faces (towards the player who placed it); LEFT is the half that
  * was placed, RIGHT is the half added on the viewer's right. Breaking either half removes both; one item drops.
  */
-public class ScribingTableBlock extends Block {
+public class ScribingTableBlock extends Block implements EntityBlock {
     public static final MapCodec<ScribingTableBlock> CODEC = simpleCodec(ScribingTableBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);
@@ -61,6 +67,29 @@ public class ScribingTableBlock extends Block {
     private static Direction partnerDirection(BlockState state) {
         Direction toRight = state.getValue(FACING).getCounterClockWise(); // viewer's right when looking at the front
         return state.getValue(PART) == Part.LEFT ? toRight : toRight.getOpposite();
+    }
+
+    /** Only the left half keeps the contents; the right half forwards clicks to it. */
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return state.getValue(PART) == Part.LEFT ? new ScribingTableBlockEntity(pos, state) : null;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
+        if (!level.isClientSide) {
+            BlockPos left = state.getValue(PART) == Part.LEFT ? pos : pos.relative(partnerDirection(state));
+            if (level.getBlockEntity(left) instanceof ScribingTableBlockEntity table) player.openMenu(table, left);
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && !level.isClientSide && level.getBlockEntity(pos) instanceof ScribingTableBlockEntity table) {
+            table.dropContents(level, pos);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override

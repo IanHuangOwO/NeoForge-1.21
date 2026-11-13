@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.block.ModBlocks;
+import com.mamechin.enchantmod.scribing.ScribingTableBlockEntity;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -19,6 +20,10 @@ public final class ModBlockEntities {
     public static final Supplier<BlockEntityType<CauldronBlockEntity>> LARGE_CAULDRON = BLOCK_ENTITIES.register("large_cauldron",
             () -> BlockEntityType.Builder.of((pos, state) -> new CauldronBlockEntity(ModBlockEntities.LARGE_CAULDRON.get(), CauldronSize.LARGE, pos, state),
                     ModBlocks.LARGE_CAULDRON.get()).build(null));
+
+    /** Lives on the left half of the scribing table only. */
+    public static final Supplier<BlockEntityType<ScribingTableBlockEntity>> SCRIBING_TABLE = BLOCK_ENTITIES.register("scribing_table",
+            () -> BlockEntityType.Builder.of(ScribingTableBlockEntity::new, ModBlocks.SCRIBING_TABLE.get()).build(null));
 
     private ModBlockEntities() {}
 }
