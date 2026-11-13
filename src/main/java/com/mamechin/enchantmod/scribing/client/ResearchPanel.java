@@ -44,11 +44,7 @@ public class ResearchPanel {
 
     static ItemStack tabIcon(String key) {
         return new ItemStack(switch (key) {
-            case "general" -> Items.ANVIL;
-            case "tools" -> Items.DIAMOND_PICKAXE;
-            case "weapons" -> Items.DIAMOND_SWORD;
-            case "armor" -> Items.DIAMOND_CHESTPLATE;
-            case "bows" -> Items.BOW;
+            case "minecraft" -> Items.GRASS_BLOCK;
             default -> ModItems.ENCHANT_TEMPLATE.get();
         });
     }
@@ -57,6 +53,11 @@ public class ResearchPanel {
     private List<Integer> tabPages() {
         int runes = Rune.values().length;
         return tabs.get(tab).nodes().stream().map(ResearchMap.Node::page).filter(p -> p >= runes).distinct().sorted().toList();
+    }
+
+    /** "Vanilla" for Minecraft, the mod's id for any other mod until it gets a name of its own. */
+    static Component tabName(String key) {
+        return Component.translatableWithFallback("gui.enchantmod.research.tab." + key, key);
     }
 
     private int tabY(int i) {
@@ -108,7 +109,7 @@ public class ResearchPanel {
     /** Names the tab under the mouse; the owner calls this after its own tooltips so it is not drawn over. */
     public void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         int hovered = tabAt(mouseX, mouseY);
-        if (hovered >= 0) graphics.renderTooltip(font, Component.translatable("gui.enchantmod.research.tab." + tabs.get(hovered).key()), mouseX, mouseY);
+        if (hovered >= 0) graphics.renderTooltip(font, tabName(tabs.get(hovered).key()), mouseX, mouseY);
     }
 
     private int buttonY() {

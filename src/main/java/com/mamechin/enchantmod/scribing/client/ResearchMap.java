@@ -1,17 +1,20 @@
 package com.mamechin.enchantmod.scribing.client;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.mamechin.enchantmod.scribing.EnchantForecast;
 import com.mamechin.enchantmod.scribing.Rune;
 
 /**
- * Where each knowledge node sits on the research tablet's maps, one map per side tab: the runes on one tab, then a tab each
- * for tools, weapons, armour and bows, where each enchant sits inside a ring of the runes it needs. Pure and deterministic,
- * so the maps look the same every time. A node's page is its global index: runes first, then enchants in table order, the
- * same as {@link ResearchPanel}'s pages. A rune can have a node on several tabs, all opening the same page.
+ * Where each knowledge node sits on the research tablet's maps, one map per side tab: a Runes tab, then one tab per mod
+ * that adds enchants (so far only vanilla). On an enchant tab each enchant sits inside a ring of the runes it needs; the
+ * all-purpose enchants are in the middle and enchants for one kind of tool are clustered around them. Pure and
+ * deterministic, so the maps look the same every time. A node's page is its global index: runes first, then enchants in
+ * table order, the same as {@link ResearchPanel}'s pages. A rune can have a node on several tabs, all opening the same page.
  */
 public final class ResearchMap {
     public static final int MIN_GAP = 30;
@@ -19,15 +22,15 @@ public final class ResearchMap {
     /** links: indices, within the same tab's node list, of the rune nodes an enchant needs (empty for a rune). */
     public record Node(int page, int x, int y, List<Integer> links) {}
 
-    /** key: the lang key suffix of the tab's name. */
+    /** key: the namespace of the mod ("minecraft" for vanilla), or "runes"; used for the tab's name and icon. */
     public record Tab(String key, List<Node> nodes) {}
 
-    private static final String[][] GROUPS = {
-        {"general", "unbreaking", "mending"}, // fit any tool
-        {"tools", "efficiency", "fortune", "silk_touch"},
-        {"weapons", "sharpness", "smite", "bane_of_arthropods", "knockback", "fire_aspect", "looting", "sweeping_edge"},
-        {"armor", "protection", "fire_protection", "blast_protection", "feather_falling", "respiration", "thorns", "depth_strider", "frost_walker", "soul_speed", "swift_sneak"},
-        {"bows", "power", "flame", "punch", "infinity"},
+    /** Enchants for one kind of tool, each group clustered in its own direction; any enchant not listed is all-purpose. */
+    private static final String[][] CLUSTERS = {
+        {"efficiency", "fortune", "silk_touch"},
+        {"sharpness", "smite", "bane_of_arthropods", "knockback", "fire_aspect", "looting", "sweeping_edge"},
+        {"protection", "fire_protection", "blast_protection", "feather_falling", "respiration", "thorns", "depth_strider", "frost_walker", "soul_speed", "swift_sneak"},
+        {"power", "flame", "punch", "infinity"},
     };
 
     private static List<Tab> cache;
@@ -39,6 +42,12 @@ public final class ResearchMap {
         return cache;
     }
 
+    /** Vanilla enchant ids are bare; another mod's would be "namespace:id". */
+    private static String namespace(String enchant) {
+        int colon = enchant.indexOf(':');
+        return colon < 0 ? "minecraft" : enchant.substring(0, colon);
+    }
+
     private static List<Tab> build() {
         int runeCount = Rune.values().length;
         List<EnchantForecast.Core> table = EnchantForecast.table();
@@ -46,46 +55,65 @@ public final class ResearchMap {
         List<Integer> all = new ArrayList<>();
         for (int i = 0; i < runeCount; i++) all.add(i);
         tabs.add(new Tab("runes", layout(all, List.of(), table, runeCount)));
-        for (String[] group : GROUPS) {
-            List<Integer> cores = new ArrayList<>(), runes = new ArrayList<>();
-            for (int g = 1; g < group.length; g++) {
-                for (int j = 0; j < table.size(); j++) {
-                    if (!table.get(j).enchant().equals(group[g])) continue;
-                    cores.add(j);
-                    for (String id : table.get(j).runes()) if (!runes.contains(Rune.byId(id).ordinal())) runes.add(Rune.byId(id).ordinal());
-                }
-            }
-            tabs.add(new Tab(group[0], layout(runes, cores, table, runeCount)));
-        }
+        Map<String, List<Integer>> byMod = new LinkedHashMap<>();
+        for (int j = 0; j < table.size(); j++) byMod.computeIfAbsent(namespace(table.get(j).enchant()), k -> new ArrayList<>()).add(j);
+        byMod.forEach((mod, cores) -> {
+            List<Integer> runes = new ArrayList<>();
+            for (int j : cores) for (String id : table.get(j).runes()) if (!runes.contains(Rune.byId(id).ordinal())) runes.add(Rune.byId(id).ordinal());
+            tabs.add(new Tab(mod, layout(runes, cores, table, runeCount)));
+        });
         return tabs;
     }
 
+    /** Where an enchant starts: the middle if all-purpose, else in the direction of its tool group. */
+    private static double[] target(String enchant) {
+        for (int k = 0; k < CLUSTERS.length; k++) {
+            for (String id : CLUSTERS[k]) {
+                if (id.equals(enchant)) {
+                    double angle = Math.PI / 4 + k * Math.PI / 2;
+                    return new double[] {Math.cos(angle) * 95, Math.sin(angle) * 95};
+                }
+            }
+        }
+        return new double[] {0, 0};
+    }
+
     /** Rune nodes (fixed, on a ring) first, then the enchant nodes (pushed apart inside the ring). */
-    private static List<Node> layout(List<Integer> runes, List<Integer> cores, List<EnchantForecast.Core> table, int runeCount) {
+    private static List<Node> layout(List<Integer> runeList, List<Integer> cores, List<EnchantForecast.Core> table, int runeCount) {
         Random random = new Random(7);
+        List<Integer> runes = new ArrayList<>(runeList);
+        if (!cores.isEmpty()) {
+            // order the runes round the ring by where the enchants that use them sit, so the lines stay short
+            double[] angle = new double[runeCount];
+            for (int r : runes) {
+                double sx = 0, sy = 0;
+                for (int j : cores) {
+                    if (!table.get(j).runes().contains(Rune.values()[r].id())) continue;
+                    double[] t = target(table.get(j).enchant());
+                    sx += t[0];
+                    sy += t[1];
+                }
+                angle[r] = Math.atan2(sy, sx);
+            }
+            runes.sort((a, b) -> Double.compare(angle[a], angle[b]));
+        }
         int total = runes.size() + cores.size();
         double[] x = new double[total], y = new double[total];
-        double ring = Math.max(125, 7 * runes.size());
+        double ring = Math.max(cores.isEmpty() ? 125 : 200, 7 * runes.size());
         for (int i = 0; i < runes.size(); i++) {
-            double angle = 2 * Math.PI * i / runes.size();
+            double a = 2 * Math.PI * i / runes.size();
             double radius = ring + random.nextInt(25) - 12;
-            x[i] = Math.cos(angle) * radius;
-            y[i] = Math.sin(angle) * radius;
+            x[i] = Math.cos(a) * radius;
+            y[i] = Math.sin(a) * radius;
         }
         List<List<Integer>> links = new ArrayList<>();
         for (int j = 0; j < cores.size(); j++) {
             List<Integer> mine = new ArrayList<>();
-            double cx = 0, cy = 0;
-            for (String id : table.get(cores.get(j)).runes()) {
-                int r = runes.indexOf(Rune.byId(id).ordinal());
-                mine.add(r);
-                cx += x[r];
-                cy += y[r];
-            }
+            for (String id : table.get(cores.get(j)).runes()) mine.add(runes.indexOf(Rune.byId(id).ordinal()));
             links.add(mine);
-            int n = runes.size() + j;
-            x[n] = cx / mine.size() * 0.5 + random.nextInt(31) - 15;
-            y[n] = cy / mine.size() * 0.5 + random.nextInt(31) - 15;
+            double[] t = target(table.get(cores.get(j)).enchant());
+            x[runes.size() + j] = t[0] + random.nextInt(31) - 15;
+            y[runes.size() + j] = t[1] + random.nextInt(31) - 15;
         }
         // push enchant nodes apart; the rune ring stays put
         for (int pass = 0; pass < 300; pass++) {

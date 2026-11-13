@@ -83,7 +83,7 @@ public class ResearchScreen extends Screen {
             graphics.renderItem(ResearchPanel.tabIcon(tabs.get(i).key()), 7, ty + 6);
         }
         int hoveredTab = tabAt(mouseX, mouseY);
-        if (hoveredTab >= 0) graphics.renderTooltip(font, Component.translatable("gui.enchantmod.research.tab." + tabs.get(hoveredTab).key()), mouseX, mouseY);
+        if (hoveredTab >= 0) graphics.renderTooltip(font, ResearchPanel.tabName(tabs.get(hoveredTab).key()), mouseX, mouseY);
         if (hovered != null) graphics.renderTooltip(font, nameOf(hovered), mouseX, mouseY);
     }
 
