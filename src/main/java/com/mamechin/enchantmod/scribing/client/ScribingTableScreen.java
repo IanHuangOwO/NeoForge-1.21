@@ -11,6 +11,7 @@ import com.mamechin.enchantmod.scribing.EditBlueprintPayload;
 import com.mamechin.enchantmod.scribing.Rune;
 import com.mamechin.enchantmod.scribing.ScribingTableMenu;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -29,7 +30,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
     private static final int PANEL = 0xFF2B1D12, PANEL_EDGE = 0xFF8A5A2B, SLOT = 0xFF120C07;
-    private static final int GRID = 0xFF3A2918, GRID_RUNE = 0xFF5C3F20, LINE = 0xFFD9A441, LINE_PREVIEW = 0xFFF2D48A, GLYPH = 0xFFFFE8B0;
+    private static final int GRID = 0xFF3A2918, GRID_RUNE = 0xFF5C3F20, GLYPH = 0xFFFFE8B0, LINE = GLYPH, LINE_PREVIEW = 0x80FFE8B0;
 
     private Rune held;                               // rune dragged out of the palette
     private int lineStart = -1;                      // rune cell a line is being drawn from
@@ -108,12 +109,26 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             graphics.drawString(font, String.valueOf(held.glyph()), mouseX - 3, mouseY - 4, GLYPH, true);
             graphics.pose().popPose();
         }
-        int hovered = paletteAt(mouseX, mouseY);
-        if (hovered >= 0) {
-            graphics.renderTooltip(font, Component.translatable("rune.enchantmod." + Rune.values()[hovered].id()), mouseX, mouseY);
+        Rune hovered = runeUnder(mouseX, mouseY);
+        if (hovered != null) {
+            graphics.renderComponentTooltip(font, List.of(
+                    Component.translatable("rune.enchantmod." + hovered.id()),
+                    Component.translatable("rune.enchantmod." + hovered.id() + ".desc").withStyle(ChatFormatting.GRAY)), mouseX, mouseY);
         } else {
             renderTooltip(graphics, mouseX, mouseY);
         }
+    }
+
+    /** The rune in the palette or on the grid under the cursor, or null. */
+    private Rune runeUnder(int mouseX, int mouseY) {
+        int palette = paletteAt(mouseX, mouseY);
+        if (palette >= 0) return Rune.values()[palette];
+        int cell = cellAt(mouseX, mouseY);
+        if (cell < 0) return null;
+        for (Blueprint.RuneAt placed : menu.blueprint().runes()) {
+            if (placed.cell() == cell) return Rune.byId(placed.rune());
+        }
+        return null;
     }
 
     @Override
@@ -161,7 +176,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     private void drawLine(GuiGraphics graphics, List<Integer> cells, int color) {
         for (int i = 0; i + 1 < cells.size(); i++) {
             int x1 = cellCentreX(cells.get(i)), y1 = cellCentreY(cells.get(i)), x2 = cellCentreX(cells.get(i + 1)), y2 = cellCentreY(cells.get(i + 1));
-            graphics.fill(Math.min(x1, x2) - 1, Math.min(y1, y2) - 1, Math.max(x1, x2) + 1, Math.max(y1, y2) + 1, color);
+            graphics.fill(Math.min(x1, x2), Math.min(y1, y2), Math.max(x1, x2) + 1, Math.max(y1, y2) + 1, color);
         }
     }
 
