@@ -14,6 +14,17 @@ public enum Rune {
         this.glyph = glyph;
     }
 
+    /** Utility runes are never part of an enchant core: the boost rune and the two stabilizers. */
+    public boolean isUtility() {
+        return this == URUZ || this == MANNAZ || this == DAGAZ;
+    }
+
+    /** Side of the square this rune covers on the grid: boost 1, stabilizers 2, core runes 3. */
+    public int size() {
+        if (this == URUZ) return 1;
+        return isUtility() ? 2 : 3;
+    }
+
     public char glyph() {
         return glyph;
     }
