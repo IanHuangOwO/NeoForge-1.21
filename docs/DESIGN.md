@@ -59,18 +59,29 @@ The player lays out an enchant blueprint like a chip or circuit board:
 - **Neighbour rule:** characters cannot sit side by side. If allowed, adjacency reduces the enchant's strength (**TBD** which).
 - **Crossing rule:** lines cannot cross on the same sheet. A crossing needs a different sheet, so components and lines move between stacked layers of paper.
 - **Length and stability rule:** the longer a line, the less stable it is. Stability feeds into the altar's fixation chance.
-- **Stabilizers:** stabilizer characters or modules can be added to raise stability (like repeaters on long lines).
+- **Stabilizers:** dropped for now (author, 2026-11-13). Revisit only if line length alone is not enough.
 - Sheets are layers; higher tiers allow more characters or more layers per item (tier and item limit rules above still apply).
 
 Why it works: the goal "fit the desired enchant into the smallest, most stable layout" has many good answers, so there is no single best pattern, and skill shows in short routes and clever layer use. Real concepts behind it: circuit layout and routing, planar graphs, vias between layers, wire length, signal repeaters.
 
+## Character hierarchy (author, 2026-11-13, proposed)
+
+- Each character is one enchantment. Example: character 1 means Efficiency I.
+- Characters have tiers. Low-tier (basic) characters work alone.
+- A higher-tier character needs supporting characters of lower tiers connected to it by lines before it activates. The design is nested: higher tiers lean on lower ones.
+- Different higher-tier characters can share the same supporting characters.
+- The effect of a higher-tier character depends on which supporting characters it is connected to. Some characters have a strict requirement for how many supporting characters they need.
+- Layout rules above (lines, no crossing per sheet, line length and stability) decide how these connections can be drawn.
+
+Why it works: it is a dependency graph. Sharing supports saves weight and space, so players are rewarded for building one compact network that powers many enchants rather than one layout per enchant.
+
 **Open for this design:**
-1. What does a line mean? Which characters must connect, and who decides (the enchant's recipe, the player)?
-2. Do lines carry anything (ink flow, a signal), or do they only link?
-3. How do layers connect? A special via character, or any cell stacked above another?
-4. What is the unit of stability: a number per line, per sheet, or per whole blueprint?
-5. How does a stabilizer work: placed on a line, or next to one, and what does it cost in weight?
-6. Is there a fixed enchant goal (a target netlist) or do players design freely and the result decides the enchant?
+1. Is a connection a line to the supporter, or a chain of supporters? (does support pass through)
+2. What does a supporter change: the level of the enchant, or which enchant it becomes?
+3. Do supporters get used up when shared (a limited number of connections, like AE2 channels), or can many characters use one for free?
+4. Where does the first tier come from (scanned, found, always known), and do higher tiers unlock through research?
+5. Strict requirements: exact counts ("needs exactly 3"), minimums, or specific types?
+6. Does a wrong or missing supporter fail activation or give a weaker effect?
 
 ## Open discussions (each is its own topic, to take one at a time)
 
