@@ -1,42 +1,15 @@
 {
-  "textures": {
-    "front": "enchantmod:block/scribing_table_front_left",
-    "top": "enchantmod:block/scribing_table_top_left",
-    "back": "enchantmod:block/scribing_table_back_right",
-    "end": "enchantmod:block/scribing_table_side",
-    "bottom": "enchantmod:block/scribing_table_bottom",
-    "particle": "enchantmod:block/scribing_table_side"
-  },
-  "elements": [
-    {
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        16,
-        16,
-        16
-      ],
-      "faces": {
-        "north": {
-          "texture": "#front"
-        },
-        "south": {
-          "texture": "#back"
-        },
-        "up": {
-          "texture": "#top",
-          "rotation": 180
-        },
-        "down": {
-          "texture": "#bottom"
-        },
-        "east": {
-          "texture": "#end"
-        }
-      }
-    }
-  ]
+	"parent": "minecraft:block/block",
+	"loader": "neoforge:obj",
+	"flip_v": true,
+	"automatic_culling": false,
+	"model": "enchantmod:models/block/scribing_table_left.obj",
+	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "enchantmod:block/scribing_table",
+		"1": "enchantmod:block/scribing_table_parts",
+		"2": "enchantmod:block/scribing_table_glow",
+		"particle": "enchantmod:block/scribing_table"
+	}
 }
