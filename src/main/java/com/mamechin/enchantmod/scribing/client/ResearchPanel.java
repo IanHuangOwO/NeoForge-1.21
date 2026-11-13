@@ -34,6 +34,10 @@ public class ResearchPanel {
         return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
     }
 
+    public void setPage(int page) {
+        this.page = page;
+    }
+
     private static int pages() {
         return Rune.values().length + EnchantForecast.table().size(); // one per rune, then one per enchant
     }
