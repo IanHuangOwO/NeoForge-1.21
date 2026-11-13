@@ -167,7 +167,7 @@ The rest of the vanilla list (Lure, Luck of the Sea, Impaling, Riptide, Loyalty,
 1. Confirm the stabilizer thresholds (Mannaz from level 5, Dagaz from level 10) and the enchant level caps (above vanilla, up to X and beyond).
 2. Which runes the player knows at the start and how they are discovered is its own discussion (deferred).
 
-**Decided (author, 2026-11-13):** a boost rune works when connected to any rune in a multi-rune core, not only a main one. The stabilizer thresholds (Mannaz from level 5, Dagaz from level 10) were not contradicted and stand as the working assumption; enchant level caps are still open.
+**Decided (author, 2026-11-13):** a boost rune works when connected to any rune in a multi-rune core, not only a main one. The stabilizer thresholds (Mannaz from level 5, Dagaz from level 10) were not contradicted and stand as the working assumption; enchant levels have **no explicit cap** (author, 2026-11-13): the paper (layers, space) and the line breaks decide how high a level gets. Consequence: the evaluator must handle any level, and past level 10 the stabilizer rule needs a decision (suggested: each further 10 levels needs one more Dagaz).
 
 ## Open discussions (each is its own topic, to take one at a time)
 
