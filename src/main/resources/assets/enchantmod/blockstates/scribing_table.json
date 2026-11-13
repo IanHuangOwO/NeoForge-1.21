@@ -1,32 +1,62 @@
 {
   "variants": {
-    "facing=north,part=left": {
+    "facing=north,part=left,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_left"
+    },
+    "facing=north,part=left,template=true": {
       "model": "enchantmod:block/scribing_table_left"
     },
-    "facing=north,part=right": {
+    "facing=north,part=right,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_right"
+    },
+    "facing=north,part=right,template=true": {
       "model": "enchantmod:block/scribing_table_right"
     },
-    "facing=east,part=left": {
+    "facing=east,part=left,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_left",
+      "y": 90
+    },
+    "facing=east,part=left,template=true": {
       "model": "enchantmod:block/scribing_table_left",
       "y": 90
     },
-    "facing=east,part=right": {
+    "facing=east,part=right,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_right",
+      "y": 90
+    },
+    "facing=east,part=right,template=true": {
       "model": "enchantmod:block/scribing_table_right",
       "y": 90
     },
-    "facing=south,part=left": {
+    "facing=south,part=left,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_left",
+      "y": 180
+    },
+    "facing=south,part=left,template=true": {
       "model": "enchantmod:block/scribing_table_left",
       "y": 180
     },
-    "facing=south,part=right": {
+    "facing=south,part=right,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_right",
+      "y": 180
+    },
+    "facing=south,part=right,template=true": {
       "model": "enchantmod:block/scribing_table_right",
       "y": 180
     },
-    "facing=west,part=left": {
+    "facing=west,part=left,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_left",
+      "y": 270
+    },
+    "facing=west,part=left,template=true": {
       "model": "enchantmod:block/scribing_table_left",
       "y": 270
     },
-    "facing=west,part=right": {
+    "facing=west,part=right,template=false": {
+      "model": "enchantmod:block/scribing_table_empty_right",
+      "y": 270
+    },
+    "facing=west,part=right,template=true": {
       "model": "enchantmod:block/scribing_table_right",
       "y": 270
     }

@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.scribing;
 
+import com.mamechin.enchantmod.block.ScribingTableBlock;
 import com.mamechin.enchantmod.cauldron.ModBlockEntities;
 
 import net.minecraft.core.BlockPos;
@@ -25,6 +26,9 @@ public class ScribingTableBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+            if (slot == TEMPLATE && level != null && !level.isClientSide && getBlockState().getBlock() instanceof ScribingTableBlock) {
+                ScribingTableBlock.setTemplate(level, worldPosition, getBlockState(), !getStackInSlot(TEMPLATE).isEmpty());
+            }
         }
     };
 

@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 
@@ -32,6 +33,8 @@ public class ScribingTableBlock extends Block implements EntityBlock {
     public static final MapCodec<ScribingTableBlock> CODEC = simpleCodec(ScribingTableBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Part> PART = EnumProperty.create("part", Part.class);
+    /** True while an enchant template sits in the table; the model then shows the rune grid, otherwise a bare desk. */
+    public static final BooleanProperty TEMPLATE = BooleanProperty.create("template");
 
     public enum Part implements StringRepresentable {
         LEFT("left"), RIGHT("right");
@@ -50,7 +53,7 @@ public class ScribingTableBlock extends Block implements EntityBlock {
 
     public ScribingTableBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(PART, Part.LEFT));
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(PART, Part.LEFT).setValue(TEMPLATE, false));
     }
 
     @Override
@@ -60,11 +63,11 @@ public class ScribingTableBlock extends Block implements EntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, PART);
+        builder.add(FACING, PART, TEMPLATE);
     }
 
     /** Direction from this half to the other half. */
-    private static Direction partnerDirection(BlockState state) {
+    public static Direction partnerDirection(BlockState state) {
         Direction toRight = state.getValue(FACING).getCounterClockWise(); // viewer's right when looking at the front
         return state.getValue(PART) == Part.LEFT ? toRight : toRight.getOpposite();
     }
@@ -92,6 +95,15 @@ public class ScribingTableBlock extends Block implements EntityBlock {
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
+    /** Sets the template flag on both halves, given the left half's position and state. */
+    public static void setTemplate(Level level, BlockPos left, BlockState state, boolean template) {
+        if (state.getValue(TEMPLATE) == template) return;
+        level.setBlock(left, state.setValue(TEMPLATE, template), 3);
+        BlockPos right = left.relative(partnerDirection(state));
+        BlockState other = level.getBlockState(right);
+        if (other.is(state.getBlock())) level.setBlock(right, other.setValue(TEMPLATE, template), 3);
+    }
+
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction facing = context.getHorizontalDirection().getOpposite();
@@ -100,14 +112,14 @@ public class ScribingTableBlock extends Block implements EntityBlock {
         if (!level.getWorldBorder().isWithinBounds(other) || !level.getBlockState(other).canBeReplaced(context)) {
             return null; // no room for the second half
         }
-        return defaultBlockState().setValue(FACING, facing).setValue(PART, Part.LEFT);
+        return defaultBlockState().setValue(FACING, facing).setValue(PART, Part.LEFT).setValue(TEMPLATE, false);
     }
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide) {
-            level.setBlock(pos.relative(partnerDirection(state)), state.setValue(PART, Part.RIGHT), 3);
+            level.setBlock(pos.relative(partnerDirection(state)), state.setValue(PART, Part.RIGHT).setValue(TEMPLATE, false), 3);
             level.blockUpdated(pos, Blocks.AIR);
             state.updateNeighbourShapes(level, pos, 3);
         }
