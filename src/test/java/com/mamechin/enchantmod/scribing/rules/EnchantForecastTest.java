@@ -1,10 +1,12 @@
 package com.mamechin.enchantmod.scribing.rules;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -87,5 +89,16 @@ class EnchantForecastTest {
         assertEquals(9, EnchantForecast.levelCap(java.util.Map.of("enchantmod:mannaz", 1, "enchantmod:dagaz", 0)));
         assertEquals(19, EnchantForecast.levelCap(java.util.Map.of("enchantmod:mannaz", 1, "enchantmod:dagaz", 1)));
         assertEquals(29, EnchantForecast.levelCap(java.util.Map.of("enchantmod:mannaz", 2, "enchantmod:dagaz", 2)));
+    }
+
+    @Test
+    void aTemplateCapMovesTheHigherLevelsDown() {
+        Blueprint bp = new Blueprint(List.of(new RuneAt(1, "berkana"), new RuneAt(5, "uruz"), new RuneAt(8, "uruz")), List.of(new Line(1, 5, List.of(3)), new Line(1, 8, List.of(4))));
+        Map<Integer, Double> free = EnchantForecast.forecast(bp).get(0).levels();
+        Map<Integer, Double> capped = EnchantForecast.forecast(bp, 2).get(0).levels();
+        assertTrue(free.containsKey(3));
+        assertFalse(capped.containsKey(3));
+        assertEquals(free.get(2) + free.get(3), capped.get(2), 1e-9);
+        assertEquals(free.get(1), capped.get(1), 1e-9);
     }
 }

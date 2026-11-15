@@ -1,7 +1,9 @@
 package com.mamechin.enchantmod.items;
 
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
+import com.mamechin.enchantmod.scribing.rules.Definitions;
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.TemplateTier;
 import com.mamechin.enchantmod.scribing.ModDataComponents;
 
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -22,11 +25,19 @@ public class EnchantTemplate extends Item {
         super(properties);
     }
 
+    /** What this template allows, from its data file; the whole grid with no cap for anything else. */
+    public static TemplateTier tierOf(ItemStack stack) {
+        return stack.isEmpty() ? TemplateTier.FULL : Definitions.template(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
+        TemplateTier tier = tierOf(stack);
+        tooltip.add(Component.translatable("tooltip.enchantmod.template.area", tier.width(), tier.height()).withStyle(ChatFormatting.DARK_GRAY));
+        if (tier.maxLevel() != Integer.MAX_VALUE) tooltip.add(Component.translatable("tooltip.enchantmod.template.max_level", tier.maxLevel()).withStyle(ChatFormatting.DARK_GRAY));
         Blueprint blueprint = stack.getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY);
-        List<EnchantForecast.Result> results = EnchantForecast.forecast(blueprint);
+        List<EnchantForecast.Result> results = EnchantForecast.forecast(blueprint, tierOf(stack).maxLevel());
         if (results.isEmpty()) {
             tooltip.add(Component.translatable("tooltip.enchantmod.forecast.none").withStyle(ChatFormatting.GRAY));
             return;

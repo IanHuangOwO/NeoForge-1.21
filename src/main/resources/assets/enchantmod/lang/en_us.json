@@ -24,7 +24,6 @@
   "item.enchantmod.ink_tier2_bucket": "Dragon Ink Bucket",
   "block.enchantmod.liquid_of_enchanting": "Liquid of Enchanting",
   "item.enchantmod.liquid_of_enchanting_bucket": "Liquid of Enchanting Bucket",
-  "item.enchantmod.enchant_template": "Enchant Template",
   "item.enchantmod.research_handbook": "Research Handbook",
   "gui.enchantmod.research.title": "Research",
   "tooltip.enchantmod.ink": "Ink: %s / %s",
@@ -167,5 +166,10 @@
   "gui.enchantmod.research.category.tools": "Tools",
   "gui.enchantmod.research.category.weapons": "Weapons",
   "gui.enchantmod.research.category.armor": "Armor",
-  "gui.enchantmod.research.category.bows": "Bows"
+  "gui.enchantmod.research.category.bows": "Bows",
+  "item.enchantmod.enchant_template_tier0": "Paper Template",
+  "item.enchantmod.enchant_template_tier1": "Parchment Template",
+  "item.enchantmod.enchant_template_tier2": "Vellum Template",
+  "tooltip.enchantmod.template.area": "Drawing area: %s x %s",
+  "tooltip.enchantmod.template.max_level": "Highest level: %s"
 }

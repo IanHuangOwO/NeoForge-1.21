@@ -25,6 +25,17 @@ class EnchantGroupsTest {
     }
 
     @Test
+    void shippedTemplateTiers() {
+        TemplateTier tier0 = Definitions.template("enchantmod:enchant_template_tier0"), tier2 = Definitions.template("enchantmod:enchant_template_tier2");
+        assertEquals(9, tier0.width());
+        assertEquals(7, tier0.height());
+        assertEquals(4, tier0.maxLevel());
+        assertEquals(BlueprintRules.WIDTH, tier2.width());
+        assertEquals(Integer.MAX_VALUE, tier2.maxLevel());
+        assertEquals(TemplateTier.FULL, Definitions.template("othermod:unknown"));
+    }
+
+    @Test
     void runeRolesAndSizes() {
         assertEquals(Rune.Role.BOOST, Rune.byId("uruz").role());
         assertEquals(1, Rune.byId("uruz").size());

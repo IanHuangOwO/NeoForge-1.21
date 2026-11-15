@@ -22,8 +22,9 @@ public record DefinitionsPayload(Definitions.Raw raw) implements CustomPacketPay
     public static final StreamCodec<RegistryFriendlyByteBuf, DefinitionsPayload> STREAM_CODEC = StreamCodec.composite(
             FILES, p -> new HashMap<>(p.raw().runes()),
             FILES, p -> new HashMap<>(p.raw().enchants()),
+            FILES, p -> new HashMap<>(p.raw().templates()),
             ByteBufCodecs.stringUtf8(32767), p -> p.raw().forecast() == null ? "" : p.raw().forecast(),
-            (runes, enchants, forecast) -> new DefinitionsPayload(new Definitions.Raw(runes, enchants, forecast.isEmpty() ? null : forecast)));
+            (runes, enchants, templates, forecast) -> new DefinitionsPayload(new Definitions.Raw(runes, enchants, templates, forecast.isEmpty() ? null : forecast)));
 
     @Override
     public Type<? extends CustomPacketPayload> type() {

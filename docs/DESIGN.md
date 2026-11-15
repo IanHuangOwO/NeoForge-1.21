@@ -172,7 +172,7 @@ The rest of the vanilla list (Lure, Luck of the Sea, Impaling, Riptide, Loyalty,
 ## Scribing table UI, first version (built 2026-11-13, not yet tried in game)
 
 What exists (package `scribing`):
-- The table's left half holds a block entity with three slots: inkwell (tag `inkwells`), quill (tag `quills`) and an **enchant template** (new item `enchant_template`, paper look, stack of 1, creative tab only, no recipe yet). The right half forwards clicks. Contents drop when the table breaks.
+- The table's left half holds a block entity with three slots: inkwell (tag `inkwells`), quill (tag `quills`) and an **enchant template** (items `enchant_template_tier0/1/2`, paper look, stack of 1, creative tab only, no recipe yet; see "Template tiers"). The right half forwards clicks. Contents drop when the table breaks.
 - The layout is stored on the template item as the data component `enchantmod:blueprint` (runes plus lines), so it travels with the item.
 - Screen: a 15 x 11 grid, a palette of all 24 Elder Futhark runes at the side (drawn as Unicode glyphs, no textures yet). Drag a rune from the palette onto the grid. Click a placed rune to start a line: it follows the cursor one cell at a time, orthogonal steps only, and stops at anything occupied; moving back over it retracts it. Click another rune next to the line's end to connect; right-click cancels. Right-click a rune erases it with all its lines; right-click a line cell erases that line (Claude's addition). A line cell is occupied, so nothing else can be placed on it, and lines can never cross on a sheet.
 - Editing needs an inkwell, a quill and a template in the table. **Ink (author, 2026-11-13):** every grid cell drawn costs one durability of the inkwell: a core rune 9, a stabilizer 4, a boost rune 1, a line its length in cells. Erasing is free and gives nothing back (Claude's default). The inkwell never breaks: at 0 durability left nothing more can be drawn. The quill is not used up yet.
@@ -264,6 +264,8 @@ Runes, enchant rows and the forecast numbers are JSON in data packs (author, 202
 - `order`: position in the handbook (optional).
 - Two rows with the same runes: the earlier one in order keeps them.
 
+**`template/<item path>.json`**: `width`, `height` and `max_level`, see "Template tiers"; a width or height outside the grid, or a negative cap, drops the file.
+
 **`forecast.json`**: `line_break` with `base`, `per_cell` and `max` (a line breaks with `base + per_cell * length`, at most `max`; shipped 0.04, 0.01, 0.95). The highest-priority pack wins. Missing or wrong means the shipped numbers.
 
 **Texts stay in lang files**, keyed by id: `rune.<namespace>.<name>` (the name), `.meaning` (the short story) and `.desc` (the role of a boost or stabilizer); `research.<namespace>.<name>` (what the enchant does) and `.why` (why those runes make it) for an enchant row; the enchantment's own name is the usual `enchantment.<namespace>.<path>`. A missing text shows the key.
@@ -271,6 +273,14 @@ Runes, enchant rows and the forecast numbers are JSON in data packs (author, 202
 Saved templates store rune ids; a bare id such as `berkana` means `enchantmod:berkana`, so templates made before runes had namespaces still work. The forecast computes whether the core stays joined exactly for rows of up to three runes.
 
 Decisions by Claude (change freely): the handbook pages are now ordered by `order` then id (they were in the old table order, kept by the shipped `order` values); a data pack cannot yet change the grid size, the ink cost or the line cap. **Not verified in game:** the reload listener, the sync and the client receipt are only compile-checked; check once by opening the handbook, running `/reload` and reading the log for `Enchant definitions (server|client): 24 runes, 26 enchants`.
+
+## Template tiers
+
+Three enchant template items, `enchant_template_tier0/1/2` (named Paper, Parchment and Vellum Template in the lang file; names are Claude's choice), tiered and neutral like ink, inkwell and quill (author, 2026-11-15). A tier limits two things, both from `data/<namespace>/enchantmod/template/<item path>.json` (the file name is the item's id, so another mod can add its own template item and a file for it):
+- **Drawing area:** `width` and `height` in grid cells, centred on the 15 x 11 grid. Cells outside it are dimmed in the scribing table and cannot hold runes or lines; the server refuses edits outside it.
+- **Highest level:** `max_level` (0 or missing means no cap). The forecast moves any higher level's chance down to the cap, so the template tooltip shows what the template can really give.
+
+Shipped numbers (Claude's choice, change freely): tier 0 is 9 x 7 with level 4 at most (so no stabilizer is needed), tier 1 is 13 x 9 with level 9 at most (Mannaz matters, Dagaz does not yet), tier 2 is the whole grid with no cap. An item without a file gets the whole grid and no cap. The slot accepts any item in the tag `enchantmod:templates`. All three use the old template texture until Fable draws tiers. The tooltip lists the area and the cap. No recipes yet. **Not built:** a limit on the number of runes or lines, and templates that change tier.
 
 ## Style and art
 

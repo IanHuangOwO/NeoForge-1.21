@@ -72,4 +72,18 @@ class DefinitionParserTest {
         TestDefinitions.install(Map.of(), Map.of(), "{\"line_break\":{\"base\":0.1,\"per_cell\":0.02,\"max\":0.5}}");
         assertEquals(new ForecastRules(0.1, 0.02, 0.5), Definitions.rules());
     }
+
+    @Test
+    void templateFilesSetAreaAndLevelCapAndBadOnesAreDropped() {
+        List<String> warnings = TestDefinitions.install(new Definitions.Raw(Map.of(), Map.of(), Map.of(
+                "m:good", "{\"width\":9,\"height\":7,\"max_level\":3}",
+                "m:uncapped", "{}",
+                "m:wide", "{\"width\":16}",
+                "m:flat", "{\"height\":0}",
+                "m:neg", "{\"max_level\":-1}"), null));
+        assertEquals(3, warnings.size(), warnings.toString());
+        assertEquals(new TemplateTier("m:good", 9, 7, 3), Definitions.template("m:good"));
+        assertEquals(Integer.MAX_VALUE, Definitions.template("m:uncapped").maxLevel());
+        assertEquals(TemplateTier.FULL, Definitions.template("m:wide"));
+    }
 }

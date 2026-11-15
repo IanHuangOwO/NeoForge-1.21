@@ -56,4 +56,13 @@ class LineRoutingTest {
         assertTrue(LineRouting.adjacent(c(2, 2), c(3, 2)));
         assertFalse(LineRouting.adjacent(c(2, 2), c(3, 3)));
     }
+
+    @Test
+    void aLineStopsAtTheEdgeOfTheTemplateArea() {
+        TemplateTier area = new TemplateTier("x:area", 9, 7, Integer.MAX_VALUE); // columns 3..11
+        Blueprint bp = BlueprintRules.place(Blueprint.EMPTY, c(4, 3), "berkana", area);
+        List<Integer> path = new ArrayList<>();
+        LineRouting.extend(bp, c(4, 3), path, c(14, 3), area);
+        assertEquals(List.of(c(6, 3), c(7, 3), c(8, 3), c(9, 3), c(10, 3), c(11, 3)), path);
+    }
 }

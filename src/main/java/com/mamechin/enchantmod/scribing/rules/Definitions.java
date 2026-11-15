@@ -13,13 +13,17 @@ public final class Definitions {
     public static final String DEFAULT_NAMESPACE = "enchantmod";
 
     /** The files as they were read: ids ("namespace:name") to JSON text, and the forecast file or null. This is what is sent to clients. */
-    public record Raw(Map<String, String> runes, Map<String, String> enchants, String forecast) {
-        public static final Raw EMPTY = new Raw(Map.of(), Map.of(), null);
+    public record Raw(Map<String, String> runes, Map<String, String> enchants, Map<String, String> templates, String forecast) {
+        public static final Raw EMPTY = new Raw(Map.of(), Map.of(), Map.of(), null);
+
+        public Raw(Map<String, String> runes, Map<String, String> enchants, String forecast) {
+            this(runes, enchants, Map.of(), forecast);
+        }
     }
 
     /** One parsed set of definitions. version changes every time a new set is installed, so caches can tell. */
-    public record Snapshot(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes, int version) {
-        public static final Snapshot EMPTY = new Snapshot(List.of(), List.of(), ForecastRules.DEFAULT, Raw.EMPTY, Map.of(), Map.of(), 0);
+    public record Snapshot(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes, Map<String, TemplateTier> templates, int version) {
+        public static final Snapshot EMPTY = new Snapshot(List.of(), List.of(), ForecastRules.DEFAULT, Raw.EMPTY, Map.of(), Map.of(), Map.of(), 0);
     }
 
     private static final AtomicInteger VERSIONS = new AtomicInteger();
@@ -33,7 +37,7 @@ public final class Definitions {
 
     /** Installs a parsed set (see DefinitionParser); returns it with its new version. */
     public static Snapshot install(DefinitionParser.Parsed parsed) {
-        Snapshot next = new Snapshot(parsed.runes(), parsed.enchants(), parsed.rules(), parsed.raw(), parsed.runeById(), parsed.byRunes(), VERSIONS.incrementAndGet());
+        Snapshot next = new Snapshot(parsed.runes(), parsed.enchants(), parsed.rules(), parsed.raw(), parsed.runeById(), parsed.byRunes(), parsed.templates(), VERSIONS.incrementAndGet());
         current = next;
         return next;
     }
@@ -57,6 +61,11 @@ public final class Definitions {
 
     public static Rune rune(String id) {
         return id == null ? null : current.runeById().get(canonical(id));
+    }
+
+    /** What the template item with this id allows; the whole grid with no level cap when there is no file for it. */
+    public static TemplateTier template(String itemId) {
+        return current.templates().getOrDefault(itemId, TemplateTier.FULL);
     }
 
     /** The enchant row made by exactly these canonical rune ids, sorted, or null. */
