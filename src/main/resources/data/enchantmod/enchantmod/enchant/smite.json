@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:smite",
+  "runes": [
+    "enchantmod:tiwaz",
+    "enchantmod:sowilo"
+  ],
+  "category": "weapons",
+  "order": 7
+}

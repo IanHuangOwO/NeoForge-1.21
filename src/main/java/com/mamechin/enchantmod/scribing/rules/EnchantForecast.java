@@ -8,77 +8,33 @@ import java.util.TreeMap;
 
 /**
  * Reads a blueprint and works out which enchants it would make and the exact chance of each level, with no game code so
- * it can be tested on its own.
+ * it can be tested on its own. The runes, the enchant rows and the numbers come from Definitions (JSON files).
  *
- * Rules (see docs/DESIGN.md): a group of core runes joined by lines that matches a row of the core table is an enchant;
- * each boost rune (Uruz) joined to it adds a level; Mannaz is needed from level 5 and Dagaz from level 10, one more
- * Dagaz for each further 10 levels, or the level stops below the threshold. Every line can break at the altar: the
- * chance rises with its length, and a link between two runes only breaks when all its parallel lines do.
+ * Rules (see docs/DESIGN.md): a group of core runes joined by lines that matches an enchant row is an enchant; each boost
+ * rune joined to it adds levels; a stabilizer rune unlocks the levels from its unlock level up, and each copy after the
+ * first allows more. Every line can break at the altar: the chance rises with its length, and a link between two runes
+ * only breaks when all its parallel lines do. The core holds while its runes stay connected.
  */
 public final class EnchantForecast {
-    public static final double BASE_BREAK = 0.04, BREAK_PER_CELL = 0.01, MAX_BREAK = 0.95;
-
     /** One enchant the blueprint forms. levels maps a level to its chance; broken is the chance the core itself fails. */
-    public record Result(String enchant, Map<Integer, Double> levels, double broken) {}
-
-    /** Core table: sorted rune ids joined by "+" to the vanilla enchantment id. A shortcut until the full table is designed. */
-    private static final Map<String, String> CORES = new HashMap<>();
-
-    /** One row of the core table, for the research handbook. */
-    public record Core(String enchant, List<String> runes) {}
-
-    private static final List<Core> TABLE = new ArrayList<>();
-
-    /** The core table in display order. */
-    public static List<Core> table() {
-        return TABLE;
-    }
-
-    private static void core(String enchant, String... runes) {
-        TABLE.add(new Core(enchant, List.of(runes)));
-        List<String> sorted = new ArrayList<>(List.of(runes));
-        sorted.sort(null);
-        CORES.put(String.join("+", sorted), enchant);
-    }
-
-    static {
-        core("efficiency", "berkana");
-        core("unbreaking", "isa");
-        core("fortune", "fehu");
-        core("mending", "jera");
-        core("silk_touch", "gebo", "isa");
-        core("sharpness", "tiwaz");
-        core("smite", "tiwaz", "sowilo");
-        core("bane_of_arthropods", "tiwaz", "thurisaz");
-        core("knockback", "thurisaz");
-        core("fire_aspect", "kenaz");
-        core("looting", "tiwaz", "fehu");
-        core("sweeping_edge", "tiwaz", "ehwaz");
-        core("protection", "algiz");
-        core("fire_protection", "algiz", "kenaz");
-        core("blast_protection", "algiz", "hagalaz");
-        core("feather_falling", "algiz", "ansuz");
-        core("respiration", "algiz", "laguz");
-        core("thorns", "algiz", "thurisaz");
-        core("depth_strider", "laguz", "ehwaz");
-        core("frost_walker", "laguz", "isa");
-        core("soul_speed", "ehwaz", "nauthiz");
-        core("swift_sneak", "ehwaz", "perthro");
-        core("power", "eihwaz");
-        core("flame", "eihwaz", "kenaz");
-        core("punch", "eihwaz", "thurisaz");
-        core("infinity", "eihwaz", "jera");
-    }
+    public record Result(Enchant enchant, Map<Integer, Double> levels, double broken) {}
 
     /** Chance one line breaks, from its length in cells. */
     public static double breakChance(Blueprint.Line line) {
-        return Math.min(MAX_BREAK, BASE_BREAK + BREAK_PER_CELL * line.path().size());
+        ForecastRules rules = Definitions.rules();
+        return Math.min(rules.max(), rules.base() + rules.perCell() * line.path().size());
     }
 
-    /** Highest level the stabilizers allow: below 5 without Mannaz, below 10 without Dagaz, then 10 more per Dagaz. */
-    static int levelCap(int mannaz, int dagaz) {
-        if (mannaz == 0) return 4;
-        return dagaz == 0 ? 9 : 10 * dagaz + 9;
+    /** Highest level the stabilizers allow, given how many of each (by rune id) are joined; unlimited when none gates. */
+    static int levelCap(Map<String, Integer> joined) {
+        int cap = Integer.MAX_VALUE;
+        for (Rune rune : Definitions.runes()) {
+            if (rune.role() != Rune.Role.STABILIZER) continue;
+            int count = joined.getOrDefault(rune.id(), 0);
+            if (count == 0) cap = Math.min(cap, rune.unlockLevel() - 1);
+            else if (rune.extraLevels() > 0) cap = Math.min(cap, rune.unlockLevel() - 1 + rune.extraLevels() * count);
+        }
+        return cap;
     }
 
     private static long key(int a, int b) {
@@ -98,8 +54,11 @@ public final class EnchantForecast {
     }
 
     public static List<Result> forecast(Blueprint bp) {
-        Map<Integer, String> runes = new TreeMap<>();
-        for (Blueprint.RuneAt r : bp.runes()) runes.put(r.cell(), r.rune());
+        Map<Integer, Rune> runes = new TreeMap<>();
+        for (Blueprint.RuneAt r : bp.runes()) {
+            Rune rune = Rune.byId(r.rune());
+            if (rune != null) runes.put(r.cell(), rune);
+        }
 
         // chance that every line of a link breaks, per pair of runes
         Map<Long, Double> allBroken = new HashMap<>();
@@ -107,7 +66,7 @@ public final class EnchantForecast {
 
         // groups of core runes joined by links
         Map<Integer, Integer> parent = new HashMap<>();
-        for (int cell : runes.keySet()) if (!isUtility(runes.get(cell))) parent.put(cell, cell);
+        for (Map.Entry<Integer, Rune> e : runes.entrySet()) if (!e.getValue().isUtility()) parent.put(e.getKey(), e.getKey());
         for (long k : allBroken.keySet()) {
             int a = (int) (k >> 32), b = (int) k;
             if (parent.containsKey(a) && parent.containsKey(b)) parent.put(find(parent, a), find(parent, b));
@@ -118,44 +77,85 @@ public final class EnchantForecast {
         List<Result> results = new ArrayList<>();
         for (List<Integer> members : groups.values()) {
             List<String> ids = new ArrayList<>();
-            for (int cell : members) ids.add(runes.get(cell));
+            for (int cell : members) ids.add(runes.get(cell).id());
             ids.sort(null);
-            String enchant = CORES.get(String.join("+", ids));
+            Enchant enchant = Definitions.enchantFor(ids);
             if (enchant == null) continue;
 
-            double intact = 1; // every table row has at most two runes, so the core holds while their link does
-            if (members.size() == 2) intact = 1 - allBroken.get(key(members.get(0), members.get(1)));
+            double intact = connected(members, allBroken);
 
-            List<Double> boosts = new ArrayList<>(), mannaz = new ArrayList<>(), dagaz = new ArrayList<>();
-            for (Map.Entry<Integer, String> e : runes.entrySet()) {
-                if (!isUtility(e.getValue())) continue;
+            // how many of each utility rune stay joined to the core: a distribution per rune kind
+            Map<String, List<Double>> attached = new HashMap<>();
+            for (Map.Entry<Integer, Rune> e : runes.entrySet()) {
+                if (!e.getValue().isUtility()) continue;
                 double allLost = 1;
                 for (int member : members) allLost *= allBroken.getOrDefault(key(e.getKey(), member), 1.0);
-                double attached = 1 - allLost;
-                switch (e.getValue()) {
-                    case "uruz" -> boosts.add(attached);
-                    case "mannaz" -> mannaz.add(attached);
-                    default -> dagaz.add(attached);
-                }
+                attached.computeIfAbsent(e.getValue().id(), x -> new ArrayList<>()).add(1 - allLost);
             }
-            double[] pb = countDistribution(boosts), pm = countDistribution(mannaz), pd = countDistribution(dagaz);
+            List<Rune> kinds = new ArrayList<>();
+            List<double[]> dists = new ArrayList<>();
+            for (Rune rune : Definitions.runes()) {
+                if (!rune.isUtility()) continue;
+                kinds.add(rune);
+                dists.add(countDistribution(attached.getOrDefault(rune.id(), List.of()))); // a kind that is absent is {1}: none joined
+            }
             Map<Integer, Double> levels = new TreeMap<>();
-            for (int b = 0; b < pb.length; b++) {
-                for (int m = 0; m < pm.length; m++) {
-                    for (int d = 0; d < pd.length; d++) {
-                        int level = Math.min(1 + b, levelCap(m, d));
-                        levels.merge(level, intact * pb[b] * pm[m] * pd[d], Double::sum);
-                    }
-                }
-            }
+            walk(kinds, dists, 0, intact, new int[kinds.size()], levels);
             results.add(new Result(enchant, levels, 1 - intact));
         }
         return results;
     }
 
-    private static boolean isUtility(String runeId) {
-        Rune rune = Rune.byId(runeId);
-        return rune != null && rune.isUtility();
+    /** Adds the chance of every combination of joined utility runes to the level it gives. */
+    private static void walk(List<Rune> kinds, List<double[]> dists, int i, double chance, int[] counts, Map<Integer, Double> levels) {
+        if (chance == 0) return;
+        if (i == kinds.size()) {
+            int level = 1;
+            Map<String, Integer> joined = new HashMap<>();
+            for (int k = 0; k < kinds.size(); k++) {
+                joined.put(kinds.get(k).id(), counts[k]);
+                if (kinds.get(k).role() == Rune.Role.BOOST) level += counts[k] * kinds.get(k).boostLevels();
+            }
+            levels.merge(Math.min(level, levelCap(joined)), chance, Double::sum);
+            return;
+        }
+        for (int c = 0; c < dists.get(i).length; c++) {
+            counts[i] = c;
+            walk(kinds, dists, i + 1, chance * dists.get(i)[c], counts, levels);
+        }
+    }
+
+    /** Chance that the runes of a group are still joined once links have broken (a group has at most three runes, so at most three links). */
+    private static double connected(List<Integer> members, Map<Long, Double> allBroken) {
+        if (members.size() == 1) return 1;
+        List<long[]> links = new ArrayList<>();
+        for (int i = 0; i < members.size(); i++) {
+            for (int j = i + 1; j < members.size(); j++) {
+                long k = key(members.get(i), members.get(j));
+                if (allBroken.containsKey(k)) links.add(new long[] {i, j, k});
+            }
+        }
+        double total = 0;
+        for (int mask = 0; mask < 1 << links.size(); mask++) {
+            double p = 1;
+            int[] p2 = new int[members.size()];
+            for (int i = 0; i < p2.length; i++) p2[i] = i;
+            for (int l = 0; l < links.size(); l++) {
+                double broken = allBroken.get((long) links.get(l)[2]);
+                boolean survives = (mask >> l & 1) == 1;
+                p *= survives ? 1 - broken : broken;
+                if (survives) p2[root(p2, (int) links.get(l)[0])] = root(p2, (int) links.get(l)[1]);
+            }
+            boolean all = true;
+            for (int i = 1; i < p2.length; i++) all &= root(p2, i) == root(p2, 0);
+            if (all) total += p;
+        }
+        return total;
+    }
+
+    private static int root(int[] parent, int x) {
+        while (parent[x] != x) x = parent[x];
+        return x;
     }
 
     private static int find(Map<Integer, Integer> parent, int x) {

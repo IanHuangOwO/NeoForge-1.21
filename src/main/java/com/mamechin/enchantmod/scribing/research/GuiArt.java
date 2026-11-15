@@ -27,7 +27,11 @@ public final class GuiArt {
     }
 
     public static int glyphColor(Rune rune) {
-        return rune == Rune.URUZ ? BOOST_GLYPH : rune.isUtility() ? STABILIZER_GLYPH : CORE_GLYPH;
+        return switch (rune.role()) {
+            case BOOST -> BOOST_GLYPH;
+            case STABILIZER -> STABILIZER_GLYPH;
+            case CORE -> CORE_GLYPH;
+        };
     }
 
     /** Glyph scale on the board: the 3x3 and 2x2 faces are smaller than the glyph at 3x and 2x, so it stops short of the rim. */
@@ -41,7 +45,7 @@ public final class GuiArt {
 
     /** Draws the glyph centred on a point, at any scale. */
     public static void glyph(GuiGraphics graphics, Font font, Rune rune, float centreX, float centreY, float scale) {
-        String text = String.valueOf(rune.glyph());
+        String text = rune.glyph();
         graphics.pose().pushPose();
         graphics.pose().translate(centreX, centreY, 0);
         graphics.pose().scale(scale, scale, 1.0F);

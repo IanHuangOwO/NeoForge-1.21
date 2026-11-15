@@ -1,43 +1,38 @@
 package com.mamechin.enchantmod.scribing.rules;
 
-import java.util.Locale;
+import java.util.List;
 
-/** The 24 runes of the Elder Futhark, drawn as their Unicode glyph. The id is the lower-case name stored in blueprints. */
-public enum Rune {
-    FEHU('ᚠ'), URUZ('ᚢ'), THURISAZ('ᚦ'), ANSUZ('ᚨ'), RAIDHO('ᚱ'), KENAZ('ᚲ'), GEBO('ᚷ'), WUNJO('ᚹ'),
-    HAGALAZ('ᚺ'), NAUTHIZ('ᚾ'), ISA('ᛁ'), JERA('ᛃ'), EIHWAZ('ᛇ'), PERTHRO('ᛈ'), ALGIZ('ᛉ'), SOWILO('ᛋ'),
-    TIWAZ('ᛏ'), BERKANA('ᛒ'), EHWAZ('ᛖ'), MANNAZ('ᛗ'), LAGUZ('ᛚ'), INGWAZ('ᛜ'), DAGAZ('ᛞ'), OTHALA('ᛟ');
+/**
+ * One rune, as described by its JSON file (data/&lt;namespace&gt;/enchantmod/rune/&lt;name&gt;.json). The id is "namespace:name".
+ *
+ * @param glyph       the one character drawn for it
+ * @param size        side of the square it covers on the grid (1 to 3)
+ * @param role        core runes make up an enchant; boost and stabilizer runes only modify the level
+ * @param order       position in the palette and the handbook (then by id)
+ * @param boostLevels boost runes: levels added by each one joined to a core
+ * @param unlockLevel stabilizer runes: levels from this one up need at least one of them joined
+ * @param extraLevels stabilizer runes: further levels allowed by each copy after the first
+ */
+public record Rune(String id, String glyph, int size, Role role, int order, int boostLevels, int unlockLevel, int extraLevels) {
+    public enum Role { CORE, BOOST, STABILIZER }
 
-    private final char glyph;
-
-    Rune(char glyph) {
-        this.glyph = glyph;
-    }
-
-    /** Utility runes are never part of an enchant core: the boost rune and the two stabilizers. */
+    /** Utility runes are never part of an enchant core: the boost and stabilizer runes. */
     public boolean isUtility() {
-        return this == URUZ || this == MANNAZ || this == DAGAZ;
+        return role != Role.CORE;
     }
 
-    /** Side of the square this rune covers on the grid: boost 1, stabilizers 2, core runes 3. */
-    public int size() {
-        if (this == URUZ) return 1;
-        return isUtility() ? 2 : 3;
+    /** The lang key prefix of this rune: "rune.namespace.name" (add ".meaning" or ".desc" for the texts). */
+    public String langKey() {
+        return "rune." + id.replace(':', '.');
     }
 
-    public char glyph() {
-        return glyph;
+    /** Every rune in palette order. */
+    public static List<Rune> values() {
+        return Definitions.runes();
     }
 
-    public String id() {
-        return name().toLowerCase(Locale.ROOT);
-    }
-
-    /** The rune with this id, or null when unknown. */
+    /** The rune with this id (a bare id means the enchantmod namespace), or null when unknown. */
     public static Rune byId(String id) {
-        for (Rune rune : values()) {
-            if (rune.id().equals(id)) return rune;
-        }
-        return null;
+        return Definitions.rune(id);
     }
 }

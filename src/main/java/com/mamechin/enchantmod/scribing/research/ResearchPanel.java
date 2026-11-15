@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.scribing.research;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.Definitions;
 import com.mamechin.enchantmod.scribing.rules.EnchantGroups;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
@@ -31,7 +31,8 @@ public class ResearchPanel {
     private final Font font;
     private final PageContent content;
     private final boolean browse;  // true beside the scribing table: enchant pages only, grouped in tabs, turnable
-    private final List<ResearchMap.Tab> tabs = new ArrayList<>(); // browse only: every tab but the runes
+    private final List<ResearchMap.Tab> tabList = new ArrayList<>(); // browse only: every tab but the runes, rebuilt when the definitions change
+    private int tabsVersion = -1;
     private int tab, pos;          // browse only: the open mod tab and the page within it
     private int category;          // browse only: index into categories(), 0 = all enchants of the mod
     private int page;              // otherwise: the one page shown
@@ -41,7 +42,6 @@ public class ResearchPanel {
         this.font = font;
         this.content = new PageContent(font);
         this.browse = browse;
-        if (browse) for (ResearchMap.Tab t : ResearchMap.tabs()) if (!t.key().equals("runes")) tabs.add(t);
     }
 
     static ItemStack tabIcon(String key) {
@@ -51,19 +51,34 @@ public class ResearchPanel {
         });
     }
 
-    private String enchantOf(int page) {
-        return EnchantForecast.table().get(page - Rune.values().length).enchant();
+    /** The mod tabs; they are rebuilt, and the open tab reset, when a reload or a sync changes the definitions. */
+    private List<ResearchMap.Tab> tabs() {
+        int version = Definitions.current().version();
+        if (tabsVersion != version) {
+            tabsVersion = version;
+            tabList.clear();
+            if (browse) for (ResearchMap.Tab t : ResearchMap.tabs()) if (!t.key().equals("runes")) tabList.add(t);
+            tab = 0;
+            pos = 0;
+            category = 0;
+        }
+        return tabList;
+    }
+
+    private String categoryOf(int page) {
+        return Definitions.enchants().get(page - Definitions.runes().size()).category();
     }
 
     /** The enchant pages of the open mod tab, in order. */
     private List<Integer> modPages() {
-        int runes = Rune.values().length;
-        return tabs.get(tab).nodes().stream().map(ResearchMap.Node::page).filter(p -> p >= runes).distinct().sorted().toList();
+        if (tabs().isEmpty()) return List.of();
+        int runes = Definitions.runes().size();
+        return tabs().get(tab).nodes().stream().map(ResearchMap.Node::page).filter(p -> p >= runes).distinct().sorted().toList();
     }
 
     /** "all" first, then each kind of tool the open mod has enchants for. */
     private List<String> categories() {
-        List<String> found = modPages().stream().map(p -> EnchantGroups.category(enchantOf(p))).distinct().toList();
+        List<String> found = modPages().stream().map(p -> categoryOf(p)).distinct().toList();
         List<String> list = new ArrayList<>(List.of("all"));
         for (String c : EnchantGroups.CATEGORY_ORDER) if (found.contains(c)) list.add(c);
         return list;
@@ -71,8 +86,10 @@ public class ResearchPanel {
 
     /** The enchant pages of the open mod tab and tool tab, in order. */
     private List<Integer> tabPages() {
-        String wanted = categories().get(category);
-        return modPages().stream().filter(p -> wanted.equals("all") || EnchantGroups.category(enchantOf(p)).equals(wanted)).toList();
+        List<String> cats = categories();
+        category = Math.min(category, cats.size() - 1);
+        String wanted = cats.get(category);
+        return modPages().stream().filter(p -> wanted.equals("all") || categoryOf(p).equals(wanted)).toList();
     }
 
     private static ItemStack categoryIcon(String key) {
@@ -108,7 +125,7 @@ public class ResearchPanel {
 
     private int tabAt(double mouseX, double mouseY) {
         if (!browse || mouseX < x - TAB_OFF_W || mouseX >= x) return -1;
-        for (int i = 0; i < tabs.size(); i++) if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) return i;
+        for (int i = 0; i < tabs().size(); i++) if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) return i;
         return -1;
     }
 
@@ -123,13 +140,15 @@ public class ResearchPanel {
         this.height = height;
         NineSlice.draw(graphics, PAGE, x, y, WIDTH, height, 48, 8, true);
 
-        content.draw(graphics, x, y, browse ? tabPages().get(pos) : page);
+        List<Integer> pages = browse ? tabPages() : List.of();
+        pos = Math.max(0, Math.min(pos, pages.size() - 1));
+        content.draw(graphics, x, y, browse ? (pages.isEmpty() ? -1 : pages.get(pos)) : page);
 
         if (!browse) return;
         boolean overLeft = overButton(mouseX, mouseY, x + 8), overRight = overButton(mouseX, mouseY, x + WIDTH - 8 - BUTTON_W);
         graphics.blit(GuiArt.research("arrow_left" + (overLeft ? "_hover" : "")), x + 8, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
         graphics.blit(GuiArt.research("arrow_right" + (overRight ? "_hover" : "")), x + WIDTH - 8 - BUTTON_W, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
-        String number = (pos + 1) + "/" + tabPages().size();
+        String number = (pages.isEmpty() ? 0 : pos + 1) + "/" + pages.size();
         graphics.drawString(font, number, x + (WIDTH - font.width(number)) / 2, buttonY() + 2, INK, false);
         List<String> cats = categories();
         for (int i = 0; i < cats.size(); i++) {
@@ -146,11 +165,11 @@ public class ResearchPanel {
             graphics.renderItem(categoryIcon(cats.get(i)), 0, 0);
             graphics.pose().popPose();
         }
-        for (int i = 0; i < tabs.size(); i++) {
+        for (int i = 0; i < tabs().size(); i++) {
             int ty = tabY(i); // the open tab is wider and joins the page
             if (i == tab) graphics.blit(TAB_ON, x - TAB_OFF_W, ty, 0, 0, TAB_ON_W, TAB_H, TAB_ON_W, TAB_H);
             else graphics.blit(TAB_OFF, x - TAB_OFF_W, ty, 0, 0, TAB_OFF_W, TAB_H, TAB_OFF_W, TAB_H);
-            graphics.renderItem(tabIcon(tabs.get(i).key()), x - TAB_OFF_W + 6, ty + 6);
+            graphics.renderItem(tabIcon(tabs().get(i).key()), x - TAB_OFF_W + 6, ty + 6);
         }
     }
 
@@ -163,7 +182,7 @@ public class ResearchPanel {
         int cat = categoryAt(mouseX, mouseY);
         if (cat >= 0) graphics.renderTooltip(font, Component.translatable("gui.enchantmod.research.category." + categories().get(cat)), mouseX, mouseY);
         int hovered = tabAt(mouseX, mouseY);
-        if (hovered >= 0) graphics.renderTooltip(font, tabName(tabs.get(hovered).key()), mouseX, mouseY);
+        if (hovered >= 0) graphics.renderTooltip(font, tabName(tabs().get(hovered).key()), mouseX, mouseY);
     }
 
     private int buttonY() {

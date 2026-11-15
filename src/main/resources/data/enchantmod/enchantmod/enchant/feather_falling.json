@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:feather_falling",
+  "runes": [
+    "enchantmod:algiz",
+    "enchantmod:ansuz"
+  ],
+  "category": "armor",
+  "order": 16
+}

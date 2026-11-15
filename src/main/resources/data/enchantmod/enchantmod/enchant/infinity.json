@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:infinity",
+  "runes": [
+    "enchantmod:eihwaz",
+    "enchantmod:jera"
+  ],
+  "category": "bows",
+  "order": 26
+}

@@ -33,6 +33,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  */
 public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMenu> {
     private static final int GRID_X = 40, GRID_Y = 20, CELL = 9;
+    // shortcut: the palette is 4 columns of the 24 shipped runes; a data pack with many more runes overflows it, add scrolling or tabs then
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
     private static final int LINE = 0xFFB8764A, LINE_PREVIEW = 0x80B8764A, TEXT = 0xFFE2D4AC; // lines are copper
@@ -62,7 +63,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     private int paletteAt(double mouseX, double mouseY) {
         int x = (int) Math.floor((mouseX - leftPos - PALETTE_X) / PALETTE_CELL), y = (int) Math.floor((mouseY - topPos - PALETTE_Y) / PALETTE_CELL);
         int index = y * PALETTE_COLUMNS + x;
-        return x < 0 || x >= PALETTE_COLUMNS || y < 0 || index >= Rune.values().length ? -1 : index;
+        return x < 0 || x >= PALETTE_COLUMNS || y < 0 || index >= Rune.values().size() ? -1 : index;
     }
 
     /** Cell centre in half pixels, so a line can be half a pixel thick. */
@@ -114,8 +115,8 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         Rune hovered = runeUnder(mouseX, mouseY);
         if (hovered != null) {
             graphics.renderComponentTooltip(font, List.of(
-                    Component.translatable("rune.enchantmod." + hovered.id()),
-                    Component.translatable("rune.enchantmod." + hovered.id() + ".desc").withStyle(ChatFormatting.GRAY)), mouseX, mouseY);
+                    Component.translatable(hovered.langKey()),
+                    Component.translatable(hovered.langKey() + ".desc").withStyle(ChatFormatting.GRAY)), mouseX, mouseY);
         } else {
             renderTooltip(graphics, mouseX, mouseY);
         }
@@ -125,7 +126,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     /** The rune in the palette or on the grid under the cursor, or null. */
     private Rune runeUnder(int mouseX, int mouseY) {
         int palette = paletteAt(mouseX, mouseY);
-        if (palette >= 0) return Rune.values()[palette];
+        if (palette >= 0) return Rune.values().get(palette);
         int cell = cellAt(mouseX, mouseY);
         if (cell < 0) return null;
         Blueprint.RuneAt placed = BlueprintRules.runeAt(menu.blueprint(), cell);
@@ -158,12 +159,12 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         for (Blueprint.Line line : blueprint.lines()) drawLine(graphics, line.a(), line.path(), line.b(), LINE);
         if (lineStart >= 0) drawLine(graphics, lineStart, linePath, -1, LINE_PREVIEW);
 
-        Rune[] runes = Rune.values();
-        for (int i = 0; i < runes.length; i++) {
+        List<Rune> runes = Rune.values();
+        for (int i = 0; i < runes.size(); i++) {
             int x = leftPos + PALETTE_X + (i % PALETTE_COLUMNS) * PALETTE_CELL, y = topPos + PALETTE_Y + (i / PALETTE_COLUMNS) * PALETTE_CELL;
             graphics.blit(PALETTE_SLOT, x, y, 0, 0, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL);
             if (i == paletteAt(mouseX, mouseY)) graphics.blit(PALETTE_SELECTED, x, y, 0, 0, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL);
-            GuiArt.glyph(graphics, font, runes[i], x + PALETTE_CELL / 2.0F, y + PALETTE_CELL / 2.0F, 1);
+            GuiArt.glyph(graphics, font, runes.get(i), x + PALETTE_CELL / 2.0F, y + PALETTE_CELL / 2.0F, 1);
         }
     }
 
@@ -238,7 +239,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         if (menu.canEdit()) {
             int palette = paletteAt(mouseX, mouseY);
             if (button == 0 && palette >= 0) {
-                held = Rune.values()[palette];
+                held = Rune.values().get(palette);
                 return true;
             }
             int cell = cellAt(mouseX, mouseY);

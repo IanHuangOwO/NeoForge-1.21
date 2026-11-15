@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:punch",
+  "runes": [
+    "enchantmod:eihwaz",
+    "enchantmod:thurisaz"
+  ],
+  "category": "bows",
+  "order": 25
+}

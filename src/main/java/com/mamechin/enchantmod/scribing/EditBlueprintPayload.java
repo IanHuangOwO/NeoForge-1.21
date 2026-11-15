@@ -10,7 +10,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 /** One edit from the scribing table screen: place a rune, erase a cell, or add a line (ScribingTableMenu.OP_*). */
 public record EditBlueprintPayload(int op, int cell, int cell2, String rune, List<Integer> path) implements CustomPacketPayload {
@@ -20,7 +20,7 @@ public record EditBlueprintPayload(int op, int cell, int cell2, String rune, Lis
             ByteBufCodecs.VAR_INT, EditBlueprintPayload::op,
             ByteBufCodecs.VAR_INT, EditBlueprintPayload::cell,
             ByteBufCodecs.VAR_INT, EditBlueprintPayload::cell2,
-            ByteBufCodecs.stringUtf8(32), EditBlueprintPayload::rune,
+            ByteBufCodecs.stringUtf8(128), EditBlueprintPayload::rune,
             ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list(BlueprintRules.CELLS)), EditBlueprintPayload::path,
             EditBlueprintPayload::new);
 
@@ -29,8 +29,8 @@ public record EditBlueprintPayload(int op, int cell, int cell2, String rune, Lis
         return TYPE;
     }
 
-    public static void register(RegisterPayloadHandlersEvent event) {
-        event.registrar("1").playToServer(TYPE, STREAM_CODEC, (payload, context) -> {
+    static void register(PayloadRegistrar registrar) {
+        registrar.playToServer(TYPE, STREAM_CODEC, (payload, context) -> {
             if (context.player().containerMenu instanceof ScribingTableMenu menu) {
                 menu.applyEdit(payload.op(), payload.cell(), payload.cell2(), payload.rune(), payload.path());
             }

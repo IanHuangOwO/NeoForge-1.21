@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:flame",
+  "runes": [
+    "enchantmod:eihwaz",
+    "enchantmod:kenaz"
+  ],
+  "category": "bows",
+  "order": 24
+}

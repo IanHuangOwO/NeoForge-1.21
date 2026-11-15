@@ -1,0 +1,8 @@
+{
+  "enchantment": "minecraft:protection",
+  "runes": [
+    "enchantmod:algiz"
+  ],
+  "category": "armor",
+  "order": 13
+}

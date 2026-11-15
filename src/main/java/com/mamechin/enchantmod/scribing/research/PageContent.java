@@ -2,7 +2,8 @@ package com.mamechin.enchantmod.scribing.research;
 
 import java.util.List;
 
-import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.Definitions;
+import com.mamechin.enchantmod.scribing.rules.Enchant;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
 import net.minecraft.client.gui.Font;
@@ -30,8 +31,11 @@ final class PageContent {
     void draw(GuiGraphics graphics, int x, int y, int page) {
         this.x = x;
         this.y = y;
-        int runes = Rune.values().length;
-        if (page < runes) renderRune(graphics, Rune.values()[page]); else renderCore(graphics, EnchantForecast.table().get(page - runes));
+        List<Rune> runes = Definitions.runes();
+        List<Enchant> enchants = Definitions.enchants();
+        if (page < 0) return;
+        if (page < runes.size()) renderRune(graphics, runes.get(page));
+        else if (page - runes.size() < enchants.size()) renderCore(graphics, enchants.get(page - runes.size()));
     }
 
     /** Draws wrapped text and returns the y just below it. */
@@ -44,27 +48,27 @@ final class PageContent {
     }
 
     private void renderRune(GuiGraphics graphics, Rune rune) {
-        int top = paragraph(graphics, Component.translatable("rune.enchantmod." + rune.id()), y + 8, TITLE) + 4;
+        int top = paragraph(graphics, Component.translatable(rune.langKey()), y + 8, TITLE) + 4;
         // the board at its grid size, centred in a 3x3 space
         int size = rune.size() * 9;
         int cx = x + ResearchPanel.WIDTH / 2;
         graphics.blit(GuiArt.board(rune.size()), cx - size / 2, top + (27 - size) / 2, 0, 0, size, size, size, size);
         GuiArt.glyph(graphics, font, rune, cx, top + 13.5F, GuiArt.glyphScale(rune));
         top += 27 + 8;
-        top = paragraph(graphics, Component.translatable("rune.enchantmod." + rune.id() + ".meaning"), top, INK) + 6;
+        top = paragraph(graphics, Component.translatable(rune.langKey() + ".meaning"), top, INK) + 6;
         if (rune.isUtility()) {
             graphics.drawString(font, Component.translatable("gui.enchantmod.research.role"), x + 8, top, TITLE, false);
-            paragraph(graphics, Component.translatable("rune.enchantmod." + rune.id() + ".desc"), top + 11, INK);
+            paragraph(graphics, Component.translatable(rune.langKey() + ".desc"), top + 11, INK);
         }
     }
 
-    private void renderCore(GuiGraphics graphics, EnchantForecast.Core core) {
+    private void renderCore(GuiGraphics graphics, Enchant core) {
         int top = y + 8;
-        top = paragraph(graphics, Component.translatable("enchantment.minecraft." + core.enchant()), top, TITLE) + 4;
+        top = paragraph(graphics, Component.translatable(core.nameKey()), top, TITLE) + 4;
 
         // why this combination makes the enchant, what it does, then how to link the runes
-        top = paragraph(graphics, Component.translatable("research.enchantmod." + core.enchant() + ".why"), top, INK) + 4;
-        top = paragraph(graphics, Component.translatable("research.enchantmod." + core.enchant()), top, INK) + 6;
+        top = paragraph(graphics, Component.translatable(core.textKey() + ".why"), top, INK) + 4;
+        top = paragraph(graphics, Component.translatable(core.textKey()), top, INK) + 6;
 
         graphics.drawString(font, Component.translatable("gui.enchantmod.research.example"), x + 8, top, TITLE, false);
         top += 12;

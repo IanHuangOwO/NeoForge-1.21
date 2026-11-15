@@ -9,7 +9,8 @@ import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.fluid.ModCapabilities;
 import com.mamechin.enchantmod.fluid.ModFluids;
 import com.mamechin.enchantmod.items.ModItems;
-import com.mamechin.enchantmod.scribing.EditBlueprintPayload;
+import com.mamechin.enchantmod.scribing.DefinitionLoader;
+import com.mamechin.enchantmod.scribing.ModNetwork;
 import com.mamechin.enchantmod.scribing.ModDataComponents;
 import com.mamechin.enchantmod.scribing.ModMenus;
 import com.mojang.logging.LogUtils;
@@ -40,7 +41,9 @@ public class EnchantMod {
         ModItems.ITEMS.register(modEventBus);
         ModDataComponents.COMPONENTS.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
-        modEventBus.addListener(EditBlueprintPayload::register);
+        modEventBus.addListener(ModNetwork::register);
+        NeoForge.EVENT_BUS.addListener(DefinitionLoader::onAddReloadListeners);
+        NeoForge.EVENT_BUS.addListener(DefinitionLoader::onDatapackSync);
         ModCreativeTabs.TABS.register(modEventBus);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);

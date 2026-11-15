@@ -1,0 +1,8 @@
+{
+  "enchantment": "minecraft:knockback",
+  "runes": [
+    "enchantmod:thurisaz"
+  ],
+  "category": "weapons",
+  "order": 9
+}

@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:sweeping_edge",
+  "runes": [
+    "enchantmod:tiwaz",
+    "enchantmod:ehwaz"
+  ],
+  "category": "weapons",
+  "order": 12
+}

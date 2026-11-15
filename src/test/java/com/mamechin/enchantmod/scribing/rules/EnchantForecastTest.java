@@ -12,6 +12,11 @@ import com.mamechin.enchantmod.scribing.rules.Blueprint.Line;
 import com.mamechin.enchantmod.scribing.rules.Blueprint.RuneAt;
 
 class EnchantForecastTest {
+    @org.junit.jupiter.api.BeforeAll
+    static void definitions() {
+        com.mamechin.enchantmod.scribing.rules.TestDefinitions.load();
+    }
+
     private static final double S = 1 - 0.05; // survival of one line with a one cell path: 4% + 1%
 
     private static Line line(int a, int b) {
@@ -26,7 +31,7 @@ class EnchantForecastTest {
     void aSingleCoreRuneMakesItsEnchantAtLevelOne() {
         List<EnchantForecast.Result> results = EnchantForecast.forecast(new Blueprint(List.of(new RuneAt(1, "berkana")), List.of()));
         assertEquals(1, results.size());
-        assertEquals("efficiency", results.get(0).enchant());
+        assertEquals("minecraft:efficiency", results.get(0).enchant().enchantment());
         assertEquals(1.0, results.get(0).levels().get(1), 1e-9);
         assertEquals(0.0, results.get(0).broken(), 1e-9);
     }
@@ -35,7 +40,7 @@ class EnchantForecastTest {
     void aTwoRuneCoreNeedsItsLinkAndParallelLinesHelp() {
         Blueprint one = new Blueprint(List.of(new RuneAt(1, "tiwaz"), new RuneAt(2, "sowilo")), List.of(line(1, 2)));
         EnchantForecast.Result smite = EnchantForecast.forecast(one).get(0);
-        assertEquals("smite", smite.enchant());
+        assertEquals("minecraft:smite", smite.enchant().enchantment());
         assertEquals(S, smite.levels().get(1), 1e-9);
         assertEquals(1 - S, smite.broken(), 1e-9);
 
@@ -78,9 +83,9 @@ class EnchantForecastTest {
         EnchantForecast.Result stable = EnchantForecast.forecast(new Blueprint(runes, lines)).get(0);
         assertEquals(7, stable.levels().keySet().stream().mapToInt(Integer::intValue).max().getAsInt()); // 1 + 6
         assertEquals(1.0, total(stable), 1e-9);
-        assertEquals(4, EnchantForecast.levelCap(0, 3));
-        assertEquals(9, EnchantForecast.levelCap(1, 0));
-        assertEquals(19, EnchantForecast.levelCap(1, 1));
-        assertEquals(29, EnchantForecast.levelCap(2, 2));
+        assertEquals(4, EnchantForecast.levelCap(java.util.Map.of("enchantmod:mannaz", 0, "enchantmod:dagaz", 3)));
+        assertEquals(9, EnchantForecast.levelCap(java.util.Map.of("enchantmod:mannaz", 1, "enchantmod:dagaz", 0)));
+        assertEquals(19, EnchantForecast.levelCap(java.util.Map.of("enchantmod:mannaz", 1, "enchantmod:dagaz", 1)));
+        assertEquals(29, EnchantForecast.levelCap(java.util.Map.of("enchantmod:mannaz", 2, "enchantmod:dagaz", 2)));
     }
 }

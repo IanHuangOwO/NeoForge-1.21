@@ -1,0 +1,8 @@
+{
+  "enchantment": "minecraft:mending",
+  "runes": [
+    "enchantmod:jera"
+  ],
+  "category": "general",
+  "order": 4
+}

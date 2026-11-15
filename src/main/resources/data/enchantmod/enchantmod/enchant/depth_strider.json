@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:depth_strider",
+  "runes": [
+    "enchantmod:laguz",
+    "enchantmod:ehwaz"
+  ],
+  "category": "armor",
+  "order": 19
+}

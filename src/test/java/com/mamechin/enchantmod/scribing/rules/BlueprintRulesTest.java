@@ -10,6 +10,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class BlueprintRulesTest {
+    @org.junit.jupiter.api.BeforeAll
+    static void definitions() {
+        com.mamechin.enchantmod.scribing.rules.TestDefinitions.load();
+    }
+
     private static final int W = BlueprintRules.WIDTH;
 
     private static int c(int x, int y) {
@@ -27,10 +32,10 @@ class BlueprintRulesTest {
         assertEquals(9, BlueprintRules.footprint(c(1, 1), 3).size());
         assertEquals(java.util.Set.of(c(1, 1), c(2, 1), c(1, 2), c(2, 2)), BlueprintRules.footprint(c(1, 1), 2));
         assertNull(BlueprintRules.footprint(c(W - 1, 0), 2));                         // 2x2 would leave the grid
-        assertEquals(3, Rune.BERKANA.size());
-        assertEquals(1, Rune.URUZ.size());
-        assertEquals(2, Rune.MANNAZ.size());
-        assertEquals(2, Rune.DAGAZ.size());
+        assertEquals(3, Rune.byId("berkana").size());
+        assertEquals(1, Rune.byId("uruz").size());
+        assertEquals(2, Rune.byId("mannaz").size());
+        assertEquals(2, Rune.byId("dagaz").size());
     }
 
     @Test

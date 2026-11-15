@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:swift_sneak",
+  "runes": [
+    "enchantmod:ehwaz",
+    "enchantmod:perthro"
+  ],
+  "category": "armor",
+  "order": 22
+}

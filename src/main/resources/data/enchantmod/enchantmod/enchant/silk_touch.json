@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:silk_touch",
+  "runes": [
+    "enchantmod:gebo",
+    "enchantmod:isa"
+  ],
+  "category": "tools",
+  "order": 5
+}

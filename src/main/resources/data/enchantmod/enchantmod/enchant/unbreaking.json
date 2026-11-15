@@ -1,0 +1,8 @@
+{
+  "enchantment": "minecraft:unbreaking",
+  "runes": [
+    "enchantmod:isa"
+  ],
+  "category": "general",
+  "order": 2
+}

@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:soul_speed",
+  "runes": [
+    "enchantmod:ehwaz",
+    "enchantmod:nauthiz"
+  ],
+  "category": "armor",
+  "order": 21
+}

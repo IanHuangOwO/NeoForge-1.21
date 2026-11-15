@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:bane_of_arthropods",
+  "runes": [
+    "enchantmod:tiwaz",
+    "enchantmod:thurisaz"
+  ],
+  "category": "weapons",
+  "order": 8
+}

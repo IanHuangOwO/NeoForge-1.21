@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:fire_protection",
+  "runes": [
+    "enchantmod:algiz",
+    "enchantmod:kenaz"
+  ],
+  "category": "armor",
+  "order": 14
+}

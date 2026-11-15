@@ -10,6 +10,11 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class LineRoutingTest {
+    @org.junit.jupiter.api.BeforeAll
+    static void definitions() {
+        com.mamechin.enchantmod.scribing.rules.TestDefinitions.load();
+    }
+
     private static final int W = BlueprintRules.WIDTH;
 
     private static int c(int x, int y) {

@@ -10,6 +10,11 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 class ResearchMapTest {
+    @org.junit.jupiter.api.BeforeAll
+    static void definitions() {
+        com.mamechin.enchantmod.scribing.rules.TestDefinitions.load();
+    }
+
     @Test
     void everyPageHasANodeAndNoneOverlap() {
         Set<Integer> pages = new HashSet<>();

@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:frost_walker",
+  "runes": [
+    "enchantmod:laguz",
+    "enchantmod:isa"
+  ],
+  "category": "armor",
+  "order": 20
+}

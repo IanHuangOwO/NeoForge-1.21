@@ -1,0 +1,8 @@
+{
+  "enchantment": "minecraft:fortune",
+  "runes": [
+    "enchantmod:fehu"
+  ],
+  "category": "tools",
+  "order": 3
+}

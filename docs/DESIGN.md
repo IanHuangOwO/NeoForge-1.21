@@ -4,7 +4,7 @@ Living reference for direction, style and decisions. Read it before adding a fun
 
 ## What the mod is
 
-A magic mod centred on enchanting. Mod id `enchantmod`, package `com.mamechin.enchantmod`, NeoForge 21.1.265 for Minecraft 1.21.1, JDK 21. Code layout (author, 2026-11-15, revised): code is grouped by feature. `scribing/` holds everything about the scribing table and the research handbook: `rules/` (pure, no Minecraft: `Rune`, `Blueprint`, `BlueprintRules`, `EnchantForecast`, `EnchantGroups` for which mod and which kind of tool an enchant belongs to, `LineRouting` for how a line leaves a rune and follows the cursor), the menu, block entity, payload, data components, `client/` (the table's screen) and `research/` (the handbook's map, pages and nine-slice drawing, and `GuiArt`, the rune drawing and texture paths the table's screen shares). `cauldron/` holds the cauldron block entity with `action/`, `brewing/`, `client/`, `heat/`. `blocks/` and `items/` hold the classes Minecraft registers: block and item classes, `ModBlocks`, `ModBlockEntities`, `ModItems`, with `items/inkwell/` and `items/quill/`. Fluids stay in `fluid/`. Class names for items carry no `Item` suffix.
+A magic mod centred on enchanting. Mod id `enchantmod`, package `com.mamechin.enchantmod`, NeoForge 21.1.265 for Minecraft 1.21.1, JDK 21. Code layout (author, 2026-11-15, revised): code is grouped by feature. `scribing/` holds everything about the scribing table and the research handbook: `rules/` (pure, no Minecraft: `Rune`, `Enchant`, `Definitions` and `DefinitionParser` for the JSON-driven runes and enchants, `Blueprint`, `BlueprintRules`, `EnchantForecast`, `EnchantGroups` for the category order, `LineRouting` for how a line leaves a rune and follows the cursor), the menu, block entity, payload, data components, `client/` (the table's screen) and `research/` (the handbook's map, pages and nine-slice drawing, and `GuiArt`, the rune drawing and texture paths the table's screen shares). `cauldron/` holds the cauldron block entity with `action/`, `brewing/`, `client/`, `heat/`. `blocks/` and `items/` hold the classes Minecraft registers: block and item classes, `ModBlocks`, `ModBlockEntities`, `ModItems`, with `items/inkwell/` and `items/quill/`. Fluids stay in `fluid/`. Class names for items carry no `Item` suffix.
 
 The core loop: brew ink in cauldrons, store it in inkwells, write with quills at a Scribing Table.
 
@@ -186,7 +186,7 @@ Not built: layers, ink and quill use, the rune and core rules (core table, boost
 
 ## Forecast model (built 2026-11-13, numbers are Claude's defaults, change freely)
 
-`EnchantForecast` (pure code, unit tested) reads a blueprint. A group of core runes joined by lines that matches a core table row exactly is an enchant (the table in the code is the first 26 rows above). Each Uruz joined to any rune of the group adds one level on top of level 1. Mannaz is needed from level 5, Dagaz from level 10 and one more Dagaz for each further 10 levels, or the level stops below the threshold. A line breaks with 4% plus 1% per path cell (at most 95%); a link between two runes breaks only when all its parallel lines do. If the link inside a two-rune core breaks, the enchant fails. The chances are exact, worked out over every combination of surviving links. Shown in the template item's tooltip (`EnchantTemplate`). Rune sharing between cores is still left out.
+`EnchantForecast` (pure code, unit tested) reads a blueprint. A group of core runes joined by lines that matches a core table row exactly is an enchant (the table is the 26 enchant JSON files, see "Data-driven runes and enchants"). Each Uruz joined to any rune of the group adds one level on top of level 1. Mannaz is needed from level 5, Dagaz from level 10 and one more Dagaz for each further 10 levels, or the level stops below the threshold. A line breaks with 4% plus 1% per path cell (at most 95%); a link between two runes breaks only when all its parallel lines do. If the link inside a two-rune core breaks, the enchant fails. The chances are exact, worked out over every combination of surviving links. Shown in the template item's tooltip (`EnchantTemplate`). Rune sharing between cores is still left out.
 
 ## Research tablet, first version (built 2026-11-13, not yet tried in game)
 
@@ -244,6 +244,33 @@ Brew rules:
 - Finish effect: a burst of small bubbles rising straight up (speed 0.015).
 - Mining level and hardness match the vanilla cauldron.
 - Idle cost matters: cached item list, no drawing when empty, tickers only while heated or brewing.
+
+## Data-driven runes and enchants
+
+Runes, enchant rows and the forecast numbers are JSON in data packs (author, 2026-11-15), so they can be changed, or added by another mod or a data pack, without code. Files live under `data/<namespace>/enchantmod/`; the shipped ones are in `data/enchantmod/enchantmod/`. Loading is in `scribing/DefinitionLoader` (runs on data load and `/reload`), parsing and checking is `scribing/rules/DefinitionParser`, and the result is held by `scribing/rules/Definitions`. The server sends the raw files to each client when it joins or data reloads (`DefinitionsPayload`); the client parses them the same way. An entry that is wrong in any way is dropped with a warning in the log and the rest still load.
+
+**`rune/<name>.json`** (id `namespace:name`):
+- `glyph`: exactly one character.
+- `size`: 1, 2 or 3 (grid cells per side; board textures exist for those sizes only).
+- `role`: `core` (makes up an enchant), `boost` or `stabilizer`.
+- `order`: position in the palette and handbook, then by id (optional, default 0).
+- boost: `levels` added by each one joined to a core (default 1).
+- stabilizer: `unlock_level` (2 or more: levels from there up need at least one joined) and `extra_levels` (further levels allowed by each copy after the first, default 0). Shipped: Mannaz unlocks level 5; Dagaz unlocks 10 and each extra Dagaz adds 10.
+
+**`enchant/<name>.json`** (id `namespace:name`):
+- `enchantment`: the enchantment made, `namespace:path` (a bare id means `minecraft`). Its namespace picks the handbook tab.
+- `runes`: one to three different core rune ids (a bare id means `enchantmod`).
+- `category`: `general`, `tools`, `weapons`, `armor` or `bows` (the scribing table's tool tabs); anything else is `general`.
+- `order`: position in the handbook (optional).
+- Two rows with the same runes: the earlier one in order keeps them.
+
+**`forecast.json`**: `line_break` with `base`, `per_cell` and `max` (a line breaks with `base + per_cell * length`, at most `max`; shipped 0.04, 0.01, 0.95). The highest-priority pack wins. Missing or wrong means the shipped numbers.
+
+**Texts stay in lang files**, keyed by id: `rune.<namespace>.<name>` (the name), `.meaning` (the short story) and `.desc` (the role of a boost or stabilizer); `research.<namespace>.<name>` (what the enchant does) and `.why` (why those runes make it) for an enchant row; the enchantment's own name is the usual `enchantment.<namespace>.<path>`. A missing text shows the key.
+
+Saved templates store rune ids; a bare id such as `berkana` means `enchantmod:berkana`, so templates made before runes had namespaces still work. The forecast computes whether the core stays joined exactly for rows of up to three runes.
+
+Decisions by Claude (change freely): the handbook pages are now ordered by `order` then id (they were in the old table order, kept by the shipped `order` values); a data pack cannot yet change the grid size, the ink cost or the line cap. **Not verified in game:** the reload listener, the sync and the client receipt are only compile-checked; check once by opening the handbook, running `/reload` and reading the log for `Enchant definitions (server|client): 24 runes, 26 enchants`.
 
 ## Style and art
 

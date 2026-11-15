@@ -1,0 +1,7 @@
+{
+  "line_break": {
+    "base": 0.04,
+    "per_cell": 0.01,
+    "max": 0.95
+  }
+}

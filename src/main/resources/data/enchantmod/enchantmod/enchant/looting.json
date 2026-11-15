@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:looting",
+  "runes": [
+    "enchantmod:tiwaz",
+    "enchantmod:fehu"
+  ],
+  "category": "weapons",
+  "order": 11
+}

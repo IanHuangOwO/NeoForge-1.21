@@ -1,0 +1,8 @@
+{
+  "enchantment": "minecraft:sharpness",
+  "runes": [
+    "enchantmod:tiwaz"
+  ],
+  "category": "weapons",
+  "order": 6
+}

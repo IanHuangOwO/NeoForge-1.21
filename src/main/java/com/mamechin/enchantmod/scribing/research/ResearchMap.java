@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.Definitions;
+import com.mamechin.enchantmod.scribing.rules.Enchant;
 import com.mamechin.enchantmod.scribing.rules.EnchantGroups;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
@@ -27,41 +28,46 @@ public final class ResearchMap {
     public record Tab(String key, List<Node> nodes) {}
 
     private static List<Tab> cache;
+    private static int cacheVersion = -1; // the version of the definitions the cache was built from
 
     private ResearchMap() {}
 
     public static synchronized List<Tab> tabs() {
-        if (cache == null) cache = build();
+        Definitions.Snapshot snapshot = Definitions.current();
+        if (cache == null || cacheVersion != snapshot.version()) {
+            cache = build(snapshot.runes(), snapshot.enchants());
+            cacheVersion = snapshot.version();
+        }
         return cache;
     }
 
-    private static List<Tab> build() {
-        int runeCount = Rune.values().length;
-        List<EnchantForecast.Core> table = EnchantForecast.table();
+    private static List<Tab> build(List<Rune> allRunes, List<Enchant> table) {
+        int runeCount = allRunes.size();
         List<Tab> tabs = new ArrayList<>();
         List<Integer> all = new ArrayList<>();
         for (int i = 0; i < runeCount; i++) all.add(i);
-        tabs.add(new Tab("runes", layout(all, List.of(), table, runeCount)));
+        tabs.add(new Tab("runes", layout(all, List.of(), table, allRunes)));
         Map<String, List<Integer>> byMod = new LinkedHashMap<>();
-        for (int j = 0; j < table.size(); j++) byMod.computeIfAbsent(EnchantGroups.namespace(table.get(j).enchant()), k -> new ArrayList<>()).add(j);
+        for (int j = 0; j < table.size(); j++) byMod.computeIfAbsent(table.get(j).namespace(), k -> new ArrayList<>()).add(j);
         byMod.forEach((mod, cores) -> {
             List<Integer> runes = new ArrayList<>();
-            for (int j : cores) for (String id : table.get(j).runes()) if (!runes.contains(Rune.byId(id).ordinal())) runes.add(Rune.byId(id).ordinal());
-            tabs.add(new Tab(mod, layout(runes, cores, table, runeCount)));
+            for (int j : cores) for (String id : table.get(j).runes()) if (!runes.contains(allRunes.indexOf(Rune.byId(id)))) runes.add(allRunes.indexOf(Rune.byId(id)));
+            tabs.add(new Tab(mod, layout(runes, cores, table, allRunes)));
         });
         return tabs;
     }
 
     /** Where an enchant starts: the middle if all-purpose, else in the direction of its tool group. */
-    private static double[] target(String enchant) {
-        int k = EnchantGroups.CATEGORY_ORDER.indexOf(EnchantGroups.category(enchant)) - 1; // tools = 0 ... bows = 3, general = -1
+    private static double[] target(Enchant enchant) {
+        int k = EnchantGroups.CATEGORY_ORDER.indexOf(enchant.category()) - 1; // tools = 0 ... bows = 3, general = -1
         if (k < 0) return new double[] {0, 0};
         double angle = Math.PI / 4 + k * Math.PI / 2;
         return new double[] {Math.cos(angle) * 95, Math.sin(angle) * 95};
     }
 
     /** Rune nodes (fixed, on a ring) first, then the enchant nodes (pushed apart inside the ring). */
-    private static List<Node> layout(List<Integer> runeList, List<Integer> cores, List<EnchantForecast.Core> table, int runeCount) {
+    private static List<Node> layout(List<Integer> runeList, List<Integer> cores, List<Enchant> table, List<Rune> allRunes) {
+        int runeCount = allRunes.size();
         Random random = new Random(7);
         List<Integer> runes = new ArrayList<>(runeList);
         if (!cores.isEmpty()) {
@@ -70,8 +76,8 @@ public final class ResearchMap {
             for (int r : runes) {
                 double sx = 0, sy = 0;
                 for (int j : cores) {
-                    if (!table.get(j).runes().contains(Rune.values()[r].id())) continue;
-                    double[] t = target(table.get(j).enchant());
+                    if (!table.get(j).runes().contains(allRunes.get(r).id())) continue;
+                    double[] t = target(table.get(j));
                     sx += t[0];
                     sy += t[1];
                 }
@@ -91,9 +97,9 @@ public final class ResearchMap {
         List<List<Integer>> links = new ArrayList<>();
         for (int j = 0; j < cores.size(); j++) {
             List<Integer> mine = new ArrayList<>();
-            for (String id : table.get(cores.get(j)).runes()) mine.add(runes.indexOf(Rune.byId(id).ordinal()));
+            for (String id : table.get(cores.get(j)).runes()) mine.add(runes.indexOf(allRunes.indexOf(Rune.byId(id))));
             links.add(mine);
-            double[] t = target(table.get(cores.get(j)).enchant());
+            double[] t = target(table.get(cores.get(j)));
             x[runes.size() + j] = t[0] + random.nextInt(31) - 15;
             y[runes.size() + j] = t[1] + random.nextInt(31) - 15;
         }

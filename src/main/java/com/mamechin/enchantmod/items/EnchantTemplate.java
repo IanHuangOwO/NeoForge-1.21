@@ -32,7 +32,7 @@ public class EnchantTemplate extends Item {
             return;
         }
         for (EnchantForecast.Result result : results) {
-            tooltip.add(Component.translatable("enchantment.minecraft." + result.enchant()).withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable(result.enchant().nameKey()).withStyle(ChatFormatting.GOLD));
             // the likeliest levels, shown in level order
             List<Map.Entry<Integer, Double>> shown = new ArrayList<>(result.levels().entrySet());
             shown.removeIf(e -> e.getValue() < 0.005);

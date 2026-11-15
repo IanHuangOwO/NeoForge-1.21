@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:blast_protection",
+  "runes": [
+    "enchantmod:algiz",
+    "enchantmod:hagalaz"
+  ],
+  "category": "armor",
+  "order": 15
+}

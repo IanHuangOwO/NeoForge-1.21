@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:thorns",
+  "runes": [
+    "enchantmod:algiz",
+    "enchantmod:thurisaz"
+  ],
+  "category": "armor",
+  "order": 18
+}

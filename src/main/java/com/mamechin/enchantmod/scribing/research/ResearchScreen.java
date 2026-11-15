@@ -2,7 +2,7 @@ package com.mamechin.enchantmod.scribing.research;
 
 import java.util.List;
 
-import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.Definitions;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
 import net.minecraft.client.Minecraft;
@@ -27,6 +27,7 @@ public class ResearchScreen extends Screen {
     private final List<ResearchMap.Tab> tabs = ResearchMap.tabs();
     private int tab;
     private List<ResearchMap.Node> nodes = tabs.get(0).nodes();
+    private final int version = Definitions.current().version(); // a reload or a sync that changes the definitions closes the screen
     private boolean reading;
     private double dragged;
 
@@ -50,6 +51,10 @@ public class ResearchScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
+        if (version != Definitions.current().version()) {
+            onClose();
+            return;
+        }
         if (reading) {
             int h = Math.min(height - 30, 200);
             panel.render(graphics, (width - ResearchPanel.WIDTH) / 2, (height - h) / 2, h, mouseX, mouseY);
@@ -58,7 +63,7 @@ public class ResearchScreen extends Screen {
         }
         NineSlice.tile(graphics, MAP_BG, TAB_W - 4, 4, width - TAB_W, height - 8, 0, 0, 16, 16, 16);
         graphics.enableScissor(TAB_W + 2, 10, width - 10, height - 10);
-        int runes = Rune.values().length;
+        int runes = Definitions.runes().size();
         for (ResearchMap.Node node : nodes) {
             for (int link : node.links()) {
                 ResearchMap.Node rune = nodes.get(link);
@@ -72,7 +77,7 @@ public class ResearchScreen extends Screen {
             int nx = originX() + node.x() - NODE / 2, ny = originY() + node.y() - NODE / 2;
             boolean rune = node.page() < runes;
             graphics.blit(GuiArt.research((rune ? "node_rune" : "node_enchant") + (node == hovered ? "_hover" : "")), nx, ny, 0, 0, NODE, NODE, NODE, NODE);
-            if (node.page() < runes) GuiArt.glyph(graphics, font, Rune.values()[node.page()], nx + NODE / 2.0F, ny + NODE / 2.0F, 1.5F);
+            if (node.page() < runes) GuiArt.glyph(graphics, font, Rune.values().get(node.page()), nx + NODE / 2.0F, ny + NODE / 2.0F, 1.5F);
             else graphics.renderItem(new ItemStack(Items.ENCHANTED_BOOK), nx + 4, ny + 4);
         }
         graphics.disableScissor();
@@ -114,10 +119,9 @@ public class ResearchScreen extends Screen {
     }
 
     private static Component nameOf(ResearchMap.Node node) {
-        int runes = Rune.values().length;
-        if (node.page() < runes) return Component.translatable("rune.enchantmod." + Rune.values()[node.page()].id());
-        List<EnchantForecast.Core> table = EnchantForecast.table();
-        return Component.translatable("enchantment.minecraft." + table.get(node.page() - runes).enchant());
+        int runes = Definitions.runes().size();
+        if (node.page() < runes) return Component.translatable(Rune.values().get(node.page()).langKey());
+        return Component.translatable(Definitions.enchants().get(node.page() - runes).nameKey());
     }
 
     private ResearchMap.Node nodeAt(double mouseX, double mouseY) {

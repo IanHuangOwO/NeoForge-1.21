@@ -1,0 +1,9 @@
+{
+  "enchantment": "minecraft:respiration",
+  "runes": [
+    "enchantmod:algiz",
+    "enchantmod:laguz"
+  ],
+  "category": "armor",
+  "order": 17
+}

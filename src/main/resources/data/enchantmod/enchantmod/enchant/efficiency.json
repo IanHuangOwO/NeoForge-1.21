@@ -1,0 +1,8 @@
+{
+  "enchantment": "minecraft:efficiency",
+  "runes": [
+    "enchantmod:berkana"
+  ],
+  "category": "tools",
+  "order": 1
+}
