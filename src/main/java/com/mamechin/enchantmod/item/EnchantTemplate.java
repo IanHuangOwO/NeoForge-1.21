@@ -1,4 +1,8 @@
-package com.mamechin.enchantmod.block.scribing;
+package com.mamechin.enchantmod.item;
+
+import com.mamechin.enchantmod.block.scribing.Blueprint;
+import com.mamechin.enchantmod.block.scribing.EnchantForecast;
+import com.mamechin.enchantmod.block.scribing.ModDataComponents;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -4,7 +4,7 @@ Living reference for direction, style and decisions. Read it before adding a fun
 
 ## What the mod is
 
-A magic mod centred on enchanting. Mod id `enchantmod`, package `com.mamechin.enchantmod`, NeoForge 21.1.265 for Minecraft 1.21.1, JDK 21. Code layout (author, 2026-11-15): each block's main class sits directly in `block/` (`SmallCauldronBlock`, `ScribingTableBlock`, with `ModBlocks`, `ModBlockEntities`) and everything that makes it work sits in a folder of its own inside `block/`: `block/cauldron/` (block entity, `action/`, `brewing/`, `client/`, `heat/`) and `block/scribing/` (blueprint rules, forecast, menu, runes, `client/` screens including the research handbook's map and pages). Items stay in `item/`, fluids in `fluid/`.
+A magic mod centred on enchanting. Mod id `enchantmod`, package `com.mamechin.enchantmod`, NeoForge 21.1.265 for Minecraft 1.21.1, JDK 21. Code layout (author, 2026-11-15): each block's main class sits directly in `block/` (`SmallCauldronBlock`, `ScribingTableBlock`, with `ModBlocks`, `ModBlockEntities`) and everything that makes it work sits in a folder of its own inside `block/`: `block/cauldron/` (block entity, `action/`, `brewing/`, `client/`, `heat/`) and `block/scribing/` (blueprint rules, forecast, menu, runes, data components, `client/` screens including the research handbook's map and pages). Items stay in `item/`, fluids in `fluid/`.
 
 The core loop: brew ink in cauldrons, store it in inkwells, write with quills at a Scribing Table.
 
