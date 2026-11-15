@@ -1,6 +1,5 @@
 package com.mamechin.enchantmod.scribing.research;
 
-import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
 import java.util.List;
 
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
@@ -20,12 +19,8 @@ import net.minecraft.world.item.Items;
  */
 public class ResearchScreen extends Screen {
     private static final int NODE = 24, LIMIT = 260, TAB_W = 30, TAB_H = 28;
-    private static final ResourceLocation MAP_BG = tex("map_bg"), MAP_FRAME = tex("map_frame"), TAB_OFF = tex("tab_off"), TAB_ON = tex("tab_on_map");
+    private static final ResourceLocation MAP_BG = GuiArt.research("map_bg"), MAP_FRAME = GuiArt.research("map_frame"), TAB_OFF = GuiArt.research("tab_off"), TAB_ON = GuiArt.research("tab_on_map");
     private static final int LINK = 0x99B8764A;
-    private static ResourceLocation tex(String name) {
-        return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/research/" + name + ".png");
-    }
-
     private static double panX, panY; // kept between openings
 
     private final ResearchPanel panel;
@@ -76,8 +71,8 @@ public class ResearchScreen extends Screen {
         for (ResearchMap.Node node : nodes) {
             int nx = originX() + node.x() - NODE / 2, ny = originY() + node.y() - NODE / 2;
             boolean rune = node.page() < runes;
-            graphics.blit(tex((rune ? "node_rune" : "node_enchant") + (node == hovered ? "_hover" : "")), nx, ny, 0, 0, NODE, NODE, NODE, NODE);
-            if (node.page() < runes) glyph(graphics, Rune.values()[node.page()], nx + NODE / 2.0F, ny + NODE / 2.0F);
+            graphics.blit(GuiArt.research((rune ? "node_rune" : "node_enchant") + (node == hovered ? "_hover" : "")), nx, ny, 0, 0, NODE, NODE, NODE, NODE);
+            if (node.page() < runes) GuiArt.glyph(graphics, font, Rune.values()[node.page()], nx + NODE / 2.0F, ny + NODE / 2.0F, 1.5F);
             else graphics.renderItem(new ItemStack(Items.ENCHANTED_BOOK), nx + 4, ny + 4);
         }
         graphics.disableScissor();
@@ -101,7 +96,7 @@ public class ResearchScreen extends Screen {
         closeX = cx;
         closeY = cy;
         boolean over = isOverClose(mouseX, mouseY);
-        graphics.blit(tex(over ? "close_hover" : "close"), cx, cy, 0, 0, 10, 10, 10, 10);
+        graphics.blit(GuiArt.research(over ? "close_hover" : "close"), cx, cy, 0, 0, 10, 10, 10, 10);
     }
 
     private boolean isOverClose(double mouseX, double mouseY) {
@@ -123,16 +118,6 @@ public class ResearchScreen extends Screen {
         if (node.page() < runes) return Component.translatable("rune.enchantmod." + Rune.values()[node.page()].id());
         List<EnchantForecast.Core> table = EnchantForecast.table();
         return Component.translatable("enchantment.minecraft." + table.get(node.page() - runes).enchant());
-    }
-
-    private void glyph(GuiGraphics graphics, Rune rune, float cx, float cy) {
-        String text = String.valueOf(rune.glyph());
-        graphics.pose().pushPose();
-        graphics.pose().translate(cx, cy, 0);
-        graphics.pose().scale(1.5F, 1.5F, 1.0F);
-        graphics.pose().translate(-font.width(text) / 2.0F, -4.0F, 0);
-        graphics.drawString(font, text, 0, 0, ScribingTableScreen.glyphColor(rune), false);
-        graphics.pose().popPose();
     }
 
     private ResearchMap.Node nodeAt(double mouseX, double mouseY) {

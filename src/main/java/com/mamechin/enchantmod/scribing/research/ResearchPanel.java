@@ -1,6 +1,5 @@
 package com.mamechin.enchantmod.scribing.research;
 
-import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ public class ResearchPanel {
     public static final int WIDTH = 112;
     private static final int BUTTON_W = 14, BUTTON_H = 12, BOARD = 26, GAP = 9; // the example uses the same 3x3 boards as the grid
     private static final int INK = 0xFF3A2918, TITLE = 0xFF5A2E12, LINE = 0xFFB8764A;
-    private static final ResourceLocation BOARD_3X3 = gui("rune_board_3x3"), PAGE = research("page_panel"), TAB_OFF = research("tab_off"), TAB_ON = research("tab_on_page");
+    private static final ResourceLocation BOARD_3X3 = GuiArt.board(3), PAGE = GuiArt.research("page_panel"), TAB_OFF = GuiArt.research("tab_off"), TAB_ON = GuiArt.research("tab_on_page");
 
     private static final int TAB_OFF_W = 24, TAB_ON_W = 28, TAB_H = 28;
 
@@ -88,7 +87,7 @@ public class ResearchPanel {
 
     // the tool tabs are the left-hand tab textures turned a quarter and drawn at half size, so six fit within the page width
     private static final int CAT_W = 14, CAT_H = 12, CAT_PITCH = 15;
-    private static final ResourceLocation CAT_OFF = research("cat_off"), CAT_ON = research("cat_on");
+    private static final ResourceLocation CAT_OFF = GuiArt.research("cat_off"), CAT_ON = GuiArt.research("cat_on");
 
     /** The tool tab under the mouse (they sit along the top of the page), or -1. */
     private int categoryAt(double mouseX, double mouseY) {
@@ -112,14 +111,6 @@ public class ResearchPanel {
         return -1;
     }
 
-    private static ResourceLocation research(String name) {
-        return gui("research/" + name);
-    }
-
-    private static ResourceLocation gui(String name) {
-        return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
-    }
-
     public void setPage(int page) {
         this.page = page;
     }
@@ -138,8 +129,8 @@ public class ResearchPanel {
 
         if (!browse) return;
         boolean overLeft = overButton(mouseX, mouseY, x + 8), overRight = overButton(mouseX, mouseY, x + WIDTH - 8 - BUTTON_W);
-        graphics.blit(research("arrow_left" + (overLeft ? "_hover" : "")), x + 8, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
-        graphics.blit(research("arrow_right" + (overRight ? "_hover" : "")), x + WIDTH - 8 - BUTTON_W, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
+        graphics.blit(GuiArt.research("arrow_left" + (overLeft ? "_hover" : "")), x + 8, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
+        graphics.blit(GuiArt.research("arrow_right" + (overRight ? "_hover" : "")), x + WIDTH - 8 - BUTTON_W, buttonY(), 0, 0, BUTTON_W, BUTTON_H, BUTTON_W, BUTTON_H);
         String number = (pos + 1) + "/" + tabPages().size();
         graphics.drawString(font, number, x + (WIDTH - font.width(number)) / 2, buttonY() + 2, INK, false);
         List<String> cats = categories();
@@ -195,18 +186,14 @@ public class ResearchPanel {
         // the board at its grid size, centred in a 3x3 space
         int size = rune.size() * 9;
         int cx = x + WIDTH / 2;
-        graphics.blit(boardFor(rune.size()), cx - size / 2, top + (27 - size) / 2, 0, 0, size, size, size, size);
-        glyph(graphics, rune, cx, top + 13.5F, rune.size() == 3 ? 2.5F : rune.size() == 2 ? 1.5F : 1.0F);
+        graphics.blit(GuiArt.board(rune.size()), cx - size / 2, top + (27 - size) / 2, 0, 0, size, size, size, size);
+        GuiArt.glyph(graphics, font, rune, cx, top + 13.5F, GuiArt.glyphScale(rune));
         top += 27 + 8;
         top = paragraph(graphics, Component.translatable("rune.enchantmod." + rune.id() + ".meaning"), top, INK) + 6;
         if (rune.isUtility()) {
             graphics.drawString(font, Component.translatable("gui.enchantmod.research.role"), x + 8, top, TITLE, false);
             paragraph(graphics, Component.translatable("rune.enchantmod." + rune.id() + ".desc"), top + 11, INK);
         }
-    }
-
-    private static ResourceLocation boardFor(int size) {
-        return gui("rune_board_" + size + "x" + size);
     }
 
     private void renderCore(GuiGraphics graphics, EnchantForecast.Core core) {
@@ -243,18 +230,8 @@ public class ResearchPanel {
             Rune rune = Rune.byId(runes.get(i));
             if (rune == null) continue;
             graphics.blit(BOARD_3X3, at[i][0], at[i][1], 0, 0, 27, 27, 27, 27);
-            glyph(graphics, rune, at[i][0] + BOARD / 2.0F, at[i][1] + BOARD / 2.0F, 2.5F);
+            GuiArt.glyph(graphics, font, rune, at[i][0] + BOARD / 2.0F, at[i][1] + BOARD / 2.0F, 2.5F);
         }
-    }
-
-    private void glyph(GuiGraphics graphics, Rune rune, float centreX, float centreY, float scale) {
-        String text = String.valueOf(rune.glyph());
-        graphics.pose().pushPose();
-        graphics.pose().translate(centreX, centreY, 0);
-        graphics.pose().scale(scale, scale, 1.0F);
-        graphics.pose().translate(-font.width(text) / 2.0F, -4.0F, 0);
-        graphics.drawString(font, text, 0, 0, ScribingTableScreen.glyphColor(rune), false);
-        graphics.pose().popPose();
     }
 
     public boolean contains(double mouseX, double mouseY) {

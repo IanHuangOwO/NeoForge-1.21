@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.scribing.client;
 
+import com.mamechin.enchantmod.scribing.research.GuiArt;
 import com.mamechin.enchantmod.scribing.research.ResearchPanel;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,18 +35,11 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     private static final int GRID_X = 40, GRID_Y = 20, CELL = 9;
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
-    // Every rune sits on the same dark slate board; the glyph colour tells the kind apart.
-    private static final int CORE_GLYPH = 0xFFFFE290, BOOST_GLYPH = 0xFFF08C78, STABILIZER_GLYPH = 0xFF8CAAFF;
     private static final int LINE = 0xFFB8764A, LINE_PREVIEW = 0x80B8764A, TEXT = 0xFFE2D4AC; // lines are copper
 
-    private static final ResourceLocation BACKGROUND = gui("scribing_table"), CELL_TEXTURE = gui("rune_cell"),
-            PALETTE_SLOT = gui("palette_slot"), PALETTE_SELECTED = gui("palette_selected");
-    private static final ResourceLocation[] BOARDS = {null, gui("rune_board_1x1"), gui("rune_board_2x2"), gui("rune_board_3x3")}; // by size
-    private static final ResourceLocation[] SLOT_GHOSTS = {gui("slot_inkwell"), gui("slot_quill"), gui("slot_template")};
-
-    private static ResourceLocation gui(String name) {
-        return ResourceLocation.fromNamespaceAndPath("enchantmod", "textures/gui/" + name + ".png");
-    }
+    private static final ResourceLocation BACKGROUND = GuiArt.gui("scribing_table"), CELL_TEXTURE = GuiArt.gui("rune_cell"),
+            PALETTE_SLOT = GuiArt.gui("palette_slot"), PALETTE_SELECTED = GuiArt.gui("palette_selected");
+    private static final ResourceLocation[] SLOT_GHOSTS = {GuiArt.gui("slot_inkwell"), GuiArt.gui("slot_quill"), GuiArt.gui("slot_template")};
 
     private ResearchPanel research;                // enchant pages of the research handbook, shown while the player carries one
     private Rune held;                               // rune dragged out of the palette
@@ -69,19 +63,6 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         int x = (int) Math.floor((mouseX - leftPos - PALETTE_X) / PALETTE_CELL), y = (int) Math.floor((mouseY - topPos - PALETTE_Y) / PALETTE_CELL);
         int index = y * PALETTE_COLUMNS + x;
         return x < 0 || x >= PALETTE_COLUMNS || y < 0 || index >= Rune.values().length ? -1 : index;
-    }
-
-    public static int glyphColor(Rune rune) {
-        return rune == Rune.URUZ ? BOOST_GLYPH : rune.isUtility() ? STABILIZER_GLYPH : CORE_GLYPH;
-    }
-
-    /** Glyph scale on the board: the 3x3 and 2x2 faces are smaller than the glyph at 3x and 2x, so it stops short of the rim. */
-    private static float glyphScale(Rune rune) {
-        return switch (rune.size()) {
-            case 3 -> 2.5F;
-            case 2 -> 1.5F;
-            default -> 1.0F;
-        };
     }
 
     /** Cell centre in half pixels, so a line can be half a pixel thick. */
@@ -182,7 +163,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             }
             graphics.pose().pushPose();
             graphics.pose().translate(0, 0, 400);
-            drawGlyph(graphics, held, mouseX, mouseY, glyphScale(held));
+            GuiArt.glyph(graphics, font, held, mouseX, mouseY, GuiArt.glyphScale(held));
             graphics.pose().popPose();
         }
         Rune hovered = runeUnder(mouseX, mouseY);
@@ -226,8 +207,8 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             int[] b = bounds(placed);
             int full = rune.size() * CELL, side = full - 1; // the board texture ends in a 1 px gap
             int x0 = leftPos + GRID_X + b[0] * CELL, y0 = topPos + GRID_Y + b[1] * CELL;
-            graphics.blit(BOARDS[rune.size()], x0, y0, 0, 0, full, full, full, full);
-            drawGlyph(graphics, rune, x0 + side / 2.0F, y0 + side / 2.0F, glyphScale(rune));
+            graphics.blit(GuiArt.board(rune.size()), x0, y0, 0, 0, full, full, full, full);
+            GuiArt.glyph(graphics, font, rune, x0 + side / 2.0F, y0 + side / 2.0F, GuiArt.glyphScale(rune));
         }
         for (Blueprint.Line line : blueprint.lines()) drawLine(graphics, line.a(), line.path(), line.b(), LINE);
         if (lineStart >= 0) drawLine(graphics, lineStart, linePath, -1, LINE_PREVIEW);
@@ -237,7 +218,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             int x = leftPos + PALETTE_X + (i % PALETTE_COLUMNS) * PALETTE_CELL, y = topPos + PALETTE_Y + (i / PALETTE_COLUMNS) * PALETTE_CELL;
             graphics.blit(PALETTE_SLOT, x, y, 0, 0, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL);
             if (i == paletteAt(mouseX, mouseY)) graphics.blit(PALETTE_SELECTED, x, y, 0, 0, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL, PALETTE_CELL);
-            drawGlyph(graphics, runes[i], x + PALETTE_CELL / 2.0F, y + PALETTE_CELL / 2.0F, 1);
+            GuiArt.glyph(graphics, font, runes[i], x + PALETTE_CELL / 2.0F, y + PALETTE_CELL / 2.0F, 1);
         }
     }
 
@@ -271,16 +252,6 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             int[] p = points.get(i), q = points.get(i + 1);
             graphics.fill(Math.min(p[0], q[0]) - 2, Math.min(p[1], q[1]) - 2, Math.max(p[0], q[0]) + 3, Math.max(p[1], q[1]) + 3, color); // 5 half pixels thick, centred
         }
-        graphics.pose().popPose();
-    }
-
-    private void drawGlyph(GuiGraphics graphics, Rune rune, float centreX, float centreY, float scale) {
-        String text = String.valueOf(rune.glyph());
-        graphics.pose().pushPose();
-        graphics.pose().translate(centreX, centreY, 0);
-        graphics.pose().scale(scale, scale, 1.0F);
-        graphics.pose().translate(-font.width(text) / 2.0F, -4.0F, 0); // fractional, so scaled glyphs stay centred
-        graphics.drawString(font, text, 0, 0, glyphColor(rune), false);
         graphics.pose().popPose();
     }
 
