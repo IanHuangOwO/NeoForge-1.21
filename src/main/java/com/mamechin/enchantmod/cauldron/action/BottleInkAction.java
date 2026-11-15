@@ -2,7 +2,7 @@ package com.mamechin.enchantmod.cauldron.action;
 
 import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
-import com.mamechin.enchantmod.fluid.InkTiers;
+import com.mamechin.enchantmod.items.inkwell.InkTiers;
 
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;

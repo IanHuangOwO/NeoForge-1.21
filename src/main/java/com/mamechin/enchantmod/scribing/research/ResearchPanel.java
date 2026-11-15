@@ -3,7 +3,6 @@ package com.mamechin.enchantmod.scribing.research;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mamechin.enchantmod.items.ModItems;
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
 import com.mamechin.enchantmod.scribing.rules.EnchantGroups;
 import com.mamechin.enchantmod.scribing.rules.Rune;
@@ -47,7 +46,7 @@ public class ResearchPanel {
     static ItemStack tabIcon(String key) {
         return new ItemStack(switch (key) {
             case "minecraft" -> Items.GRASS_BLOCK;
-            default -> ModItems.ENCHANT_TEMPLATE.get();
+            default -> Items.LAPIS_LAZULI; // the runes tab, and any mod without an icon of its own
         });
     }
 

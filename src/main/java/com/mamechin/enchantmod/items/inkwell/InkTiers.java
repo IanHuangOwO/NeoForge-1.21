@@ -1,9 +1,8 @@
-package com.mamechin.enchantmod.fluid;
+package com.mamechin.enchantmod.items.inkwell;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mamechin.enchantmod.items.inkwell.EnchantInkwell;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;

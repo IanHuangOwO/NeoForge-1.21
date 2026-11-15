@@ -9,7 +9,7 @@ import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronInput;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
-import com.mamechin.enchantmod.fluid.InkTiers;
+import com.mamechin.enchantmod.items.inkwell.InkTiers;
 import com.mamechin.enchantmod.fluid.ModFluids;
 
 import net.minecraft.core.BlockPos;
