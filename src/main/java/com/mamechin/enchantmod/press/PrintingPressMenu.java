@@ -2,6 +2,7 @@ package com.mamechin.enchantmod.press;
 
 import com.mamechin.enchantmod.blocks.ModBlocks;
 import com.mamechin.enchantmod.scribing.ModMenus;
+import com.mamechin.enchantmod.scribing.rules.PressLayout;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -13,8 +14,12 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
-/** The printing press: a cube slot and six template slots, of which the cube's tier opens the first few. */
+/** The printing press: a cube slot in the middle and six template slots round it in a ring, of which the cube's tier opens some (PressLayout). */
 public class PrintingPressMenu extends AbstractContainerMenu {
+    public static final int CENTRE_X = 80, CENTRE_Y = 52, INVENTORY_Y = 118;
+    /** Where each ring slot sits relative to the cube slot, clockwise from the top. */
+    public static final int[][] RING_OFFSET = {{0, -32}, {28, -16}, {28, 16}, {0, 32}, {-28, 16}, {-28, -16}};
+
     private final ItemStackHandler inventory;
     private final ContainerLevelAccess access;
 
@@ -33,26 +38,25 @@ public class PrintingPressMenu extends AbstractContainerMenu {
         this.inventory = inventory;
         this.access = access;
 
-        addSlot(new SlotItemHandler(inventory, PrintingPressBlockEntity.CUBE, 8, 20));
+        addSlot(new SlotItemHandler(inventory, PrintingPressBlockEntity.CUBE, CENTRE_X, CENTRE_Y));
         for (int i = 1; i <= PrintingPressBlockEntity.TEMPLATES; i++) {
-            final int index = i;
-            addSlot(new SlotItemHandler(inventory, i, 44 + (i - 1) * 18, 20) {
+            final int ring = i - 1;
+            addSlot(new SlotItemHandler(inventory, i, CENTRE_X + RING_OFFSET[ring][0], CENTRE_Y + RING_OFFSET[ring][1]) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return index <= capacity() && super.mayPlace(stack);
-                }
-
-                /** A slot the cube does not open is hidden, unless a template is still in it so it can be taken out. */
-                @Override
-                public boolean isActive() {
-                    return index <= capacity() || hasItem();
+                    return isOpen(ring) && super.mayPlace(stack);
                 }
             });
         }
         for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, 52 + row * 18));
+            for (int col = 0; col < 9; col++) addSlot(new Slot(playerInventory, col + row * 9 + 9, 8 + col * 18, INVENTORY_Y + row * 18));
         }
-        for (int col = 0; col < 9; col++) addSlot(new Slot(playerInventory, col, 8 + col * 18, 110));
+        for (int col = 0; col < 9; col++) addSlot(new Slot(playerInventory, col, 8 + col * 18, INVENTORY_Y + 58));
+    }
+
+    /** True when ring slot {@code ring} (0 = top, clockwise) is open for the cube in the press. */
+    public boolean isOpen(int ring) {
+        return PressLayout.isOpen(ring, capacity());
     }
 
     /** How many template slots the cube in the press opens. */

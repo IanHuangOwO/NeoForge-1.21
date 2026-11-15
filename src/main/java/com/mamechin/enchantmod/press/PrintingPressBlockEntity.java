@@ -10,6 +10,7 @@ import com.mamechin.enchantmod.scribing.ModDataComponents;
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
 import com.mamechin.enchantmod.scribing.rules.CubeContents;
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.PressLayout;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -79,7 +80,8 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
             return;
         }
         List<EnchantForecast.Result> results = new ArrayList<>();
-        for (int i = 1; i <= capacity(cube); i++) {
+        for (int i = 1; i <= TEMPLATES; i++) {
+            if (!PressLayout.isOpen(i - 1, capacity(cube))) continue;
             results.addAll(EnchantForecast.forecast(inventory.getStackInSlot(i).getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY)));
         }
         CubeContents contents = CubeContents.combine(results);

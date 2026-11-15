@@ -75,7 +75,7 @@ public class AltarBlockEntity extends BlockEntity {
 
     /**
      * Fixes the cube's enchants onto the item, each rolled from its chances. An enchant the item cannot take, or that
-     * clashes with one already there, is skipped. The cube is kept. Server side only.
+     * clashes with one already there, is skipped. The cube is used up unless nothing in it fits the item. Server side only.
      */
     public void enchant(Player player) {
         ItemStack target = inventory.getStackInSlot(ITEM), cube = inventory.getStackInSlot(CUBE);
@@ -104,6 +104,7 @@ public class AltarBlockEntity extends BlockEntity {
             player.displayClientMessage(Component.translatable("message.enchantmod.altar.nothing"), true);
             return;
         }
+        inventory.setStackInSlot(CUBE, ItemStack.EMPTY); // the cube is used up, whether or not the fixation worked
         level.playSound(null, worldPosition, done.isEmpty() ? SoundEvents.GRINDSTONE_USE : SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
         Component list = ComponentUtils.formatList(done, Component.literal(", "));
         player.displayClientMessage(done.isEmpty()

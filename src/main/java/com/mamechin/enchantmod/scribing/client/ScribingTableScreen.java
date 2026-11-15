@@ -36,7 +36,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * server, which checks it and stores the result on the template item; the screen only ever draws what the item holds.
  */
 public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMenu> {
-    private static final int GRID_X = 67, GRID_Y = 29, CELL = 9;
+    private static final int GRID_X = 76, GRID_Y = 38, CELL = 9;
     // shortcut: the palette is 4 columns of the 24 shipped runes; a data pack with many more runes overflows it, add scrolling or tabs then
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
