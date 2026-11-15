@@ -198,7 +198,7 @@ Item `research_handbook` (named Research Handbook to match the earlier notes; cr
 
 ## Template renaming (built 2026-11-15, not yet tried in game)
 
-The author dropped the template tiers (reverted: one `enchant_template` item, whole grid, no level cap). The scribing table has a name box above the grid: typing sets the template's custom name (`RenameTemplatePayload`, sent on every change, 32 characters at most, empty removes it). A handbook store for templates (a saved list, then a chest with search and slots growing in steps of nine) was tried and dropped by the author on 2026-11-15; do not rebuild it unless asked.
+The author dropped the template tiers (reverted: one `enchant_template` item, whole grid, no level cap). The scribing table has a name box on the parchment above the grid (dark wood with a copper rim, light text; grid cells are 12 px, 2026-11-15): typing sets the template's custom name (`RenameTemplatePayload`, sent on every change, 32 characters at most, empty removes it). A handbook store for templates (a saved list, then a chest with search and slots growing in steps of nine) was tried and dropped by the author on 2026-11-15; do not rebuild it unless asked.
 
 ## Template shelf, printing press and enchant cubes (built 2026-11-15, not yet tried in game)
 

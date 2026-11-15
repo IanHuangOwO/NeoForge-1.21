@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -36,7 +37,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * server, which checks it and stores the result on the template item; the screen only ever draws what the item holds.
  */
 public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMenu> {
-    private static final int GRID_X = 76, GRID_Y = 38, CELL = 9;
+    private static final int GRID_X = 66, GRID_Y = 34, CELL = 12;
     // shortcut: the palette is 4 columns of the 24 shipped runes; a data pack with many more runes overflows it, add scrolling or tabs then
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
@@ -59,15 +60,25 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         inventoryLabelY = 130;
     }
 
+    private static final int NAME_X = 34, NAME_Y = 16, NAME_W = 146; // the rename bar sits on the parchment above the grid
     private EditBox nameBox;
     private boolean syncingName;
 
     @Override
     protected void init() {
         super.init();
-        nameBox = new EditBox(font, leftPos + 40, topPos + 7, 135, 12, Component.translatable("gui.enchantmod.scribing_table.rename"));
+        nameBox = new EditBox(font, leftPos + NAME_X + 4, topPos + NAME_Y + 3, NAME_W - 8, 10, Component.translatable("gui.enchantmod.scribing_table.rename")) {
+            @Override
+            public void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+                graphics.fill(getX() - 4, getY() - 3, getX() - 4 + NAME_W, getY() + 11, 0xFFB8764A); // copper rim
+                graphics.fill(getX() - 3, getY() - 2, getX() - 4 + NAME_W - 1, getY() + 10, 0xFF3A2418); // dark wood
+                super.renderWidget(graphics, mouseX, mouseY, partialTick);
+            }
+        };
+        nameBox.setBordered(false);
+        nameBox.setTextColor(0xFFF0DDB0);
         nameBox.setMaxLength(RenameTemplatePayload.NAME_MAX);
-        nameBox.setHint(Component.translatable("gui.enchantmod.scribing_table.rename").withStyle(ChatFormatting.DARK_GRAY));
+        nameBox.setHint(Component.translatable("gui.enchantmod.scribing_table.rename").withStyle(Style.EMPTY.withColor(0x9A8468)));
         nameBox.setResponder(name -> {
             if (!syncingName) PacketDistributor.sendToServer(new RenameTemplatePayload(name));
         });
@@ -197,7 +208,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             int full = rune.size() * CELL, side = full - 1; // the board texture ends in a 1 px gap
             int x0 = leftPos + GRID_X + b[0] * CELL, y0 = topPos + GRID_Y + b[1] * CELL;
             graphics.blit(GuiArt.board(rune.size()), x0, y0, 0, 0, full, full, full, full);
-            GuiArt.glyph(graphics, font, rune, x0 + side / 2.0F, y0 + side / 2.0F, GuiArt.glyphScale(rune));
+            GuiArt.glyph(graphics, font, rune, x0 + side / 2.0F, y0 + side / 2.0F, GuiArt.glyphScale(rune) * CELL / 9.0F); // the glyph sizes were tuned for 9 px cells
         }
         for (Blueprint.Line line : blueprint.lines()) drawLine(graphics, line.a(), line.path(), line.b(), LINE);
         if (lineStart >= 0) drawLine(graphics, lineStart, linePath, -1, LINE_PREVIEW);
