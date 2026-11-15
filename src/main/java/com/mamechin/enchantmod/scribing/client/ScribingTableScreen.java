@@ -3,13 +3,13 @@ package com.mamechin.enchantmod.scribing.client;
 import com.mamechin.enchantmod.scribing.research.GuiArt;
 import com.mamechin.enchantmod.scribing.research.ResearchPanel;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.mamechin.enchantmod.items.ModItems;
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
 import com.mamechin.enchantmod.scribing.rules.BlueprintRules;
+import com.mamechin.enchantmod.scribing.rules.LineRouting;
 import com.mamechin.enchantmod.scribing.EditBlueprintPayload;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 import com.mamechin.enchantmod.scribing.ScribingTableMenu;
@@ -74,17 +74,6 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         return 2 * (topPos + GRID_Y + (cell / BlueprintRules.WIDTH) * CELL) + CELL - 1;
     }
 
-    /** First and last row or column of the cells a rune covers, as {minX, minY, maxX, maxY}. */
-    private static int[] bounds(Blueprint.RuneAt rune) {
-        int size = BlueprintRules.sizeOf(rune.rune()), lo = -(size - 1) / 2, hi = size / 2;
-        int x = rune.cell() % BlueprintRules.WIDTH, y = rune.cell() / BlueprintRules.WIDTH;
-        return new int[] {x + lo, y + lo, x + hi, y + hi};
-    }
-
-    private static boolean adjacent(int a, int b) {
-        return Math.abs(a % BlueprintRules.WIDTH - b % BlueprintRules.WIDTH) + Math.abs(a / BlueprintRules.WIDTH - b / BlueprintRules.WIDTH) == 1;
-    }
-
     private void send(int op, int cell, int cell2, String rune, List<Integer> path) {
         PacketDistributor.sendToServer(new EditBlueprintPayload(op, cell, cell2, rune, path));
     }
@@ -94,55 +83,11 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         linePath.clear();
     }
 
-    /** The cell just outside the rune, on the side facing the target, where a line leaves it; -1 when there is none. */
-    private static int firstStep(Blueprint.RuneAt rune, int target) {
-        int[] b = bounds(rune);
-        int tx = target % BlueprintRules.WIDTH, ty = target / BlueprintRules.WIDTH;
-        int ox = tx < b[0] ? tx - b[0] : Math.max(tx - b[2], 0), oy = ty < b[1] ? ty - b[1] : Math.max(ty - b[3], 0);
-        if (ox == 0 && oy == 0) return -1;
-        int x, y;
-        if (Math.abs(ox) >= Math.abs(oy)) {
-            x = ox < 0 ? b[0] - 1 : b[2] + 1;
-            y = Math.max(b[1], Math.min(b[3], ty));
-        } else {
-            y = oy < 0 ? b[1] - 1 : b[3] + 1;
-            x = Math.max(b[0], Math.min(b[2], tx));
-        }
-        return x < 0 || y < 0 || x >= BlueprintRules.WIDTH || y >= BlueprintRules.HEIGHT ? -1 : y * BlueprintRules.WIDTH + x;
-    }
-
-    /** Walks the line toward the cell under the cursor, one orthogonal step at a time; stops at anything occupied. */
+    /** Walks the line toward the cell under the cursor; a line whose start rune has vanished is dropped. */
     private void extendLine(int mouseX, int mouseY) {
         if (lineStart < 0) return;
         int target = cellAt(mouseX, mouseY);
-        if (target < 0) return;
-        Blueprint.RuneAt start = BlueprintRules.runeAt(menu.blueprint(), lineStart);
-        if (start == null) {
-            cancelLine();
-            return;
-        }
-        Set<Integer> taken = new HashSet<>(BlueprintRules.occupied(menu.blueprint()));
-        taken.addAll(linePath);
-        for (int guard = 0; guard < BlueprintRules.CELLS; guard++) {
-            int next;
-            if (linePath.isEmpty()) {
-                next = firstStep(start, target);
-                if (next < 0) return;
-            } else {
-                int tail = linePath.get(linePath.size() - 1);
-                if (tail == target) return;
-                int dx = target % BlueprintRules.WIDTH - tail % BlueprintRules.WIDTH, dy = target / BlueprintRules.WIDTH - tail / BlueprintRules.WIDTH;
-                next = Math.abs(dx) >= Math.abs(dy) ? tail + Integer.signum(dx) : tail + Integer.signum(dy) * BlueprintRules.WIDTH;
-                int previous = linePath.size() >= 2 ? linePath.get(linePath.size() - 2) : -1;
-                if (next == previous || (linePath.size() == 1 && BlueprintRules.runeAt(menu.blueprint(), next) == start)) {
-                    taken.remove(linePath.remove(linePath.size() - 1)); // moving back over the line takes it back
-                    continue;
-                }
-            }
-            if (taken.contains(next)) return;
-            linePath.add(next);
-            taken.add(next);
-        }
+        if (target >= 0 && !LineRouting.extend(menu.blueprint(), lineStart, linePath, target)) cancelLine();
     }
 
     @Override
@@ -204,7 +149,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         for (Blueprint.RuneAt placed : blueprint.runes()) {
             Rune rune = Rune.byId(placed.rune());
             if (rune == null) continue;
-            int[] b = bounds(placed);
+            int[] b = LineRouting.bounds(placed);
             int full = rune.size() * CELL, side = full - 1; // the board texture ends in a 1 px gap
             int x0 = leftPos + GRID_X + b[0] * CELL, y0 = topPos + GRID_Y + b[1] * CELL;
             graphics.blit(GuiArt.board(rune.size()), x0, y0, 0, 0, full, full, full, full);
@@ -284,7 +229,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         if (lineStart >= 0) {
             int cell = cellAt(mouseX, mouseY);
             Blueprint.RuneAt end = cell < 0 ? null : BlueprintRules.runeAt(menu.blueprint(), cell);
-            if (button == 0 && end != null && end.cell() != lineStart && !linePath.isEmpty() && adjacent(linePath.get(linePath.size() - 1), cell)) {
+            if (button == 0 && end != null && end.cell() != lineStart && !linePath.isEmpty() && LineRouting.adjacent(linePath.get(linePath.size() - 1), cell)) {
                 send(ScribingTableMenu.OP_LINE, lineStart, end.cell(), "", new ArrayList<>(linePath));
             }
             cancelLine();
