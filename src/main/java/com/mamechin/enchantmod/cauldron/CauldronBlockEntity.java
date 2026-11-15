@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.cauldron;
 
-import com.mamechin.enchantmod.blocks.SmallCauldronBlock;
+import com.mamechin.enchantmod.blocks.CauldronTier0;
 import java.util.List;
 import java.util.Optional;
 
@@ -285,7 +285,7 @@ public class CauldronBlockEntity extends BlockEntity {
         if (progress % CHECK_TICKS != 0 && progress < brewTicks(recipe)) return;
 
         refresh();
-        if (!satisfied.contains(holder) || !getBlockState().getValue(SmallCauldronBlock.HEATED)
+        if (!satisfied.contains(holder) || !getBlockState().getValue(CauldronTier0.HEATED)
                 || heatTier() < recipe.minHeat()) {
             stopBrewing();
             syncState();
@@ -302,7 +302,7 @@ public class CauldronBlockEntity extends BlockEntity {
     /** A burst of small bubbles popping off the liquid when a brew finishes. */
     private void burst() {
         if (!(level instanceof ServerLevel server)) return;
-        int lvl = getBlockState().getValue(SmallCauldronBlock.LEVEL);
+        int lvl = getBlockState().getValue(CauldronTier0.LEVEL);
         double surface = worldPosition.getY() + size.surface(lvl), spread = size.bubbleSpread();
         // count 0 = the offset is a velocity, so every bubble rises straight up from a random spot on the surface
         for (int i = 0; i < BURST_COUNT; i++) {
@@ -317,8 +317,8 @@ public class CauldronBlockEntity extends BlockEntity {
         if (level != null) {
             int lvl = (amountMl * 3 + size.capacityMl() - 1) / size.capacityMl(); // ceil: 1-333 ml = 1, up to 1000 ml = 3
             level.setBlock(worldPosition, getBlockState()
-                    .setValue(SmallCauldronBlock.LEVEL, lvl)
-                    .setValue(SmallCauldronBlock.CONTENT, getContent()), 3);
+                    .setValue(CauldronTier0.LEVEL, lvl)
+                    .setValue(CauldronTier0.CONTENT, getContent()), 3);
         }
     }
 

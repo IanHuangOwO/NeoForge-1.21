@@ -14,8 +14,8 @@ public final class ModBlocks {
     public static final DeferredBlock<ScribingTableBlock> SCRIBING_TABLE = BLOCKS.registerBlock("scribing_table",
             ScribingTableBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CRAFTING_TABLE).noOcclusion().lightLevel(state -> 5));
 
-    public static final DeferredBlock<SmallCauldronBlock> SMALL_CAULDRON = BLOCKS.registerBlock("small_cauldron",
-            SmallCauldronBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON).sound(SoundType.CALCITE));
+    public static final DeferredBlock<CauldronTier0> SMALL_CAULDRON = BLOCKS.registerBlock("small_cauldron",
+            CauldronTier0::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON).sound(SoundType.CALCITE));
 
     public static final DeferredBlock<AltarBlock> ALTAR = BLOCKS.registerBlock("altar",
             AltarBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.ENCHANTING_TABLE));

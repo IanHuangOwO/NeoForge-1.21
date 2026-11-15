@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.cauldron.client;
 import java.util.List;
 
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.blocks.SmallCauldronBlock;
+import com.mamechin.enchantmod.blocks.CauldronTier0;
 import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
@@ -61,7 +61,7 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
         if (level == null) return;
 
         float time = level.getGameTime() + partialTick;
-        boolean brewing = cauldron.getBlockState().getValue(SmallCauldronBlock.CONTENT) == CauldronContent.BREWING;
+        boolean brewing = cauldron.getBlockState().getValue(CauldronTier0.CONTENT) == CauldronContent.BREWING;
         // Client-only animation clock: starts when we first see the BREWING state, resets when it ends.
         if (!brewing) {
             cauldron.view.brewAnimStart = -1;
@@ -77,7 +77,7 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
 
         int light = LevelRenderer.getLightColor(level, cauldron.getBlockPos().above());
         float camYaw = Minecraft.getInstance().gameRenderer.getMainCamera().getYRot();
-        int lvl = cauldron.getBlockState().getValue(SmallCauldronBlock.LEVEL);
+        int lvl = cauldron.getBlockState().getValue(CauldronTier0.LEVEL);
         float surface = cauldron.size().surface(lvl);
         float spacing = types.size() == 1 ? 0 : Math.min(SPACING, 0.9F / (types.size() - 1));
 
@@ -147,7 +147,7 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
      */
     private void renderLiquid(CauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
             PoseStack pose, MultiBufferSource buffer, int light, float time, boolean brewing) {
-        int lvl = cauldron.getBlockState().getValue(SmallCauldronBlock.LEVEL);
+        int lvl = cauldron.getBlockState().getValue(CauldronTier0.LEVEL);
         LiquidView view = cauldron.view.liquid;
         if (lvl == 0 && view.alpha < 0.01F) return; // empty and fully faded: nothing to draw or ease
 

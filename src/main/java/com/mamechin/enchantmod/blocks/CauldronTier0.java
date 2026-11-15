@@ -42,8 +42,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 /** Thin shell: click behavior lives in cauldron/action, state in the block entity, recipes in cauldron/brewing. */
-public class SmallCauldronBlock extends AbstractCauldronBlock implements EntityBlock {
-    public static final MapCodec<SmallCauldronBlock> CODEC = simpleCodec(SmallCauldronBlock::new);
+public class CauldronTier0 extends AbstractCauldronBlock implements EntityBlock {
+    public static final MapCodec<CauldronTier0> CODEC = simpleCodec(CauldronTier0::new);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
     /** Cached "some heat source is directly below", kept current by updateShape; drives the bubbles. */
     public static final BooleanProperty HEATED = BooleanProperty.create("heated");
@@ -52,7 +52,7 @@ public class SmallCauldronBlock extends AbstractCauldronBlock implements EntityB
     // Required by the vanilla base class, but unused: all clicks go through CauldronActions.
     private static final CauldronInteraction.InteractionMap NO_INTERACTIONS = CauldronInteraction.newInteractionMap("calcite");
 
-    public SmallCauldronBlock(Properties properties) {
+    public CauldronTier0(Properties properties) {
         super(properties, NO_INTERACTIONS);
         registerDefaultState(stateDefinition.any().setValue(LEVEL, 0).setValue(CONTENT, CauldronContent.WATER).setValue(HEATED, false));
     }
@@ -161,7 +161,7 @@ public class SmallCauldronBlock extends AbstractCauldronBlock implements EntityB
 
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock()) && !(newState.getBlock() instanceof SmallCauldronBlock) && level.getBlockEntity(pos) instanceof CauldronBlockEntity cauldron) {
+        if (!state.is(newState.getBlock()) && !(newState.getBlock() instanceof CauldronTier0) && level.getBlockEntity(pos) instanceof CauldronBlockEntity cauldron) {
             IItemHandler inv = cauldron.inventory;
             for (int i = 0; i < inv.getSlots(); i++) {
                 Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), inv.getStackInSlot(i));
