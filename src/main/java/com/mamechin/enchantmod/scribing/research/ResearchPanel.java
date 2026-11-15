@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.mamechin.enchantmod.items.ModItems;
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.EnchantGroups;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
 import net.minecraft.client.gui.Font;
@@ -62,16 +63,16 @@ public class ResearchPanel {
 
     /** "all" first, then each kind of tool the open mod has enchants for. */
     private List<String> categories() {
-        List<String> found = modPages().stream().map(p -> ResearchMap.category(enchantOf(p))).distinct().toList();
+        List<String> found = modPages().stream().map(p -> EnchantGroups.category(enchantOf(p))).distinct().toList();
         List<String> list = new ArrayList<>(List.of("all"));
-        for (String c : ResearchMap.CATEGORY_ORDER) if (found.contains(c)) list.add(c);
+        for (String c : EnchantGroups.CATEGORY_ORDER) if (found.contains(c)) list.add(c);
         return list;
     }
 
     /** The enchant pages of the open mod tab and tool tab, in order. */
     private List<Integer> tabPages() {
         String wanted = categories().get(category);
-        return modPages().stream().filter(p -> wanted.equals("all") || ResearchMap.category(enchantOf(p)).equals(wanted)).toList();
+        return modPages().stream().filter(p -> wanted.equals("all") || EnchantGroups.category(enchantOf(p)).equals(wanted)).toList();
     }
 
     private static ItemStack categoryIcon(String key) {

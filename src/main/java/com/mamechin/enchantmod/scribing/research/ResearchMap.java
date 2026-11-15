@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.EnchantGroups;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
 /**
@@ -25,16 +26,6 @@ public final class ResearchMap {
     /** key: the namespace of the mod ("minecraft" for vanilla), or "runes"; used for the tab's name and icon. */
     public record Tab(String key, List<Node> nodes) {}
 
-    /** Enchants for one kind of tool, each group clustered in its own direction; any enchant not listed is all-purpose. */
-    private static final String[][] CLUSTERS = {
-        {"efficiency", "fortune", "silk_touch"},
-        {"sharpness", "smite", "bane_of_arthropods", "knockback", "fire_aspect", "looting", "sweeping_edge"},
-        {"protection", "fire_protection", "blast_protection", "feather_falling", "respiration", "thorns", "depth_strider", "frost_walker", "soul_speed", "swift_sneak"},
-        {"power", "flame", "punch", "infinity"},
-    };
-
-    private static final String[] CATEGORIES = {"tools", "weapons", "armor", "bows"}; // same order as CLUSTERS
-
     private static List<Tab> cache;
 
     private ResearchMap() {}
@@ -42,12 +33,6 @@ public final class ResearchMap {
     public static synchronized List<Tab> tabs() {
         if (cache == null) cache = build();
         return cache;
-    }
-
-    /** Vanilla enchant ids are bare; another mod's would be "namespace:id". */
-    private static String namespace(String enchant) {
-        int colon = enchant.indexOf(':');
-        return colon < 0 ? "minecraft" : enchant.substring(0, colon);
     }
 
     private static List<Tab> build() {
@@ -58,7 +43,7 @@ public final class ResearchMap {
         for (int i = 0; i < runeCount; i++) all.add(i);
         tabs.add(new Tab("runes", layout(all, List.of(), table, runeCount)));
         Map<String, List<Integer>> byMod = new LinkedHashMap<>();
-        for (int j = 0; j < table.size(); j++) byMod.computeIfAbsent(namespace(table.get(j).enchant()), k -> new ArrayList<>()).add(j);
+        for (int j = 0; j < table.size(); j++) byMod.computeIfAbsent(EnchantGroups.namespace(table.get(j).enchant()), k -> new ArrayList<>()).add(j);
         byMod.forEach((mod, cores) -> {
             List<Integer> runes = new ArrayList<>();
             for (int j : cores) for (String id : table.get(j).runes()) if (!runes.contains(Rune.byId(id).ordinal())) runes.add(Rune.byId(id).ordinal());
@@ -67,28 +52,12 @@ public final class ResearchMap {
         return tabs;
     }
 
-    /** The kind of tool an enchant is for: tools, weapons, armor or bows, else "general" (all-purpose, or a mod's enchant with no grouping set up). */
-    public static String category(String enchant) {
-        for (int k = 0; k < CLUSTERS.length; k++) {
-            for (String id : CLUSTERS[k]) if (id.equals(enchant)) return CATEGORIES[k];
-        }
-        return "general";
-    }
-
-    /** Every category in display order. */
-    public static final List<String> CATEGORY_ORDER = List.of("general", "tools", "weapons", "armor", "bows");
-
     /** Where an enchant starts: the middle if all-purpose, else in the direction of its tool group. */
     private static double[] target(String enchant) {
-        for (int k = 0; k < CLUSTERS.length; k++) {
-            for (String id : CLUSTERS[k]) {
-                if (id.equals(enchant)) {
-                    double angle = Math.PI / 4 + k * Math.PI / 2;
-                    return new double[] {Math.cos(angle) * 95, Math.sin(angle) * 95};
-                }
-            }
-        }
-        return new double[] {0, 0};
+        int k = EnchantGroups.CATEGORY_ORDER.indexOf(EnchantGroups.category(enchant)) - 1; // tools = 0 ... bows = 3, general = -1
+        if (k < 0) return new double[] {0, 0};
+        double angle = Math.PI / 4 + k * Math.PI / 2;
+        return new double[] {Math.cos(angle) * 95, Math.sin(angle) * 95};
     }
 
     /** Rune nodes (fixed, on a ring) first, then the enchant nodes (pushed apart inside the ring). */
