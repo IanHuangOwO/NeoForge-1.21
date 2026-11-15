@@ -226,7 +226,7 @@ Author's design, answers on 2026-11-15: **Template shelf** (`blocks/TemplateShel
 ## Naming
 
 - Ids are tiered and neutral: `ink_tier0/1/2`, `inkwell_tier0/1/2`, `quill_tier0/1/2`, `small_cauldron`. Renaming a tier later means a lang edit only.
-- Display names use the material: Lapis Inkwell, Copper Quill, Calcite Cauldron, Dragon Ink and similar.
+- Display names use the material: Lapis Inkwell, Copper Quill, Copper Cauldron, Dragon Ink and similar.
 - Enchant-related naming is preferred for new things.
 
 ## Tiers

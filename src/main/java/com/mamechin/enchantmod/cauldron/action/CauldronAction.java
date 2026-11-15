@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * One click behavior of the calcite cauldron. Both methods return true when the action applies (the click is
+ * One click behavior of the cauldron. Both methods return true when the action applies (the click is
  * consumed); mutate state only on the server, but still return true on the client so the click is predicted.
  */
 public interface CauldronAction {
