@@ -67,7 +67,7 @@ public class TemplateShelfBlock extends Block implements EntityBlock {
     }
 
     /** The strip of the front face that was hit, 0 to 5 from the top, or -1 when another face was hit. */
-    private static int slotAt(BlockState state, BlockHitResult hit) {
+    public static int slotAt(BlockState state, BlockHitResult hit) {
         if (hit.getDirection() != state.getValue(FACING)) return -1;
         double py = (hit.getLocation().y - hit.getBlockPos().getY()) * 16; // the six slots fill the open part, 1 to 15 px up
         return Mth.clamp((int) Math.floor((15 - py) / (14.0 / TemplateShelfBlockEntity.SLOTS)), 0, TemplateShelfBlockEntity.SLOTS - 1);

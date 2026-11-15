@@ -11,7 +11,16 @@ import com.mamechin.enchantmod.items.ModItems;
 import com.mamechin.enchantmod.scribing.research.ResearchScreen;
 import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
 
+import com.mamechin.enchantmod.blocks.TemplateShelfBlock;
+import com.mamechin.enchantmod.shelf.TemplateShelfBlockEntity;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -52,6 +61,21 @@ public class EnchantModClient {
             event.setCanceled(true);
             ResearchScreen.open();
         }
+    }
+
+    /** Pointing at a template on the shelf shows its tooltip beside the crosshair. */
+    @SubscribeEvent
+    static void onRenderGui(RenderGuiEvent.Post event) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen != null || mc.options.hideGui || mc.level == null || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) return;
+        BlockState state = mc.level.getBlockState(hit.getBlockPos());
+        if (!(state.getBlock() instanceof TemplateShelfBlock) || !(mc.level.getBlockEntity(hit.getBlockPos()) instanceof TemplateShelfBlockEntity shelf)) return;
+        int slot = TemplateShelfBlock.slotAt(state, hit);
+        if (slot < 0) return;
+        ItemStack stack = shelf.inventory().getStackInSlot(slot);
+        if (stack.isEmpty()) return;
+        GuiGraphics graphics = event.getGuiGraphics();
+        graphics.renderTooltip(mc.font, stack, graphics.guiWidth() / 2 + 6, graphics.guiHeight() / 2 + 6);
     }
 
     @SubscribeEvent
