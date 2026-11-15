@@ -16,9 +16,9 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 
 /** The printing press: a cube slot in the middle and six template slots round it in a ring, of which the cube's tier opens some (PressLayout). */
 public class PrintingPressMenu extends AbstractContainerMenu {
-    public static final int CENTRE_X = 80, CENTRE_Y = 52, INVENTORY_Y = 118;
+    public static final int CENTRE_X = 80, CENTRE_Y = 46, INVENTORY_Y = 114;
     /** Where each ring slot sits relative to the cube slot, clockwise from the top. */
-    public static final int[][] RING_OFFSET = {{0, -32}, {28, -16}, {28, 16}, {0, 32}, {-28, 16}, {-28, -16}};
+    public static final int[][] RING_OFFSET = {{0, -34}, {29, -17}, {29, 17}, {0, 34}, {-29, 17}, {-29, -17}};
 
     private final ItemStackHandler inventory;
     private final ContainerLevelAccess access;

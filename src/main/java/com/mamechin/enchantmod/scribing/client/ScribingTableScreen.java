@@ -60,7 +60,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         inventoryLabelY = 130;
     }
 
-    private static final int NAME_X = 34, NAME_Y = 16, NAME_W = 146; // the rename bar sits on the parchment above the grid
+    private static final int NAME_X = 71, NAME_Y = 16, NAME_W = 74; // the rename bar sits on the parchment above the grid
     private EditBox nameBox;
     private boolean syncingName;
 

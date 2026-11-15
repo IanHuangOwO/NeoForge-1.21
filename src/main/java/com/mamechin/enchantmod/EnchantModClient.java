@@ -2,6 +2,7 @@ package com.mamechin.enchantmod;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
 import com.mamechin.enchantmod.altar.client.AltarRenderer;
+import com.mamechin.enchantmod.press.client.PrintingPressRenderer;
 import com.mamechin.enchantmod.press.client.PrintingPressScreen;
 import com.mamechin.enchantmod.cauldron.client.CauldronRenderer;
 import com.mamechin.enchantmod.fluid.EnchantFluid;
@@ -20,6 +21,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
@@ -62,6 +64,15 @@ public class EnchantModClient {
     static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SMALL_CAULDRON.get(), CauldronRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.ALTAR.get(), AltarRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.PRINTING_PRESS.get(), PrintingPressRenderer::new);
+    }
+
+    /** The moving parts of the printing press are not in any blockstate, so they are asked for by name. */
+    @SubscribeEvent
+    static void onRegisterModels(ModelEvent.RegisterAdditional event) {
+        event.register(PrintingPressRenderer.HEAD);
+        event.register(PrintingPressRenderer.TURNTABLE);
+        event.register(PrintingPressRenderer.GEAR);
     }
 
     /** Ink fluids reuse the vanilla water textures, tinted per tier. */

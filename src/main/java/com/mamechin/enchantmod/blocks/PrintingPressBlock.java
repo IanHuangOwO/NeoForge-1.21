@@ -78,6 +78,13 @@ public class PrintingPressBlock extends Block implements EntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
+    /** The server's block event carries the number of strokes to the client block entity, which plays the animation. */
+    @Override
+    protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
+        BlockEntity be = level.getBlockEntity(pos);
+        return be != null && be.triggerEvent(id, param);
+    }
+
     /** If the other half is gone, this one goes too (no drop: the half that was broken already dropped the item). */
     @Override
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,

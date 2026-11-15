@@ -1,0 +1,8 @@
+# both materials use the one sheet (slot #0). m_1 = glow (Ka 1 1 1 = full brightness)
+
+newmtl m_0
+map_Kd #0
+
+newmtl m_1
+Ka 1 1 1
+map_Kd #0

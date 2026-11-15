@@ -1,6 +1,6 @@
 {
   "variants": {
-    "half=lower": { "model": "enchantmod:block/printing_press" },
-    "half=upper": { "model": "enchantmod:block/printing_press_top" }
+    "half=lower": { "model": "enchantmod:block/press_base" },
+    "half=upper": { "model": "enchantmod:block/press_empty" }
   }
 }

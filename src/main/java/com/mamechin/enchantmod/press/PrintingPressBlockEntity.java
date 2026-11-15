@@ -10,12 +10,16 @@ import com.mamechin.enchantmod.scribing.ModDataComponents;
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
 import com.mamechin.enchantmod.scribing.rules.CubeContents;
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.PressAnimation;
 import com.mamechin.enchantmod.scribing.rules.PressLayout;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -52,12 +56,18 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+            if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3); // the renderer shows the cube
         }
     };
 
     public PrintingPressBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.PRINTING_PRESS.get(), pos, state);
     }
+
+    // client only: the animation being played, and the angle the turntable rests at between pressings
+    private long animStart = Long.MIN_VALUE;
+    private int animStrokes;
+    private float restTurn;
 
     public ItemStackHandler inventory() {
         return inventory;
@@ -89,12 +99,49 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
             player.displayClientMessage(Component.translatable("message.enchantmod.press.nothing"), true);
             return;
         }
+        int strokes = 0;
+        for (int i = 1; i <= TEMPLATES; i++) if (PressLayout.isOpen(i - 1, capacity(cube)) && !inventory.getStackInSlot(i).isEmpty()) strokes++;
+        level.blockEvent(worldPosition, getBlockState().getBlock(), 1, Math.max(1, strokes));
         ItemStack pressed = cube.copy();
         pressed.set(ModDataComponents.CUBE_CONTENTS.get(), contents);
         inventory.setStackInSlot(CUBE, pressed);
         level.playSound(null, worldPosition, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.6F, 1.2F);
         List<Component> names = contents.entries().stream().map(e -> (Component) Component.translatable("enchantment." + e.enchantment().replace(':', '.'))).toList();
         player.displayClientMessage(Component.translatable("message.enchantmod.press.done", ComponentUtils.formatList(names, Component.literal(", "))), true);
+    }
+
+    @Override
+    public boolean triggerEvent(int id, int param) {
+        if (id != 1 || level == null || !level.isClientSide) return super.triggerEvent(id, param);
+        finishAnimation(); // a new pressing while one plays: take on the angle reached
+        animStart = level.getGameTime();
+        animStrokes = param;
+        return true;
+    }
+
+    private void finishAnimation() {
+        if (animStrokes > 0) restTurn = (restTurn + PressAnimation.at(Long.MAX_VALUE, animStrokes).turn()) % 360;
+        animStrokes = 0;
+    }
+
+    /** Client side: where the parts are now. The turntable angle includes the rest angle of earlier pressings. */
+    public PressAnimation.Pose pose(float partialTick) {
+        if (level == null) return new PressAnimation.Pose(0, 0, 0);
+        double tick = level.getGameTime() + partialTick - animStart;
+        if (animStrokes > 0 && tick >= PressAnimation.duration(animStrokes)) finishAnimation();
+        if (animStrokes <= 0) return new PressAnimation.Pose(0, restTurn, 0);
+        PressAnimation.Pose p = PressAnimation.at(tick, animStrokes);
+        return new PressAnimation.Pose(p.head(), restTurn + p.turn(), p.spin());
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
