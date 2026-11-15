@@ -32,7 +32,7 @@ import net.minecraft.world.phys.Vec3;
 public class TemplateShelfBlock extends Block implements EntityBlock {
     public static final MapCodec<TemplateShelfBlock> CODEC = simpleCodec(TemplateShelfBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    /** FULL[i] is true while slot i, counted from the viewer's left, holds a template. */
+    /** FULL[i] is true while slot i, counted from the viewer's right, holds a template. */
     public static final BooleanProperty[] FULL = new BooleanProperty[TemplateShelfBlockEntity.SLOTS];
 
     static {
@@ -67,7 +67,7 @@ public class TemplateShelfBlock extends Block implements EntityBlock {
         return new TemplateShelfBlockEntity(pos, state);
     }
 
-    /** The strip of the front face that was hit, 0 to 5 from the viewer's left, or -1 when another face was hit. */
+    /** The strip of the front face that was hit, 0 to 5 from the viewer's right, or -1 when another face was hit. */
     private static int slotAt(BlockState state, BlockHitResult hit) {
         Direction facing = state.getValue(FACING);
         if (hit.getDirection() != facing) return -1;
@@ -78,7 +78,9 @@ public class TemplateShelfBlock extends Block implements EntityBlock {
             case SOUTH -> rel.z;
             default -> 1 - rel.z;
         };
-        return Mth.clamp((int) (across * TemplateShelfBlockEntity.SLOTS), 0, TemplateShelfBlockEntity.SLOTS - 1);
+        // the model puts slot 0 at its lowest x, which is the viewer's right, and its six slots fill the open part, 1 to 15 px
+        double px = (1 - across) * 16;
+        return Mth.clamp((int) Math.floor((px - 1) / (14.0 / TemplateShelfBlockEntity.SLOTS)), 0, TemplateShelfBlockEntity.SLOTS - 1);
     }
 
     @Override
