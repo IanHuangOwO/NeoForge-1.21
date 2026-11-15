@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.fluid;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.mamechin.enchantmod.item.inkwell.EnchantInkwell;
+import com.mamechin.enchantmod.items.inkwell.EnchantInkwell;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;

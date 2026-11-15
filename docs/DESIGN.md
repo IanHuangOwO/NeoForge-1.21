@@ -4,7 +4,7 @@ Living reference for direction, style and decisions. Read it before adding a fun
 
 ## What the mod is
 
-A magic mod centred on enchanting. Mod id `enchantmod`, package `com.mamechin.enchantmod`, NeoForge 21.1.265 for Minecraft 1.21.1, JDK 21. Code layout (author, 2026-11-15): each block's main class sits directly in `block/` (`SmallCauldronBlock`, `ScribingTableBlock`, with `ModBlocks`, `ModBlockEntities`) and everything that makes it work sits in a folder of its own inside `block/`: `block/cauldron/` (block entity, `action/`, `brewing/`, `client/`, `heat/`) and `block/scribing/` (blueprint rules, forecast, menu, runes, data components, `client/` screens including the research handbook's map and pages). Items stay in `item/`, fluids in `fluid/`.
+A magic mod centred on enchanting. Mod id `enchantmod`, package `com.mamechin.enchantmod`, NeoForge 21.1.265 for Minecraft 1.21.1, JDK 21. Code layout (author, 2026-11-15, revised): code is grouped by feature. `scribing/` holds everything about the scribing table and the research handbook: `rules/` (pure, no Minecraft: `Rune`, `Blueprint`, `BlueprintRules`, `EnchantForecast`), the menu, block entity, payload, data components, `client/` (the table's screen) and `research/` (the handbook's map, pages and nine-slice drawing). `cauldron/` holds the cauldron block entity with `action/`, `brewing/`, `client/`, `heat/`. `blocks/` and `items/` hold the classes Minecraft registers: block and item classes, `ModBlocks`, `ModBlockEntities`, `ModItems`, with `items/inkwell/` and `items/quill/`. Fluids stay in `fluid/`. Class names for items carry no `Item` suffix.
 
 The core loop: brew ink in cauldrons, store it in inkwells, write with quills at a Scribing Table.
 
@@ -171,7 +171,7 @@ The rest of the vanilla list (Lure, Luck of the Sea, Impaling, Riptide, Loyalty,
 
 ## Scribing table UI, first version (built 2026-11-13, not yet tried in game)
 
-What exists (package `block.scribing`):
+What exists (package `scribing`):
 - The table's left half holds a block entity with three slots: inkwell (tag `inkwells`), quill (tag `quills`) and an **enchant template** (new item `enchant_template`, paper look, stack of 1, creative tab only, no recipe yet). The right half forwards clicks. Contents drop when the table breaks.
 - The layout is stored on the template item as the data component `enchantmod:blueprint` (runes plus lines), so it travels with the item.
 - Screen: a 15 x 11 grid, a palette of all 24 Elder Futhark runes at the side (drawn as Unicode glyphs, no textures yet). Drag a rune from the palette onto the grid. Click a placed rune to start a line: it follows the cursor one cell at a time, orthogonal steps only, and stops at anything occupied; moving back over it retracts it. Click another rune next to the line's end to connect; right-click cancels. Right-click a rune erases it with all its lines; right-click a line cell erases that line (Claude's addition). A line cell is occupied, so nothing else can be placed on it, and lines can never cross on a sheet.

@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.fluid;
 
-import com.mamechin.enchantmod.block.ModBlockEntities;
+import com.mamechin.enchantmod.blocks.ModBlockEntities;
 
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;

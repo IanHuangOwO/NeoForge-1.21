@@ -2,7 +2,7 @@ package com.mamechin.enchantmod;
 
 
 import com.mamechin.enchantmod.fluid.ModFluids;
-import com.mamechin.enchantmod.item.ModItems;
+import com.mamechin.enchantmod.items.ModItems;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

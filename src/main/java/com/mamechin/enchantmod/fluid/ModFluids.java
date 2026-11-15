@@ -1,8 +1,8 @@
 package com.mamechin.enchantmod.fluid;
 
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.block.ModBlocks;
-import com.mamechin.enchantmod.item.ModItems;
+import com.mamechin.enchantmod.blocks.ModBlocks;
+import com.mamechin.enchantmod.items.ModItems;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.material.Fluid;
