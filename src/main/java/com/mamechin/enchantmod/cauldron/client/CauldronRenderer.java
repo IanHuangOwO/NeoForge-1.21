@@ -171,8 +171,10 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
                 .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/small_cauldron_liquid_mask"));
         VertexConsumer vc = buffer.getBuffer(RenderType.translucent());
         Matrix4f m = pose.last().pose();
-        float[][] corners = {{min, min, sprite.getU0(), sprite.getV0()}, {min, max, sprite.getU0(), sprite.getV1()},
-                {max, max, sprite.getU1(), sprite.getV1()}, {max, min, sprite.getU1(), sprite.getV0()}};
+        // the 12 px surface shows texels 2 to 14 of the mask, one texel per pixel
+        float du = sprite.getU1() - sprite.getU0(), dv = sprite.getV1() - sprite.getV0();
+        float u0 = sprite.getU0() + du * 2 / 16, u1 = sprite.getU0() + du * 14 / 16, v0 = sprite.getV0() + dv * 2 / 16, v1 = sprite.getV0() + dv * 14 / 16;
+        float[][] corners = {{min, min, u0, v0}, {min, max, u0, v1}, {max, max, u1, v1}, {max, min, u1, v0}};
         for (float[] c : corners) {
             vc.addVertex(m, c[0], view.top, c[1]).setColor((int) view.r, (int) view.g, (int) view.b, (int) (view.alpha * 255))
                     .setUv(c[2], c[3]).setLight(light).setNormal(pose.last(), 0, 1, 0);

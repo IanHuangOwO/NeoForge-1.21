@@ -248,6 +248,7 @@ Three tiers each for ink, inkwell, quill and cauldron.
 The cauldron has one brewing logic (`CauldronBlockEntity`); the numbers that differ by size live in `CauldronSize` (only small exists): fluid 4000 mB, 8 item slots, speed x1.
 
 Brew rules:
+- Model and art (Fable pack, 2026-11-16): a square hammered-copper tub on four brass feet, as an OBJ model with one 64x64 sheet (`textures/block/small_cauldron.png`) and a liquid mask (`small_cauldron_liquid_mask.png`). The floor is at 3 px, the liquid levels stay 9, 12 and 15 px, the rim is at 16 px. The block's click and collision shape is still the vanilla cauldron's.
 - The block class is `blocks/CauldronTier0` (renamed from `SmallCauldronBlock`, the id stays `small_cauldron`); it has no crafting recipe for now (author, 2026-11-16), so it is creative-only until one is designed.
 - Clicks (author, 2026-11-16): right click with an ingredient puts one in (thrown items still fall in); empty hand right click takes the first stored stack out; shift and right click with an empty hand starts the brew.
 - A brew converts the whole tank.
