@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -25,7 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * The printing press, two blocks tall. Only the lower half has the block entity; the upper half forwards clicks to it.
- * Right click opens the inventory; shift and right click presses the templates into the cube. Breaking either half
+ * Right click opens the inventory; shift and right click starts the pressing, which takes a second per template. Breaking either half
  * removes both; one item drops.
  */
 public class PrintingPressBlock extends Block implements EntityBlock {
@@ -76,6 +78,12 @@ public class PrintingPressBlock extends Block implements EntityBlock {
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (level.isClientSide || type != ModBlockEntities.PRINTING_PRESS.get()) return null;
+        return (l, p, s, be) -> ((PrintingPressBlockEntity) be).serverTick();
     }
 
     /** The server's block event carries the number of strokes to the client block entity, which plays the animation. */

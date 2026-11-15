@@ -1,12 +1,12 @@
 package com.mamechin.enchantmod.scribing.rules;
 
 /**
- * The timeline of one pressing, in ticks, with no Minecraft code. One stroke is the head going down and up; before every stroke
- * after the first, the turntable turns one step (60 degrees, so the cube meets the next template). The number of strokes is the
- * number of templates pressed.
+ * The timeline of one pressing, in ticks, with no Minecraft code. Each template takes one stroke of one second: the head goes
+ * down and up, then (after every stroke but the last) the turntable turns one step of 60 degrees to the next template. The
+ * number of strokes is the number of templates pressed.
  */
 public final class PressAnimation {
-    public static final int TURN = 8, DOWN = 4, UP = 6, STROKE = TURN + DOWN + UP;
+    public static final int DOWN = 6, UP = 6, TURN = 8, STROKE = DOWN + UP + TURN; // 20 ticks, one second
     public static final float STEP_DEGREES = 60;
 
     /** head: 0 raised to 1 fully down. turn: degrees the turntable has turned since the start. spin: degrees of the side gears. */
@@ -14,26 +14,22 @@ public final class PressAnimation {
 
     private PressAnimation() {}
 
-    /** Ticks from the start until the last stroke is finished. */
+    /** Ticks from the start until the pressing is over. */
     public static int duration(int strokes) {
-        return strokes * STROKE - TURN;
+        return strokes * STROKE;
     }
 
     public static Pose at(double tick, int strokes) {
         if (strokes <= 0) return new Pose(0, 0, 0);
         if (tick >= duration(strokes)) return new Pose(0, STEP_DEGREES * (strokes - 1), 0);
-        double t = Math.max(0, tick) + TURN; // the first stroke has no turn, so it starts where a turn would end
+        double t = Math.max(0, tick);
         int k = (int) (t / STROKE);
         double u = t - k * STROKE;
-        float turn = STEP_DEGREES * Math.max(0, k - 1), head = 0;
-        if (u < TURN) {
-            if (k > 0) turn += (float) (STEP_DEGREES * smooth(u / TURN));
-        } else {
-            if (k > 0) turn += STEP_DEGREES;
-            double s = u - TURN;
-            head = s < DOWN ? (float) Math.pow(s / DOWN, 2) : (float) (1 - smooth((s - DOWN) / UP));
-        }
-        float spin = 45 * (k + (float) Math.max(0, Math.min(1, (u - TURN) / (STROKE - TURN)))); // 45 degrees looks the same as 0
+        float turn = STEP_DEGREES * k, head = 0;
+        if (u < DOWN) head = (float) Math.pow(u / DOWN, 2);
+        else if (u < DOWN + UP) head = (float) (1 - smooth((u - DOWN) / UP));
+        else if (k < strokes - 1) turn += (float) (STEP_DEGREES * smooth((u - DOWN - UP) / TURN)); // the last stroke just settles
+        float spin = 45 * (k + (float) Math.min(1, u / (DOWN + UP))); // 45 degrees looks the same as 0
         return new Pose(head, turn, spin);
     }
 

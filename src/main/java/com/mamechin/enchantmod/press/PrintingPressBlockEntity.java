@@ -2,6 +2,7 @@ package com.mamechin.enchantmod.press;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
 import com.mamechin.enchantmod.items.EnchantTemplate;
@@ -49,8 +50,13 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
         }
 
         @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return isBusy() ? ItemStack.EMPTY : super.extractItem(slot, amount, simulate); // nothing comes out while pressing
+        }
+
+        @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot == CUBE ? stack.getItem() instanceof EnchantCube : stack.getItem() instanceof EnchantTemplate;
+            return !isBusy() && (slot == CUBE ? stack.getItem() instanceof EnchantCube : stack.getItem() instanceof EnchantTemplate);
         }
 
         @Override
@@ -82,37 +88,75 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
         for (int i = 0; i < inventory.getSlots(); i++) Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), inventory.getStackInSlot(i));
     }
 
-    /** Server side: presses the enchants of the usable templates into the cube, replacing what it carried. */
+    // server only: ticks left of a pressing in progress, ticks it started with, and who to tell when it is done
+    private int remaining, total;
+    private UUID presser;
+
+    /** True while a pressing runs; the slots are then locked. On the client this follows the animation. */
+    public boolean isBusy() {
+        if (level != null && level.isClientSide) return animStrokes > 0 && level.getGameTime() - animStart < PressAnimation.duration(animStrokes);
+        return remaining > 0;
+    }
+
+    /** The templates in the slots the cube in the press opens; empty when there is no cube. */
+    private List<ItemStack> usableTemplates() {
+        List<ItemStack> list = new ArrayList<>();
+        int capacity = capacity(inventory.getStackInSlot(CUBE));
+        for (int i = 1; i <= TEMPLATES; i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (PressLayout.isOpen(i - 1, capacity) && stack.getItem() instanceof EnchantTemplate) list.add(stack);
+        }
+        return list;
+    }
+
+    /** Server side: starts the pressing, one second per template. The cube and the templates are checked again when it ends. */
     public void press(Player player) {
-        ItemStack cube = inventory.getStackInSlot(CUBE);
-        if (cube.isEmpty()) {
+        if (isBusy()) return;
+        if (!(inventory.getStackInSlot(CUBE).getItem() instanceof EnchantCube)) {
             player.displayClientMessage(Component.translatable("message.enchantmod.press.need_cube"), true);
             return;
         }
-        List<EnchantForecast.Result> results = new ArrayList<>();
-        for (int i = 1; i <= TEMPLATES; i++) {
-            if (!PressLayout.isOpen(i - 1, capacity(cube))) continue;
-            results.addAll(EnchantForecast.forecast(inventory.getStackInSlot(i).getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY)));
-        }
-        CubeContents contents = CubeContents.combine(results);
-        if (contents.entries().isEmpty()) {
+        List<ItemStack> templates = usableTemplates().stream().filter(t -> !t.isEmpty()).toList();
+        if (CubeContents.combine(forecasts(templates)).entries().isEmpty()) {
             player.displayClientMessage(Component.translatable("message.enchantmod.press.nothing"), true);
             return;
         }
-        int strokes = 0;
-        for (int i = 1; i <= TEMPLATES; i++) if (PressLayout.isOpen(i - 1, capacity(cube)) && !inventory.getStackInSlot(i).isEmpty()) strokes++;
-        level.blockEvent(worldPosition, getBlockState().getBlock(), 1, Math.max(1, strokes));
+        total = remaining = PressAnimation.duration(templates.size());
+        presser = player.getUUID();
+        level.blockEvent(worldPosition, getBlockState().getBlock(), 1, templates.size());
+        setChanged();
+    }
+
+    private static List<EnchantForecast.Result> forecasts(List<ItemStack> templates) {
+        List<EnchantForecast.Result> results = new ArrayList<>();
+        for (ItemStack t : templates) results.addAll(EnchantForecast.forecast(t.getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY)));
+        return results;
+    }
+
+    /** Server side, every tick: counts the pressing down, a stamp sound at every impact, and finishes it. */
+    public void serverTick() {
+        if (remaining <= 0) return;
+        if ((total - remaining) % PressAnimation.STROKE == PressAnimation.DOWN) level.playSound(null, worldPosition, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.5F, 1.2F);
+        if (--remaining > 0) return;
+        Player player = presser == null ? null : level.getPlayerByUUID(presser);
+        presser = null;
+        ItemStack cube = inventory.getStackInSlot(CUBE);
+        if (!(cube.getItem() instanceof EnchantCube)) return; // the cube is gone: nothing to press into
+        CubeContents contents = CubeContents.combine(forecasts(usableTemplates())); // read again: only the templates the cube opens now count
+        if (contents.entries().isEmpty()) return;
         ItemStack pressed = cube.copy();
         pressed.set(ModDataComponents.CUBE_CONTENTS.get(), contents);
         inventory.setStackInSlot(CUBE, pressed);
-        level.playSound(null, worldPosition, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.6F, 1.2F);
-        List<Component> names = contents.entries().stream().map(e -> (Component) Component.translatable("enchantment." + e.enchantment().replace(':', '.'))).toList();
-        player.displayClientMessage(Component.translatable("message.enchantmod.press.done", ComponentUtils.formatList(names, Component.literal(", "))), true);
+        if (player != null) {
+            List<Component> names = contents.entries().stream().map(e -> (Component) Component.translatable("enchantment." + e.enchantment().replace(':', '.'))).toList();
+            player.displayClientMessage(Component.translatable("message.enchantmod.press.done", ComponentUtils.formatList(names, Component.literal(", "))), true);
+        }
     }
 
     @Override
     public boolean triggerEvent(int id, int param) {
-        if (id != 1 || level == null || !level.isClientSide) return super.triggerEvent(id, param);
+        if (id != 1 || level == null) return super.triggerEvent(id, param);
+        if (!level.isClientSide) return true; // true on the server is what makes the game send the event to the clients
         finishAnimation(); // a new pressing while one plays: take on the angle reached
         animStart = level.getGameTime();
         animStrokes = param;
@@ -158,11 +202,15 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("items", inventory.serializeNBT(registries));
+        tag.putInt("remaining", remaining);
+        tag.putInt("total", total);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("items"));
+        remaining = tag.getInt("remaining");
+        total = tag.getInt("total");
     }
 }
