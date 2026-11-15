@@ -11,13 +11,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
 /**
- * Empty hand: start the best brew whose ingredients are stored, whose base fluid is in the cauldron and whose heat
+ * Shift + empty hand: start the best brew whose ingredients are stored, whose base fluid is in the cauldron and whose heat
  * requirement is met (ingredients are used up when it finishes).
  */
 public class StartBrewAction implements CauldronAction {
     @Override
     public boolean useEmptyHand(CauldronBlockEntity c, Player player) {
-        if (player.isShiftKeyDown() || c.isBrewing() || c.getAmountMl() == 0) return false;
+        if (!player.isShiftKeyDown() || c.isBrewing() || c.getAmountMl() == 0) return false;
         // The client has no recipe data cache; it predicts success and the server decides.
         if (c.getLevel().isClientSide) return true;
 

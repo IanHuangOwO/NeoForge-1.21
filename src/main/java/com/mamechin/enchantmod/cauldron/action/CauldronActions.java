@@ -19,6 +19,7 @@ public final class CauldronActions {
             new AddWaterBottleAction(),
             new BottleInkAction(),
             new RefillInkwellAction(),
+            new StoreItemAction(),
             new TakeStoredItemAction(),
             new StartBrewAction()));
 

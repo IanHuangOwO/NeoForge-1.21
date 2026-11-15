@@ -248,6 +248,7 @@ Three tiers each for ink, inkwell, quill and cauldron.
 The cauldron has one brewing logic (`CauldronBlockEntity`); the numbers that differ by size live in `CauldronSize` (only small exists): fluid 4000 mB, 8 item slots, speed x1.
 
 Brew rules:
+- Clicks (author, 2026-11-16): right click with an ingredient puts one in (thrown items still fall in); empty hand right click takes the first stored stack out; shift and right click with an empty hand starts the brew.
 - A brew converts the whole tank.
 - Each ingredient is needed exactly once per 1000 mB (rounded up). Too few or too many means no brew.
 - Recipes are data: type `enchantmod:cauldron_brewing`, fields `ingredients`, `base_fluid`, `result_fluid`, `brew_ticks`, `min_heat`.
