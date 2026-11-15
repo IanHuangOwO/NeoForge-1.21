@@ -1,41 +1,77 @@
 {
-  "textures": {
-    "particle": "minecraft:block/spruce_planks",
-    "wood": "minecraft:block/spruce_planks",
-    "card": "minecraft:block/white_wool"
-  },
-  "elements": [
-    {
-      "from": [
-        1.5,
-        1.2,
-        2
-      ],
-      "to": [
-        14.5,
-        3.133,
-        14
-      ],
-      "faces": {
-        "north": {
-          "texture": "#card"
-        },
-        "east": {
-          "texture": "#card"
-        },
-        "south": {
-          "texture": "#card"
-        },
-        "west": {
-          "texture": "#card"
-        },
-        "up": {
-          "texture": "#card"
-        },
-        "down": {
-          "texture": "#card"
-        }
-      }
-    }
-  ]
+	"textures": {
+		"0": "enchantmod:block/template_shelf",
+		"particle": "enchantmod:block/template_shelf"
+	},
+	"elements": [
+		{
+			"name": "card_5",
+			"from": [
+				1.5,
+				1.2,
+				1.5
+			],
+			"to": [
+				14.5,
+				3.1,
+				13.5
+			],
+			"faces": {
+				"up": {
+					"uv": [
+						0.0,
+						8.0,
+						3.25,
+						11.0
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						3.25,
+						8.0,
+						6.5,
+						11.0
+					],
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						0.0,
+						11.0,
+						3.25,
+						11.475
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0.0,
+						11.0,
+						3.25,
+						11.475
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						3.25,
+						11.0,
+						6.25,
+						11.475
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						3.25,
+						11.0,
+						6.25,
+						11.475
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
 }
