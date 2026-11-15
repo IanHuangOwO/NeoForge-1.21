@@ -26,7 +26,7 @@ public record OpenStorePayload() implements CustomPacketPayload {
             ItemStack book = HandbookStoreMenu.handbook(context.player());
             if (book.isEmpty()) return;
             context.player().openMenu(new SimpleMenuProvider((id, inventory, player) -> new HandbookStoreMenu(id, inventory, book),
-                    Component.translatable("gui.enchantmod.research.tab.templates")));
+                    Component.translatable("gui.enchantmod.research.tab.templates")), buffer -> buffer.writeVarInt(HandbookStoreMenu.slotsFor(book)));
         });
     }
 }

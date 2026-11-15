@@ -1,9 +1,12 @@
 package com.mamechin.enchantmod.scribing;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mamechin.enchantmod.items.EnchantTemplate;
 import com.mamechin.enchantmod.items.ModItems;
+import com.mamechin.enchantmod.scribing.rules.TemplateStore;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -16,31 +19,48 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 /**
  * The template store of a research handbook: a small chest that only takes enchant templates. The contents live in the
  * handbook's data component and are written back on every change. The handbook itself cannot be picked up while it is open.
+ * The number of slots grows in steps of nine (see TemplateStore); the client is told it when the menu opens.
  */
 public class HandbookStoreMenu extends AbstractContainerMenu {
-    public static final int ROWS = 3, SLOTS = ROWS * 9;
-
     private final ItemStack book; // empty on the client, which only mirrors the slots
-    private final ItemStackHandler store = new ItemStackHandler(SLOTS) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            if (!book.isEmpty()) book.set(ModDataComponents.TEMPLATE_STORE.get(), ItemContainerContents.fromItems(stacks));
-        }
-    };
+    private final ItemStackHandler store;
+    private final int rows;
 
-    public HandbookStoreMenu(int id, Inventory inventory) {
-        this(id, inventory, ItemStack.EMPTY);
+    /** What the handbook allows, before the slots in use are counted. Later: plus one step per level of an expanding enchantment. */
+    static int capacity(ItemStack book) {
+        return TemplateStore.BASE;
+    }
+
+    /** How many slots the store of this handbook shows. */
+    public static int slotsFor(ItemStack book) {
+        ItemContainerContents contents = book.getOrDefault(ModDataComponents.TEMPLATE_STORE.get(), ItemContainerContents.EMPTY);
+        int used = 0;
+        for (int i = 0; i < contents.getSlots(); i++) if (!contents.getStackInSlot(i).isEmpty()) used = i + 1;
+        return TemplateStore.slots(capacity(book), used);
     }
 
     public HandbookStoreMenu(int id, Inventory inventory, ItemStack book) {
+        this(id, inventory, book, slotsFor(book));
+    }
+
+    public HandbookStoreMenu(int id, Inventory inventory, ItemStack book, int slots) {
         super(ModMenus.HANDBOOK_STORE.get(), id);
         this.book = book;
-        if (!book.isEmpty()) {
-            NonNullList<ItemStack> stored = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
-            book.getOrDefault(ModDataComponents.TEMPLATE_STORE.get(), ItemContainerContents.EMPTY).copyInto(stored);
-            for (int i = 0; i < SLOTS; i++) store.setStackInSlot(i, stored.get(i));
-        }
-        for (int row = 0; row < ROWS; row++) {
+        this.rows = slots / TemplateStore.STEP;
+        this.store = new ItemStackHandler(slots) {
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (book.isEmpty()) return;
+                int used = 0;
+                for (int i = 0; i < stacks.size(); i++) if (!stacks.get(i).isEmpty()) used = i + 1;
+                List<ItemStack> kept = new ArrayList<>(stacks.subList(0, used)); // trailing empty slots are not stored
+                book.set(ModDataComponents.TEMPLATE_STORE.get(), ItemContainerContents.fromItems(kept));
+            }
+        };
+        ItemContainerContents contents = book.getOrDefault(ModDataComponents.TEMPLATE_STORE.get(), ItemContainerContents.EMPTY);
+        for (int i = 0; i < Math.min(slots, contents.getSlots()); i++) store.setStackInSlot(i, contents.getStackInSlot(i).copy());
+
+        for (int row = 0; row < rows; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new SlotItemHandler(store, col + row * 9, 8 + col * 18, 18 + row * 18) {
                     @Override
@@ -50,10 +70,24 @@ public class HandbookStoreMenu extends AbstractContainerMenu {
                 });
             }
         }
+        int inventoryY = inventoryY(rows);
         for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) addSlot(locked(inventory, col + row * 9 + 9, 8 + col * 18, 84 + row * 18));
+            for (int col = 0; col < 9; col++) addSlot(locked(inventory, col + row * 9 + 9, 8 + col * 18, inventoryY + row * 18));
         }
-        for (int col = 0; col < 9; col++) addSlot(locked(inventory, col, 8 + col * 18, 142));
+        for (int col = 0; col < 9; col++) addSlot(locked(inventory, col, 8 + col * 18, inventoryY + 58));
+    }
+
+    /** Top of the player inventory for a store of that many rows. */
+    public static int inventoryY(int rows) {
+        return 18 + rows * 18 + 14;
+    }
+
+    public int rows() {
+        return rows;
+    }
+
+    public int storeSlots() {
+        return rows * 9;
     }
 
     private Slot locked(Inventory inventory, int index, int x, int y) {
@@ -78,7 +112,8 @@ public class HandbookStoreMenu extends AbstractContainerMenu {
         if (!slot.hasItem() || !slot.mayPickup(player)) return ItemStack.EMPTY;
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
-        boolean moved = index < SLOTS ? moveItemStackTo(stack, SLOTS, slots.size(), true) : moveItemStackTo(stack, 0, SLOTS, false);
+        int own = storeSlots();
+        boolean moved = index < own ? moveItemStackTo(stack, own, slots.size(), true) : moveItemStackTo(stack, 0, own, false);
         if (!moved) return ItemStack.EMPTY;
         if (stack.isEmpty()) slot.setByPlayer(ItemStack.EMPTY);
         else slot.setChanged();
