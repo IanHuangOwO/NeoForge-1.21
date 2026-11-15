@@ -14,10 +14,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 
 /** Base for every inkwell tier. Behavior shared by all inkwells goes here. */
-public abstract class EnchantInkwellItem extends Item {
+public abstract class EnchantInkwell extends Item {
     private final Supplier<? extends Fluid> inkFluid;
 
-    protected EnchantInkwellItem(Properties properties, Supplier<? extends Fluid> inkFluid) {
+    protected EnchantInkwell(Properties properties, Supplier<? extends Fluid> inkFluid) {
         super(properties);
         this.inkFluid = inkFluid;
     }

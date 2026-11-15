@@ -2,7 +2,7 @@ package com.mamechin.enchantmod.block.cauldron.action;
 
 import com.mamechin.enchantmod.block.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.block.cauldron.CauldronContent;
-import com.mamechin.enchantmod.item.inkwell.EnchantInkwellItem;
+import com.mamechin.enchantmod.item.inkwell.EnchantInkwell;
 
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 public class RefillInkwellAction implements CauldronAction {
     @Override
     public boolean useItem(CauldronBlockEntity c, ItemStack stack, Player player, InteractionHand hand) {
-        if (!(stack.getItem() instanceof EnchantInkwellItem inkwell) || !stack.isDamaged()
+        if (!(stack.getItem() instanceof EnchantInkwell inkwell) || !stack.isDamaged()
                 || c.getContent() != CauldronContent.INK
                 || c.getAmountMl() < CauldronBlockEntity.INK_ML_PER_USE
                 || inkwell.getInkFluid() != c.getFluid()) return false;

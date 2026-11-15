@@ -5,7 +5,7 @@ import java.util.List;
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.block.ModBlocks;
 import com.mamechin.enchantmod.item.ModItems;
-import com.mamechin.enchantmod.item.inkwell.EnchantInkwellItem;
+import com.mamechin.enchantmod.item.inkwell.EnchantInkwell;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -87,7 +87,7 @@ public class ScribingTableMenu extends AbstractContainerMenu {
 
     /** Ink left in the inkwell in the table: how many more cells can be drawn. */
     public int ink() {
-        return EnchantInkwellItem.remaining(inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL));
+        return EnchantInkwell.remaining(inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL));
     }
 
     /** Editing needs an inkwell, a quill and a template in the table; every cell drawn wears the inkwell down. */
@@ -116,7 +116,7 @@ public class ScribingTableMenu extends AbstractContainerMenu {
         inventory.setStackInSlot(ScribingTableBlockEntity.TEMPLATE, template);
         if (cost > 0) {
             ItemStack inkwell = inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL).copy();
-            EnchantInkwellItem.spend(inkwell, cost);
+            EnchantInkwell.spend(inkwell, cost);
             inventory.setStackInSlot(ScribingTableBlockEntity.INKWELL, inkwell);
         }
         broadcastChanges();

@@ -6,8 +6,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 /** Base for every quill tier. Behavior shared by all quills goes here. */
-public abstract class EnchantQuillItem extends Item {
-    protected EnchantQuillItem(Properties properties) {
+public abstract class EnchantQuill extends Item {
+    protected EnchantQuill(Properties properties) {
         super(properties);
     }
 

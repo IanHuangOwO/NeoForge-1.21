@@ -11,10 +11,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 
 /** The enchant template: its tooltip lists the enchants the drawn blueprint makes and the chance of each level. */
-public class EnchantTemplateItem extends Item {
+public class EnchantTemplate extends Item {
     private static final int MAX_LEVEL_LINES = 8;
 
-    public EnchantTemplateItem(Properties properties) {
+    public EnchantTemplate(Properties properties) {
         super(properties);
     }
 
