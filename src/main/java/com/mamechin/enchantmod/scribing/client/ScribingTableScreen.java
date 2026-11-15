@@ -14,7 +14,14 @@ import com.mamechin.enchantmod.scribing.EditBlueprintPayload;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 import com.mamechin.enchantmod.scribing.ScribingTableMenu;
 
+import com.mamechin.enchantmod.scribing.LibraryPayload;
+import com.mamechin.enchantmod.scribing.RenameTemplatePayload;
+import com.mamechin.enchantmod.scribing.rules.SavedTemplate;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -53,6 +60,49 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         imageWidth = 256;
         imageHeight = 222;
         inventoryLabelY = 130;
+    }
+
+    private EditBox nameBox;
+    private Button saveButton;
+    private boolean syncingName;
+
+    @Override
+    protected void init() {
+        super.init();
+        nameBox = new EditBox(font, leftPos + GRID_X, topPos + 7, 100, 12, Component.translatable("gui.enchantmod.scribing_table.rename"));
+        nameBox.setMaxLength(SavedTemplate.NAME_MAX);
+        nameBox.setHint(Component.translatable("gui.enchantmod.scribing_table.rename").withStyle(ChatFormatting.DARK_GRAY));
+        nameBox.setResponder(name -> {
+            if (!syncingName) PacketDistributor.sendToServer(new RenameTemplatePayload(name));
+        });
+        addRenderableWidget(nameBox);
+        saveButton = addRenderableWidget(Button.builder(Component.translatable("gui.enchantmod.scribing_table.save"),
+                button -> PacketDistributor.sendToServer(new LibraryPayload(LibraryPayload.OP_SAVE, ""))).bounds(leftPos + GRID_X + 102, topPos + 6, 33, 14).build());
+    }
+
+    /** Keeps the name box showing the template's name and switches the box and the save button on or off. */
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        ItemStack template = menu.templateStack();
+        nameBox.setEditable(!template.isEmpty());
+        saveButton.active = !template.isEmpty() && !menu.blueprint().runes().isEmpty() && hasHandbook();
+        Component custom = template.get(DataComponents.CUSTOM_NAME);
+        String wanted = custom == null ? "" : custom.getString();
+        if (!nameBox.isFocused() && !nameBox.getValue().equals(wanted)) {
+            syncingName = true;
+            nameBox.setValue(wanted);
+            syncingName = false;
+        }
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (nameBox.isFocused() && keyCode != 256) { // typing a name must not trigger the inventory key
+            nameBox.keyPressed(keyCode, scanCode, modifiers);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private int cellAt(double mouseX, double mouseY) {
@@ -203,14 +253,13 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, 8, 3, TEXT, false);
         graphics.drawString(font, playerInventoryTitle, 47, inventoryLabelY, TEXT, false);
         if (!menu.canEdit()) {
             Component hint = Component.translatable("gui.enchantmod.scribing_table.need_tools");
-            graphics.drawString(font, hint, imageWidth - 8 - font.width(hint), 3, 0xFFD98A6A, false);
+            graphics.drawString(font, hint, imageWidth - 8 - font.width(hint), inventoryLabelY, 0xFFD98A6A, false);
         } else if (menu.ink() == 0) {
             Component dry = Component.translatable("gui.enchantmod.scribing_table.no_ink");
-            graphics.drawString(font, dry, imageWidth - 8 - font.width(dry), 3, 0xFFD98A6A, false);
+            graphics.drawString(font, dry, imageWidth - 8 - font.width(dry), inventoryLabelY, 0xFFD98A6A, false);
         }
     }
 

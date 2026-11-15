@@ -47,6 +47,7 @@ public class ResearchPanel {
     static ItemStack tabIcon(String key) {
         return new ItemStack(switch (key) {
             case "minecraft" -> Items.GRASS_BLOCK;
+            case "templates" -> Items.WRITABLE_BOOK;
             default -> Items.LAPIS_LAZULI; // the runes tab, and any mod without an icon of its own
         });
     }
