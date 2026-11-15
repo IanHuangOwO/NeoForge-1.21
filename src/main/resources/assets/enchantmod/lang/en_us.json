@@ -1,6 +1,11 @@
 {
   "itemGroup.enchantmod": "EnchantMod",
   "block.enchantmod.scribing_table": "Scribing Table",
+  "block.enchantmod.altar": "Altar",
+  "message.enchantmod.altar.need_both": "The altar needs an item and a template",
+  "message.enchantmod.altar.nothing": "Nothing on the template fits this item",
+  "message.enchantmod.altar.failed": "The fixation failed",
+  "message.enchantmod.altar.done": "Fixed: %s",
   "block.enchantmod.small_cauldron": "Calcite Cauldron",
   "message.enchantmod.cauldron.no_heat": "The cauldron needs a hotter heat source underneath",
   "item.enchantmod.inkwell_tier0": "Lapis Inkwell",

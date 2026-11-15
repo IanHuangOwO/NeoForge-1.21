@@ -36,6 +36,7 @@ public final class ModCreativeTabs {
                 output.accept(ModItems.ENCHANT_TEMPLATE_TIER2.get());
                 output.accept(ModItems.RESEARCH_HANDBOOK.get());
                 output.accept(ModItems.SMALL_CAULDRON.get());
+                output.accept(ModItems.ALTAR.get());
             }).build());
 
     private ModCreativeTabs() {}

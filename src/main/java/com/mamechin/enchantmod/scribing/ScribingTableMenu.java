@@ -28,7 +28,7 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 /** The scribing table screen: three table slots, the player inventory, and the edits sent by the screen. */
 public class ScribingTableMenu extends AbstractContainerMenu {
     private static final TagKey<Item> INKWELLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "inkwells"));
-    private static final TagKey<Item> TEMPLATES = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "templates"));
+    private static final TagKey<Item> TEMPLATES = com.mamechin.enchantmod.altar.AltarBlockEntity.TEMPLATES;
     private static final TagKey<Item> QUILLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "quills"));
 
     public static final int OP_PLACE = 0, OP_ERASE = 1, OP_LINE = 2;

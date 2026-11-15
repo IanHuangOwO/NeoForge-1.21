@@ -17,5 +17,8 @@ public final class ModBlocks {
     public static final DeferredBlock<SmallCauldronBlock> SMALL_CAULDRON = BLOCKS.registerBlock("small_cauldron",
             SmallCauldronBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.CAULDRON).sound(SoundType.CALCITE));
 
+    public static final DeferredBlock<AltarBlock> ALTAR = BLOCKS.registerBlock("altar",
+            AltarBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.ENCHANTING_TABLE));
+
     private ModBlocks() {}
 }

@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.blocks;
 
+import com.mamechin.enchantmod.altar.AltarBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronSize;
 import java.util.function.Supplier;
@@ -21,6 +22,9 @@ public final class ModBlockEntities {
     /** Lives on the left half of the scribing table only. */
     public static final Supplier<BlockEntityType<ScribingTableBlockEntity>> SCRIBING_TABLE = BLOCK_ENTITIES.register("scribing_table",
             () -> BlockEntityType.Builder.of(ScribingTableBlockEntity::new, ModBlocks.SCRIBING_TABLE.get()).build(null));
+
+    public static final Supplier<BlockEntityType<AltarBlockEntity>> ALTAR = BLOCK_ENTITIES.register("altar",
+            () -> BlockEntityType.Builder.of(AltarBlockEntity::new, ModBlocks.ALTAR.get()).build(null));
 
     private ModBlockEntities() {}
 }

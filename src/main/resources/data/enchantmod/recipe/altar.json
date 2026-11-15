@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [ "CLC", " B ", "CCC" ],
+  "key": {
+    "C": { "item": "minecraft:cut_copper" },
+    "L": { "item": "minecraft:lapis_lazuli" },
+    "B": { "item": "minecraft:copper_block" }
+  },
+  "result": { "id": "enchantmod:altar", "count": 1 }
+}

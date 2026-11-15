@@ -33,6 +33,7 @@ public final class ModItems {
     public static final DeferredItem<TemplateTier2> ENCHANT_TEMPLATE_TIER2 = ITEMS.registerItem("enchant_template_tier2", TemplateTier2::new);
     public static final DeferredItem<Item> RESEARCH_HANDBOOK = ITEMS.registerItem("research_handbook", ResearchHandbook::new, new Item.Properties().stacksTo(1));
     public static final DeferredItem<BlockItem> SCRIBING_TABLE = ITEMS.registerSimpleBlockItem("scribing_table", ModBlocks.SCRIBING_TABLE);
+    public static final DeferredItem<BlockItem> ALTAR = ITEMS.registerSimpleBlockItem("altar", ModBlocks.ALTAR);
     public static final DeferredItem<BlockItem> SMALL_CAULDRON = ITEMS.registerSimpleBlockItem("small_cauldron", ModBlocks.SMALL_CAULDRON);
 
     private ModItems() {}
