@@ -305,3 +305,7 @@ Decisions by Claude (change freely): the handbook pages are now ordered by `orde
 - `LevelChunk.setBlockState` has the new state in place before `onRemove(old, ..., newState)` runs; a block entity is reused only if its type is valid for the new block, hence one block entity type per cauldron size and an explicit `moveTo` transfer.
 - Server particles with count 0 treat the offsets as a velocity.
 - Build with `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew ...` from the project root.
+
+## Quill on books
+
+Author's design, 2026-11-16: with a quill in the main hand and books in the other hand, a right click (in the air, or on a block that does not take the click) spends the player's experience levels and turns one book into an enchanted book. The enchants are rolled by vanilla (`EnchantmentHelper.enchantItem` with the enchanting table's enchantments). What the quill does is its `EnchantQuill.BookRite(power, xpLevels)`, read through `bookRite(stack)` so a custom enchant on the quill can change it later. First guesses: tier 0 power 10 for 3 levels, tier 1 power 20 for 6, tier 2 power 30 for 10. The quill is not worn. Creative players pay nothing and keep the book. Not tried in game.

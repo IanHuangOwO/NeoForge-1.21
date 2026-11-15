@@ -16,6 +16,7 @@
   "message.enchantmod.press.need_cube": "The press needs an enchant cube",
   "message.enchantmod.press.nothing": "No template in the press makes an enchant",
   "message.enchantmod.press.done": "Pressed: %s",
+  "message.enchantmod.quill.need_xp": "You need %s experience levels.",
   "block.enchantmod.small_cauldron": "Copper Cauldron",
   "message.enchantmod.cauldron.no_heat": "The cauldron needs a hotter heat source underneath",
   "item.enchantmod.inkwell_tier0": "Lapis Inkwell",
