@@ -1,13 +1,13 @@
 package com.mamechin.enchantmod.cauldron;
 
 import com.mamechin.enchantmod.blocks.SmallCauldronBlock;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronInput;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
+import com.mamechin.enchantmod.cauldron.client.CauldronView;
 import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.items.inkwell.InkTiers;
 import com.mamechin.enchantmod.fluid.ModFluids;
@@ -32,7 +32,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 /**
@@ -61,7 +60,7 @@ public class CauldronBlockEntity extends BlockEntity {
             @Override
             protected void onContentsChanged(int slot) {
                 inventoryDirty = true;
-                displayDirty = true;
+                view.markItemsDirty();
                 setChanged();
                 // the client renders the stored items, so it needs the new inventory
                 if (level != null && !level.isClientSide) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -75,47 +74,8 @@ public class CauldronBlockEntity extends BlockEntity {
     private List<RecipeHolder<CauldronBrewingRecipe>> satisfied = List.of();
     private boolean hasRoom = true;
 
-    // Client-only: the stored items grouped per item type for the renderer, rebuilt only after the inventory changed.
-    private boolean displayDirty = true;
-    private final List<ItemStack> displayTypes = new ArrayList<>();
-    private final List<Integer> displayCounts = new ArrayList<>();
-
-    public List<ItemStack> displayTypes() {
-        rebuildDisplay();
-        return displayTypes;
-    }
-
-    public List<Integer> displayCounts() {
-        rebuildDisplay();
-        return displayCounts;
-    }
-
-    private void rebuildDisplay() {
-        if (!displayDirty) return;
-        displayDirty = false;
-        displayTypes.clear();
-        displayCounts.clear();
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack stack = inventory.getStackInSlot(i);
-            if (stack.isEmpty()) continue;
-            int index = -1;
-            for (int j = 0; j < displayTypes.size(); j++) {
-                if (ItemStack.isSameItemSameComponents(displayTypes.get(j), stack)) index = j;
-            }
-            if (index < 0) {
-                displayTypes.add(stack.copyWithCount(1));
-                displayCounts.add(stack.getCount());
-            } else {
-                displayCounts.set(index, displayCounts.get(index) + stack.getCount());
-            }
-        }
-    }
-
-    /** Client-only: smoothed liquid appearance, see LiquidView. */
-    public final com.mamechin.enchantmod.cauldron.client.LiquidView liquidView = new com.mamechin.enchantmod.cauldron.client.LiquidView();
-
-    /** Client-only: game time the BREWING state was first seen, drives the items' dive animation; -1 when idle. */
-    public float brewAnimStart = -1;
+    /** Client-only state: liquid look, brew animation clock, grouped stored items. */
+    public final CauldronView view = new CauldronView();
 
     private int amountMl;
     private ResourceLocation fluidId = WATER; // what is stored; unchanged while brewing
@@ -352,19 +312,6 @@ public class CauldronBlockEntity extends BlockEntity {
         }
     }
 
-    /** Moves the fluid and ingredients into a cauldron of another size; a running brew is dropped. Returns the items that did not fit. */
-    public List<ItemStack> moveTo(CauldronBlockEntity target) {
-        target.fluidId = fluidId;
-        target.amountMl = Math.min(amountMl, target.capacityMl());
-        List<ItemStack> overflow = new ArrayList<>();
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            ItemStack rest = ItemHandlerHelper.insertItem(target.inventory, inventory.getStackInSlot(i), false);
-            if (!rest.isEmpty()) overflow.add(rest);
-        }
-        target.syncState();
-        return overflow;
-    }
-
     void syncState() {
         setChanged();
         if (level != null) {
@@ -407,6 +354,6 @@ public class CauldronBlockEntity extends BlockEntity {
         activeRecipe = null;
         inventory.deserializeNBT(registries, tag.getCompound("Inventory"));
         inventoryDirty = true;
-        displayDirty = true;
+        view.markItemsDirty();
     }
 }

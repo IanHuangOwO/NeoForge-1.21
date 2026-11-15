@@ -64,15 +64,15 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
         boolean brewing = cauldron.getBlockState().getValue(SmallCauldronBlock.CONTENT) == CauldronContent.BREWING;
         // Client-only animation clock: starts when we first see the BREWING state, resets when it ends.
         if (!brewing) {
-            cauldron.brewAnimStart = -1;
-        } else if (cauldron.brewAnimStart < 0) {
-            cauldron.brewAnimStart = time - cauldron.getProgress(); // joins a running brew at the right point
+            cauldron.view.brewAnimStart = -1;
+        } else if (cauldron.view.brewAnimStart < 0) {
+            cauldron.view.brewAnimStart = time - cauldron.getProgress(); // joins a running brew at the right point
         }
 
         renderLiquid(cauldron, level, pose, buffer, ignoredLight, time, brewing);
 
-        List<ItemStack> types = cauldron.displayTypes();
-        List<Integer> counts = cauldron.displayCounts();
+        List<ItemStack> types = cauldron.view.types(cauldron.inventory);
+        List<Integer> counts = cauldron.view.counts(cauldron.inventory);
         if (types.isEmpty()) return;
 
         int light = LevelRenderer.getLightColor(level, cauldron.getBlockPos().above());
@@ -96,7 +96,7 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
             boolean showCount = true;
 
             if (brewing) {
-                float t = time - cauldron.brewAnimStart - i * STAGGER_TICKS;
+                float t = time - cauldron.view.brewAnimStart - i * STAGGER_TICKS;
                 if (t >= RISE_TICKS + DIVE_TICKS) continue; // already swallowed
                 if (t >= 0) {
                     showCount = false;
@@ -148,13 +148,13 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
     private void renderLiquid(CauldronBlockEntity cauldron, net.minecraft.world.level.Level level,
             PoseStack pose, MultiBufferSource buffer, int light, float time, boolean brewing) {
         int lvl = cauldron.getBlockState().getValue(SmallCauldronBlock.LEVEL);
-        LiquidView view = cauldron.liquidView;
+        LiquidView view = cauldron.view.liquid;
         if (lvl == 0 && view.alpha < 0.01F) return; // empty and fully faded: nothing to draw or ease
 
         int rgb = CauldronColors.of(BuiltInRegistries.FLUID.getKey(cauldron.getFluid()));
         if (brewing && cauldron.getActiveRecipeId() != null
                 && level.getRecipeManager().byKey(cauldron.getActiveRecipeId()).map(h -> h.value()).orElse(null) instanceof CauldronBrewingRecipe recipe) {
-            float t = Mth.clamp((time - cauldron.brewAnimStart) / cauldron.brewTicks(recipe), 0.0F, 1.0F);
+            float t = Mth.clamp((time - cauldron.view.brewAnimStart) / cauldron.brewTicks(recipe), 0.0F, 1.0F);
             int from = CauldronColors.of(recipe.baseFluid());
             int to = CauldronColors.of(recipe.resultFluid());
             rgb = (int) Mth.lerp(t, from >> 16 & 255, to >> 16 & 255) << 16
