@@ -15,6 +15,7 @@
   "tooltip.enchantmod.cube.capacity": "Presses up to %s template(s)",
   "message.enchantmod.press.need_cube": "The press needs an enchant cube",
   "message.enchantmod.press.nothing": "No template in the press makes an enchant",
+  "message.enchantmod.press.already_pressed": "This cube is already pressed. Clean it in a grindstone",
   "message.enchantmod.press.done": "Pressed: %s",
   "message.enchantmod.quill.need_xp": "You need %s experience levels.",
   "block.enchantmod.small_cauldron": "Copper Cauldron",

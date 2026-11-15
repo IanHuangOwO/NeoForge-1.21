@@ -26,6 +26,17 @@ public abstract class EnchantCube extends Item {
         return capacity;
     }
 
+    /** True once enchants are pressed into the cube. */
+    public static boolean isPressed(ItemStack stack) {
+        return !stack.getOrDefault(ModDataComponents.CUBE_CONTENTS.get(), CubeContents.EMPTY).entries().isEmpty();
+    }
+
+    /** A pressed cube may go into the grindstone, which wipes it (CubeGrindstone). */
+    @Override
+    public boolean canGrindstoneRepair(ItemStack stack) {
+        return isPressed(stack);
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);

@@ -115,6 +115,10 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
             player.displayClientMessage(Component.translatable("message.enchantmod.press.need_cube"), true);
             return;
         }
+        if (EnchantCube.isPressed(inventory.getStackInSlot(CUBE))) {
+            player.displayClientMessage(Component.translatable("message.enchantmod.press.already_pressed"), true);
+            return;
+        }
         List<ItemStack> templates = usableTemplates().stream().filter(t -> !t.isEmpty()).toList();
         if (CubeContents.combine(forecasts(templates)).entries().isEmpty()) {
             player.displayClientMessage(Component.translatable("message.enchantmod.press.nothing"), true);
@@ -140,7 +144,7 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
         Player player = presser == null ? null : level.getPlayerByUUID(presser);
         presser = null;
         ItemStack cube = inventory.getStackInSlot(CUBE);
-        if (!(cube.getItem() instanceof EnchantCube)) return; // the cube is gone: nothing to press into
+        if (!(cube.getItem() instanceof EnchantCube) || EnchantCube.isPressed(cube)) return; // the cube is gone or already pressed: nothing to press into
         CubeContents contents = CubeContents.combine(forecasts(usableTemplates())); // read again: only the templates the cube opens now count
         if (contents.entries().isEmpty()) return;
         ItemStack pressed = cube.copy();
