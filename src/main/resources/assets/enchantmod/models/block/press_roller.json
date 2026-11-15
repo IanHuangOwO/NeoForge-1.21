@@ -3,7 +3,7 @@
 	"loader": "neoforge:obj",
 	"flip_v": true,
 	"automatic_culling": false,
-	"model": "enchantmod:models/block/press_gear.obj",
+	"model": "enchantmod:models/block/press_roller.obj",
 	"render_type": "minecraft:cutout",
 	"ambientocclusion": false,
 	"textures": {

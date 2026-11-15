@@ -70,10 +70,9 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
         super(ModBlockEntities.PRINTING_PRESS.get(), pos, state);
     }
 
-    // client only: the animation being played, and the angle the turntable rests at between pressings
+    // client only: the animation being played
     private long animStart = Long.MIN_VALUE;
     private int animStrokes;
-    private float restTurn;
 
     public ItemStackHandler inventory() {
         return inventory;
@@ -157,25 +156,15 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
     public boolean triggerEvent(int id, int param) {
         if (id != 1 || level == null) return super.triggerEvent(id, param);
         if (!level.isClientSide) return true; // true on the server is what makes the game send the event to the clients
-        finishAnimation(); // a new pressing while one plays: take on the angle reached
         animStart = level.getGameTime();
         animStrokes = param;
         return true;
     }
 
-    private void finishAnimation() {
-        if (animStrokes > 0) restTurn = (restTurn + PressAnimation.at(Long.MAX_VALUE, animStrokes).turn()) % 360;
-        animStrokes = 0;
-    }
-
-    /** Client side: where the parts are now. The turntable angle includes the rest angle of earlier pressings. */
+    /** Client side: where the moving parts are now. */
     public PressAnimation.Pose pose(float partialTick) {
-        if (level == null) return new PressAnimation.Pose(0, 0, 0);
-        double tick = level.getGameTime() + partialTick - animStart;
-        if (animStrokes > 0 && tick >= PressAnimation.duration(animStrokes)) finishAnimation();
-        if (animStrokes <= 0) return new PressAnimation.Pose(0, restTurn, 0);
-        PressAnimation.Pose p = PressAnimation.at(tick, animStrokes);
-        return new PressAnimation.Pose(p.head(), restTurn + p.turn(), p.spin());
+        if (level == null || animStrokes <= 0) return PressAnimation.Pose.REST;
+        return PressAnimation.at(level.getGameTime() + partialTick - animStart, animStrokes);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.mamechin.enchantmod.scribing.rules;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,22 +13,34 @@ class PressAnimationTest {
     }
 
     @Test
-    void oneStrokeDoesNotTurn() {
-        assertEquals(0, PressAnimation.at(0, 1).head(), 1e-6);
+    void oneStrokeNeverRolls() {
         assertEquals(1, PressAnimation.at(PressAnimation.DOWN, 1).head(), 1e-6);
-        assertEquals(0, PressAnimation.at(PressAnimation.DOWN + PressAnimation.UP, 1).head(), 1e-6);
-        assertEquals(0, PressAnimation.at(19, 1).turn(), 1e-6);
-        assertEquals(0, PressAnimation.at(20, 1).turn(), 1e-6);
+        for (int t = 0; t < 20; t++) assertNull(PressAnimation.at(t, 1).rolling());
     }
 
     @Test
-    void theTurntableTurnsBetweenStrokes() {
-        int n = 3, turnStart = PressAnimation.DOWN + PressAnimation.UP;
-        assertEquals(0, PressAnimation.at(turnStart, n).turn(), 1e-6);
-        assertEquals(30, PressAnimation.at(turnStart + PressAnimation.TURN / 2.0, n).turn(), 1e-6);
-        assertEquals(60, PressAnimation.at(PressAnimation.STROKE, n).turn(), 1e-6);
-        assertEquals(1, PressAnimation.at(PressAnimation.STROKE + PressAnimation.DOWN, n).head(), 1e-6); // second stroke
-        assertEquals(120, PressAnimation.at(2 * PressAnimation.STROKE + 19, n).turn(), 1e-6);           // last stroke does not turn after
-        assertEquals(120, PressAnimation.at(PressAnimation.duration(n), n).turn(), 1e-6);
+    void theHeadIsUpBeforeTheCubeMoves() {
+        for (double t = 0; t < PressAnimation.duration(3); t += 0.25) {
+            PressAnimation.Pose p = PressAnimation.at(t, 3);
+            if (p.lift() > 0) assertEquals(0, p.head(), 1e-6);
+        }
+    }
+
+    @Test
+    void theCubeRollsBetweenStrokes() {
+        int n = 3, rollStart = PressAnimation.DOWN + PressAnimation.UP + PressAnimation.LIFT;
+        PressAnimation.Pose mid = PressAnimation.at(rollStart + PressAnimation.ROLL / 2.0, n);
+        assertEquals('X', mid.rolling().axis());
+        assertEquals(45, mid.angle(), 1e-6);
+        assertEquals(1, mid.lift(), 1e-6);
+        assertEquals(1, PressAnimation.at(PressAnimation.STROKE, n).done());
+        assertEquals(0, PressAnimation.at(PressAnimation.STROKE, n).lift(), 1e-6);
+        assertEquals(2, PressAnimation.at(2 * PressAnimation.STROKE + 19, n).done()); // the last stroke has no roll after it
+    }
+
+    @Test
+    void sixFacesNeedFiveRolls() {
+        assertEquals(5, PressAnimation.ROLLS.size());
+        assertEquals(180, PressAnimation.ROLLS.get(4).degrees());
     }
 }

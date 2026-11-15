@@ -23,11 +23,11 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
- * Draws the moving parts of the printing press (the base is the block model): the head goes down and up, the turntable turns with
- * the cube on it, the four side gears spin. Everything is positioned in the lower block's frame; the model files give the numbers.
+ * Draws the moving parts of the printing press (the base is the block model): the head goes down and up, the cube lifts and rolls to
+ * show a new face to the head, the four roller gears on the sides spin while it rolls. Everything is positioned in the lower block's frame; the model files give the numbers.
  */
 public class PrintingPressRenderer implements BlockEntityRenderer<PrintingPressBlockEntity> {
-    public static final ModelResourceLocation HEAD = part("press_head"), TURNTABLE = part("press_turntable"), GEAR = part("press_gear");
+    public static final ModelResourceLocation HEAD = part("press_head"), ROLLER = part("press_roller");
     private static final float HEAD_TRAVEL = 5 / 16F; // px to blocks
 
     private final BlockEntityRendererProvider.Context context;
@@ -53,33 +53,34 @@ public class PrintingPressRenderer implements BlockEntityRenderer<PrintingPressB
         draw(pose, consumer, HEAD, upperLight, overlay);
         pose.popPose();
 
-        pose.pushPose();
-        pose.translate(0.5, 0, 0.5);
-        pose.mulPose(Axis.YP.rotationDegrees(anim.turn()));
-        pose.translate(-0.5, 0, -0.5);
-        draw(pose, consumer, TURNTABLE, light, overlay);
-        pose.popPose();
-
+        // the roller gears on the sides spin while the cube rolls: about X the east and west pair, about Z the north and south pair
         for (int side = 0; side < 4; side++) {
+            boolean spins = anim.rolling() != null && (anim.rolling().axis() == 'X') == (side % 2 == 1);
             pose.pushPose();
             pose.translate(0.5, 0, 0.5);
             pose.mulPose(Axis.YP.rotationDegrees(90 * side));
             pose.translate(-0.5, 0, -0.5);
-            pose.translate(0.5, 0.25, 0);
-            pose.mulPose(Axis.ZP.rotationDegrees(side % 2 == 0 ? anim.spin() : -anim.spin()));
-            pose.translate(-0.5, -0.25, 0);
-            draw(pose, consumer, GEAR, light, overlay);
+            pose.translate(0.5, 0.875, 0);
+            if (spins) pose.mulPose(Axis.ZP.rotationDegrees(anim.angle()));
+            pose.translate(-0.5, -0.875, 0);
+            draw(pose, consumer, ROLLER, light, overlay);
             pose.popPose();
         }
 
         ItemStack cube = press.inventory().getStackInSlot(PrintingPressBlockEntity.CUBE);
         if (!cube.isEmpty()) {
             pose.pushPose();
-            pose.translate(0.5, 0.75, 0.5); // an 8 px cube standing on the turntable, y 8 to 16 px
-            pose.mulPose(Axis.YP.rotationDegrees(anim.turn()));
+            pose.translate(0.5, 0.75 + anim.lift() * 2 / 16F, 0.5); // an 8 px cube standing on the anvil, y 8 to 16 px, lifted 2 px to roll
+            // every roll is about a world axis through the cube's centre, on top of the ones before: the newest is applied outermost
+            if (anim.rolling() != null) pose.mulPose(axis(anim.rolling().axis()).rotationDegrees(anim.angle()));
+            for (int i = anim.done() - 1; i >= 0; i--) pose.mulPose(axis(PressAnimation.ROLLS.get(i).axis()).rotationDegrees(PressAnimation.ROLLS.get(i).degrees()));
             context.getItemRenderer().renderStatic(cube, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
             pose.popPose();
         }
+    }
+
+    private static Axis axis(char axis) {
+        return axis == 'X' ? Axis.XP : Axis.ZP;
     }
 
     private static void draw(PoseStack pose, VertexConsumer consumer, ModelResourceLocation location, int light, int overlay) {

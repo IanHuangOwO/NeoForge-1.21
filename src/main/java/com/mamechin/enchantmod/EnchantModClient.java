@@ -71,8 +71,7 @@ public class EnchantModClient {
     @SubscribeEvent
     static void onRegisterModels(ModelEvent.RegisterAdditional event) {
         event.register(PrintingPressRenderer.HEAD);
-        event.register(PrintingPressRenderer.TURNTABLE);
-        event.register(PrintingPressRenderer.GEAR);
+        event.register(PrintingPressRenderer.ROLLER);
     }
 
     /** Ink fluids reuse the vanilla water textures, tinted per tier. */
