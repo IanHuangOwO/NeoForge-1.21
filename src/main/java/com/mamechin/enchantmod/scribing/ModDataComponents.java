@@ -1,10 +1,7 @@
 package com.mamechin.enchantmod.scribing;
 
-import java.util.List;
-
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
-import com.mamechin.enchantmod.scribing.rules.SavedTemplate;
-import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.world.item.component.ItemContainerContents;
 import com.mamechin.enchantmod.EnchantMod;
 
 import net.minecraft.core.component.DataComponentType;
@@ -20,10 +17,9 @@ public final class ModDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Blueprint>> BLUEPRINT =
             COMPONENTS.registerComponentType("blueprint", b -> b.persistent(Blueprint.CODEC).networkSynchronized(Blueprint.STREAM_CODEC));
 
-    /** The templates kept in a research handbook. */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<SavedTemplate>>> SAVED_TEMPLATES =
-            COMPONENTS.registerComponentType("saved_templates", b -> b.persistent(SavedTemplate.CODEC.listOf())
-                    .networkSynchronized(SavedTemplate.STREAM_CODEC.apply(ByteBufCodecs.list(Library.MAX))));
+    /** The enchant templates kept in a research handbook. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ItemContainerContents>> TEMPLATE_STORE =
+            COMPONENTS.registerComponentType("template_store", b -> b.persistent(ItemContainerContents.CODEC).networkSynchronized(ItemContainerContents.STREAM_CODEC));
 
     private ModDataComponents() {}
 }

@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.mamechin.enchantmod.EnchantMod;
 
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.neoforged.neoforge.common.extensions.IMenuTypeExtension;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -14,6 +15,9 @@ public final class ModMenus {
 
     public static final Supplier<MenuType<ScribingTableMenu>> SCRIBING_TABLE =
             MENUS.register("scribing_table", () -> IMenuTypeExtension.create(ScribingTableMenu::new));
+
+    public static final Supplier<MenuType<HandbookStoreMenu>> HANDBOOK_STORE =
+            MENUS.register("handbook_store", () -> new MenuType<>(HandbookStoreMenu::new, FeatureFlags.DEFAULT_FLAGS));
 
     private ModMenus() {}
 }

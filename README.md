@@ -10,7 +10,7 @@ What is in it
 - **Inkwells and quills.** Three tiers of each. An inkwell holds ink and wears down as you draw. It never breaks, it just runs dry.
 - **Scribing table.** A two-block table where you draw on an enchant template. You place runes on a grid and join them with lines. Runes may not touch. Core runes are 3x3, stabilizers are 2x2 and the boost rune is 1x1. Every cell drawn costs one durability of the inkwell.
 - **Enchant templates.** One template item. The template's tooltip shows which enchants the drawing makes and the exact chance of each level.
-- **Research Handbook.** A Thaumonomicon-style map of knowledge nodes with side tabs. It has one page per rune and one per enchant. Carry it to see the enchant pages beside the scribing table, or click with it in hand to open the map. A Templates tab keeps the templates you save from the scribing table and can search them by name or enchant.
+- **Research Handbook.** A Thaumonomicon-style map of knowledge nodes with side tabs. It has one page per rune and one per enchant. Carry it to see the enchant pages beside the scribing table, or click with it in hand to open the map. Its Templates tab is a small chest for enchant templates, with a search by name or enchant.
 
 Not built yet: the altar that fixes a template onto an item, rune discovery and progression, recipes for most items, and a lot of art. Most of the in-game behaviour has been written and unit tested but not played through yet.
 

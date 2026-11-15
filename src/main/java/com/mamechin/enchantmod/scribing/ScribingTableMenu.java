@@ -12,7 +12,6 @@ import com.mamechin.enchantmod.items.inkwell.EnchantInkwell;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import com.mamechin.enchantmod.scribing.rules.SavedTemplate;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -100,7 +99,7 @@ public class ScribingTableMenu extends AbstractContainerMenu {
         String clean = name.strip();
         ItemStack template = templateStack().copy();
         if (clean.isEmpty()) template.remove(DataComponents.CUSTOM_NAME);
-        else template.set(DataComponents.CUSTOM_NAME, Component.literal(clean.substring(0, Math.min(clean.length(), SavedTemplate.NAME_MAX))));
+        else template.set(DataComponents.CUSTOM_NAME, Component.literal(clean.substring(0, Math.min(clean.length(), RenameTemplatePayload.NAME_MAX))));
         inventory.setStackInSlot(ScribingTableBlockEntity.TEMPLATE, template);
         broadcastChanges();
     }

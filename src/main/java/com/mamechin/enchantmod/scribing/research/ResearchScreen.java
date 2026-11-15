@@ -1,17 +1,13 @@
 package com.mamechin.enchantmod.scribing.research;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.mamechin.enchantmod.scribing.Library;
-import com.mamechin.enchantmod.scribing.LibraryPayload;
+import com.mamechin.enchantmod.scribing.OpenStorePayload;
 import com.mamechin.enchantmod.scribing.rules.Definitions;
-import com.mamechin.enchantmod.scribing.rules.SavedTemplate;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -34,56 +30,16 @@ public class ResearchScreen extends Screen {
     private int tab;
     private List<ResearchMap.Node> nodes = tabs.get(0).nodes();
     private final int version = Definitions.current().version(); // a reload or a sync that changes the definitions closes the screen
-    private final EditBox search;
-    private List<SavedTemplate> source = List.of(), shown = List.of(); // the saved templates and the ones matching the search, with their enchant lines
-    private List<String> lines = List.of();
-    private String shownQuery = "";
-    private double listScroll;
-    private static final int ROW = 26, LIST_TOP = 32;
     private boolean reading;
     private double dragged;
 
     public ResearchScreen() {
         super(Component.translatable("item.enchantmod.research_handbook"));
         panel = new ResearchPanel(Minecraft.getInstance().font, false);
-        search = new EditBox(Minecraft.getInstance().font, 0, 0, 100, 12, Component.translatable("gui.enchantmod.research.search"));
-        search.setHint(Component.translatable("gui.enchantmod.research.search").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
-        search.setResponder(q -> listScroll = 0);
     }
 
     public static void open() {
         Minecraft.getInstance().setScreen(new ResearchScreen());
-    }
-
-    /** The extra tab after the map tabs: the templates kept in the handbook. */
-    private boolean inTemplates() {
-        return tab == tabs.size();
-    }
-
-    private String tabKey(int i) {
-        return i < tabs.size() ? tabs.get(i).key() : "templates";
-    }
-
-    /** Rebuilds the list of templates matching the search when the handbook's list or the search text changed. */
-    private void refresh() {
-        List<SavedTemplate> now = Minecraft.getInstance().player == null ? List.of() : Library.saved(Minecraft.getInstance().player);
-        if (now == source && search.getValue().equals(shownQuery)) return;
-        source = now;
-        shownQuery = search.getValue();
-        shown = new ArrayList<>();
-        List<String> text = new ArrayList<>();
-        for (SavedTemplate t : source) {
-            if (!t.matches(shownQuery, e -> Component.translatable(e.nameKey()).getString())) continue;
-            shown.add(t);
-            text.add(String.join(", ", t.enchants().stream().map(e -> Component.translatable(e.nameKey()).getString()).toList()));
-        }
-        lines = text;
-    }
-
-    private int rowAt(double mouseX, double mouseY) {
-        if (!inTemplates() || mouseX < TAB_W + 8 || mouseX >= width - 12 || mouseY < LIST_TOP || mouseY >= height - 10) return -1;
-        int i = (int) Math.floor((mouseY - LIST_TOP + listScroll) / ROW);
-        return i >= 0 && i < shown.size() ? i : -1;
     }
 
     private int originX() {
@@ -110,7 +66,6 @@ public class ResearchScreen extends Screen {
         NineSlice.tile(graphics, MAP_BG, TAB_W - 4, 4, width - TAB_W, height - 8, 0, 0, 16, 16, 16);
         graphics.enableScissor(TAB_W + 2, 10, width - 10, height - 10);
         int runes = Definitions.runes().size();
-        if (inTemplates()) renderTemplates(graphics, mouseX, mouseY);
         for (ResearchMap.Node node : nodes) {
             for (int link : node.links()) {
                 ResearchMap.Node rune = nodes.get(link);
@@ -130,41 +85,15 @@ public class ResearchScreen extends Screen {
         graphics.disableScissor();
         NineSlice.draw(graphics, MAP_FRAME, TAB_W - 4, 4, width - TAB_W, height - 8, 32, 6, false);
         closeButton(graphics, width - 22, 10, mouseX, mouseY);
-        if (inTemplates()) search.render(graphics, mouseX, mouseY, partialTick);
-        for (int i = 0; i <= tabs.size(); i++) {
+        for (int i = 0; i <= tabs.size(); i++) { // the last tab is the template store
             int ty = tabY(i); // the open tab is wider and joins the frame
             if (i == tab) graphics.blit(TAB_ON, 2, ty, 0, 0, 28, TAB_H, 28, TAB_H);
             else graphics.blit(TAB_OFF, 2, ty, 0, 0, 24, TAB_H, 24, TAB_H);
-            graphics.renderItem(ResearchPanel.tabIcon(tabKey(i)), 8, ty + 6);
+            graphics.renderItem(ResearchPanel.tabIcon(i < tabs.size() ? tabs.get(i).key() : "templates"), 8, ty + 6);
         }
         int hoveredTab = tabAt(mouseX, mouseY);
-        if (hoveredTab >= 0) graphics.renderTooltip(font, ResearchPanel.tabName(tabKey(hoveredTab)), mouseX, mouseY);
-        int row = rowAt(mouseX, mouseY);
-        if (row >= 0 && hoveredTab < 0) graphics.renderTooltip(font, Component.translatable("gui.enchantmod.research.delete"), mouseX, mouseY);
+        if (hoveredTab >= 0) graphics.renderTooltip(font, ResearchPanel.tabName(hoveredTab < tabs.size() ? tabs.get(hoveredTab).key() : "templates"), mouseX, mouseY);
         if (hovered != null) graphics.renderTooltip(font, nameOf(hovered), mouseX, mouseY);
-    }
-
-    private void renderTemplates(GuiGraphics graphics, int mouseX, int mouseY) {
-        refresh();
-        search.setX(TAB_W + 10);
-        search.setY(14);
-        search.setWidth(width - TAB_W - 44);
-        int rowX = TAB_W + 8, rowW = width - 12 - rowX;
-        listScroll = Math.max(0, Math.min(listScroll, shown.size() * ROW - (height - 10 - LIST_TOP)));
-        if (shown.isEmpty()) {
-            Component none = Component.translatable("gui.enchantmod.research.no_templates");
-            graphics.drawString(font, none, rowX + (rowW - font.width(none)) / 2, LIST_TOP + 20, 0xFFE2D4AC, false);
-        }
-        graphics.enableScissor(rowX, LIST_TOP, rowX + rowW, height - 10);
-        int hovered = rowAt(mouseX, mouseY);
-        for (int i = 0; i < shown.size(); i++) {
-            int y = LIST_TOP + i * ROW - (int) listScroll;
-            graphics.fill(rowX, y, rowX + rowW, y + ROW - 2, i == hovered ? 0x88B8764A : 0x55000000);
-            String name = shown.get(i).name().isEmpty() ? Component.translatable("gui.enchantmod.research.unnamed").getString() : shown.get(i).name();
-            graphics.drawString(font, name, rowX + 4, y + 3, 0xFFE2D4AC, false);
-            graphics.drawString(font, font.plainSubstrByWidth(lines.get(i), rowW - 8), rowX + 4, y + 14, 0xFFB8A27A, false);
-        }
-        graphics.disableScissor();
     }
 
     private int closeX, closeY;
@@ -216,16 +145,14 @@ public class ResearchScreen extends Screen {
             return true;
         }
         dragged = 0;
-        if (inTemplates()) {
-            search.setFocused(search.mouseClicked(mouseX, mouseY, button));
-            int row = rowAt(mouseX, mouseY);
-            if (button == 1 && row >= 0) PacketDistributor.sendToServer(new LibraryPayload(LibraryPayload.OP_DELETE, shown.get(row).name()));
-        }
         int clicked = tabAt(mouseX, mouseY);
+        if (button == 0 && clicked == tabs.size()) {
+            PacketDistributor.sendToServer(new OpenStorePayload()); // the server opens the store; its screen replaces this one
+            return true;
+        }
         if (button == 0 && clicked >= 0) {
             tab = clicked;
-            search.setFocused(false);
-            nodes = inTemplates() ? List.of() : tabs.get(clicked).nodes();
+            nodes = tabs.get(clicked).nodes();
             panX = 0;
             panY = 0;
             dragged = LIMIT; // a click on the tabs never opens a node
@@ -256,24 +183,7 @@ public class ResearchScreen extends Screen {
     }
 
     @Override
-    public boolean charTyped(char codePoint, int modifiers) {
-        if (inTemplates() && search.isFocused() && search.charTyped(codePoint, modifiers)) return true;
-        return super.charTyped(codePoint, modifiers);
-    }
-
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (!inTemplates()) return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
-        listScroll -= scrollY * ROW; // render keeps it within the list
-        return true;
-    }
-
-    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        if (inTemplates() && search.isFocused() && keyCode != 256) {
-            search.keyPressed(keyCode, scanCode, modifiers);
-            return true;
-        }
         if (reading && keyCode == 256) { // Esc goes back to the map
             reading = false;
             return true;
