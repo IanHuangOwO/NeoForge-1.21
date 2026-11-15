@@ -19,11 +19,11 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
- * Reads the runes, enchant rows and forecast numbers from data packs (data/namespace/enchantmod/rune, /enchant, /template and forecast.json)
+ * Reads the runes, enchant rows and forecast numbers from data packs (data/namespace/enchantmod/rune, /enchant and forecast.json)
  * whenever data loads or /reload runs, installs them in Definitions, and sends the raw files to every client that gets the data.
  */
 public final class DefinitionLoader extends SimplePreparableReloadListener<Definitions.Raw> {
-    private static final String RUNES = "enchantmod/rune", ENCHANTS = "enchantmod/enchant", TEMPLATES = "enchantmod/template";
+    private static final String RUNES = "enchantmod/rune", ENCHANTS = "enchantmod/enchant";
     private static final ResourceLocation FORECAST = ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "enchantmod/forecast.json");
 
     public static void onAddReloadListeners(AddReloadListenerEvent event) {
@@ -38,7 +38,7 @@ public final class DefinitionLoader extends SimplePreparableReloadListener<Defin
     @Override
     protected Definitions.Raw prepare(ResourceManager manager, ProfilerFiller profiler) {
         String forecast = manager.getResource(FORECAST).map(DefinitionLoader::read).orElse(null);
-        return new Definitions.Raw(read(manager, RUNES), read(manager, ENCHANTS), read(manager, TEMPLATES), forecast);
+        return new Definitions.Raw(read(manager, RUNES), read(manager, ENCHANTS), forecast);
     }
 
     @Override
@@ -49,7 +49,7 @@ public final class DefinitionLoader extends SimplePreparableReloadListener<Defin
     /** Parses and installs the files, logging anything that was dropped; the client calls this too, with what the server sent. */
     public static void install(Definitions.Raw raw, String side) {
         Definitions.Snapshot snapshot = Definitions.install(DefinitionParser.parse(raw, message -> EnchantMod.LOGGER.warn("Enchant definitions: {}", message)));
-        EnchantMod.LOGGER.info("Enchant definitions ({}): {} runes, {} enchants, {} templates", side, snapshot.runes().size(), snapshot.enchants().size(), snapshot.templates().size());
+        EnchantMod.LOGGER.info("Enchant definitions ({}): {} runes, {} enchants", side, snapshot.runes().size(), snapshot.enchants().size());
     }
 
     /** Every .json under the folder in every namespace, by id "namespace:name". */

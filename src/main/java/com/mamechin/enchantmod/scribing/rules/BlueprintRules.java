@@ -83,15 +83,10 @@ public final class BlueprintRules {
     }
 
     public static Blueprint place(Blueprint bp, int cell, String runeId) {
-        return place(bp, cell, runeId, TemplateLimits.FULL);
-    }
-
-    /** Places a rune; every cell it covers must be inside the template's drawing area. */
-    public static Blueprint place(Blueprint bp, int cell, String runeId, TemplateLimits tier) {
         // shortcut: any rune is accepted; once runes are discovered, check the player's known runes here
         if (Rune.byId(runeId) == null) return null;
         Set<Integer> cells = footprint(cell, sizeOf(runeId));
-        if (cells == null || !cells.stream().allMatch(tier::contains)) return null;
+        if (cells == null) return null;
         Set<Integer> taken = occupied(bp), runes = runeCells(bp);
         for (int c : cells) {
             if (taken.contains(c)) return null;
@@ -128,18 +123,13 @@ public final class BlueprintRules {
      * allowed.
      */
     public static Blueprint addLine(Blueprint bp, int a, int b, List<Integer> path) {
-        return addLine(bp, a, b, path, TemplateLimits.FULL);
-    }
-
-    /** As above, with every path cell inside the template's drawing area. */
-    public static Blueprint addLine(Blueprint bp, int a, int b, List<Integer> path, TemplateLimits tier) {
         if (a == b || !hasRune(bp, a) || !hasRune(bp, b) || path.isEmpty() || path.size() > CELLS || bp.lines().size() >= CELLS) return null;
         Blueprint.RuneAt runeA = runeAt(bp, a), runeB = runeAt(bp, b);
         Set<Integer> taken = occupied(bp);
         Set<Integer> seen = new HashSet<>();
         for (int i = 0; i < path.size(); i++) {
             int cell = path.get(i);
-            if (!inGrid(cell) || !tier.contains(cell) || taken.contains(cell) || !seen.add(cell)) return null;
+            if (!inGrid(cell) || taken.contains(cell) || !seen.add(cell)) return null;
             if (i == 0 ? !touches(runeA, cell) : !adjacent(path.get(i - 1), cell)) return null;
         }
         if (!touches(runeB, path.get(path.size() - 1))) return null;

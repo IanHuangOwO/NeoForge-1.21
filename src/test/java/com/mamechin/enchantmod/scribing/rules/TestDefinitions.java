@@ -17,18 +17,14 @@ public final class TestDefinitions {
 
     /** Makes the shipped files the current definitions (again, if another test replaced them). */
     public static synchronized void load() {
-        if (shipped == null) shipped = new Definitions.Raw(read("rune"), read("enchant"), read("template"), text(DATA.resolve("forecast.json")));
-        if (!shipped.equals(Definitions.current().raw())) install(shipped);
+        if (shipped == null) shipped = new Definitions.Raw(read("rune"), read("enchant"), text(DATA.resolve("forecast.json")));
+        if (!shipped.equals(Definitions.current().raw())) install(shipped.runes(), shipped.enchants(), shipped.forecast());
     }
 
     /** Installs exactly these files (ids "namespace:name") and returns what the parser complained about. */
     public static java.util.List<String> install(Map<String, String> runes, Map<String, String> enchants, String forecast) {
-        return install(new Definitions.Raw(runes, enchants, forecast));
-    }
-
-    public static java.util.List<String> install(Definitions.Raw raw) {
         java.util.List<String> warnings = new java.util.ArrayList<>();
-        Definitions.install(DefinitionParser.parse(raw, warnings::add));
+        Definitions.install(DefinitionParser.parse(new Definitions.Raw(runes, enchants, forecast), warnings::add));
         return warnings;
     }
 

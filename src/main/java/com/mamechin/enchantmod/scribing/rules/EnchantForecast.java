@@ -64,11 +64,6 @@ public final class EnchantForecast {
     }
 
     public static List<Result> forecast(Blueprint bp) {
-        return forecast(bp, Integer.MAX_VALUE);
-    }
-
-    /** As above, with no level above maxLevel (a template's cap): the chance of the higher levels goes to maxLevel. */
-    public static List<Result> forecast(Blueprint bp, int maxLevel) {
         Map<Integer, Rune> runes = new TreeMap<>();
         for (Blueprint.RuneAt r : bp.runes()) {
             Rune rune = Rune.byId(r.rune());
@@ -115,14 +110,14 @@ public final class EnchantForecast {
                 dists.add(countDistribution(attached.getOrDefault(rune.id(), List.of()))); // a kind that is absent is {1}: none joined
             }
             Map<Integer, Double> levels = new TreeMap<>();
-            walk(kinds, dists, 0, intact, new int[kinds.size()], levels, maxLevel);
+            walk(kinds, dists, 0, intact, new int[kinds.size()], levels);
             results.add(new Result(enchant, levels, 1 - intact));
         }
         return results;
     }
 
     /** Adds the chance of every combination of joined utility runes to the level it gives. */
-    private static void walk(List<Rune> kinds, List<double[]> dists, int i, double chance, int[] counts, Map<Integer, Double> levels, int maxLevel) {
+    private static void walk(List<Rune> kinds, List<double[]> dists, int i, double chance, int[] counts, Map<Integer, Double> levels) {
         if (chance == 0) return;
         if (i == kinds.size()) {
             int level = 1;
@@ -131,12 +126,12 @@ public final class EnchantForecast {
                 joined.put(kinds.get(k).id(), counts[k]);
                 if (kinds.get(k).role() == Rune.Role.BOOST) level += counts[k] * kinds.get(k).boostLevels();
             }
-            levels.merge(Math.min(Math.min(level, levelCap(joined)), maxLevel), chance, Double::sum);
+            levels.merge(Math.min(level, levelCap(joined)), chance, Double::sum);
             return;
         }
         for (int c = 0; c < dists.get(i).length; c++) {
             counts[i] = c;
-            walk(kinds, dists, i + 1, chance * dists.get(i)[c], counts, levels, maxLevel);
+            walk(kinds, dists, i + 1, chance * dists.get(i)[c], counts, levels);
         }
     }
 

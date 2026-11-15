@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
-import com.mamechin.enchantmod.items.template.EnchantTemplate;
+import com.mamechin.enchantmod.items.EnchantTemplate;
 import com.mamechin.enchantmod.scribing.ModDataComponents;
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
 import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
@@ -40,7 +40,6 @@ import com.mamechin.enchantmod.EnchantMod;
 /** The altar holds the item to enchant and an enchant template. A quill used on it fixes the template's enchants onto the item. */
 public class AltarBlockEntity extends BlockEntity {
     public static final int ITEM = 0, TEMPLATE = 1;
-    public static final TagKey<Item> TEMPLATES = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "templates"));
     public static final TagKey<Item> QUILLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "quills"));
 
     private final ItemStackHandler inventory = new ItemStackHandler(2) {
@@ -51,7 +50,7 @@ public class AltarBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return (slot == TEMPLATE) == stack.is(TEMPLATES) && !stack.is(QUILLS);
+            return (slot == TEMPLATE) == (stack.getItem() instanceof EnchantTemplate) && !stack.is(QUILLS);
         }
 
         @Override
@@ -86,7 +85,7 @@ public class AltarBlockEntity extends BlockEntity {
             return;
         }
         Blueprint blueprint = template.getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY);
-        List<EnchantForecast.Result> results = EnchantForecast.forecast(blueprint, EnchantTemplate.tierOf(template).maxLevel());
+        List<EnchantForecast.Result> results = EnchantForecast.forecast(blueprint);
         var registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         List<Component> done = new ArrayList<>();
         int[] failed = {0};

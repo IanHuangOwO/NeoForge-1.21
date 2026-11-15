@@ -21,7 +21,7 @@ import com.google.gson.JsonParser;
  */
 public final class DefinitionParser {
     /** What parse returns; Definitions.install turns it into the current set. */
-    public record Parsed(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Definitions.Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes, Map<String, TemplateLimits> templates) {}
+    public record Parsed(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Definitions.Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes) {}
 
     private DefinitionParser() {}
 
@@ -60,15 +60,6 @@ public final class DefinitionParser {
             kept.add(enchant);
         }
 
-        Map<String, TemplateLimits> templates = new HashMap<>();
-        for (Map.Entry<String, String> e : new TreeMap<>(raw.templates()).entrySet()) {
-            try {
-                templates.put(e.getKey(), template(e.getKey(), JsonParser.parseString(e.getValue()).getAsJsonObject()));
-            } catch (RuntimeException ex) {
-                warn.accept("template " + e.getKey() + " ignored: " + ex.getMessage());
-            }
-        }
-
         ForecastRules rules = ForecastRules.DEFAULT;
         if (raw.forecast() != null) {
             try {
@@ -77,7 +68,7 @@ public final class DefinitionParser {
                 warn.accept("forecast.json ignored: " + ex.getMessage());
             }
         }
-        return new Parsed(List.copyOf(runes), List.copyOf(kept), rules, raw, Map.copyOf(byId), Map.copyOf(byRunes), Map.copyOf(templates));
+        return new Parsed(List.copyOf(runes), List.copyOf(kept), rules, raw, Map.copyOf(byId), Map.copyOf(byRunes));
     }
 
     private static Rune rune(String id, JsonObject o) {
@@ -115,15 +106,6 @@ public final class DefinitionParser {
         sorted.sort(null);
         String category = o.has("category") ? o.get("category").getAsString() : "general";
         return new Enchant(id, enchantment, List.copyOf(sorted), EnchantGroups.CATEGORY_ORDER.contains(category) ? category : "general", integer(o, "order", 0));
-    }
-
-    private static TemplateLimits template(String item, JsonObject o) {
-        int width = integer(o, "width", BlueprintRules.WIDTH), height = integer(o, "height", BlueprintRules.HEIGHT), maxLevel = integer(o, "max_level", 0);
-        if (width < 1 || width > BlueprintRules.WIDTH || height < 1 || height > BlueprintRules.HEIGHT) {
-            throw new IllegalArgumentException("width must be 1 to " + BlueprintRules.WIDTH + " and height 1 to " + BlueprintRules.HEIGHT);
-        }
-        if (maxLevel < 0) throw new IllegalArgumentException("max_level must be 0 (no cap) or more");
-        return new TemplateLimits(item, width, height, maxLevel == 0 ? Integer.MAX_VALUE : maxLevel);
     }
 
     private static ForecastRules rules(JsonObject o) {

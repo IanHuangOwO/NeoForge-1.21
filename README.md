@@ -9,7 +9,7 @@ What is in it
 - **Cauldron and inks.** A small cauldron brews liquid of enchanting and three tiers of ink from water, lapis and other ingredients over a heat source. Recipes are data pack JSON.
 - **Inkwells and quills.** Three tiers of each. An inkwell holds ink and wears down as you draw. It never breaks, it just runs dry.
 - **Scribing table.** A two-block table where you draw on an enchant template. You place runes on a grid and join them with lines. Runes may not touch. Core runes are 3x3, stabilizers are 2x2 and the boost rune is 1x1. Every cell drawn costs one durability of the inkwell.
-- **Enchant templates.** Three tiers (Paper, Parchment, Vellum). A tier sets how much of the grid you can draw on and the highest level the template can give. The template's tooltip shows which enchants the drawing makes and the exact chance of each level.
+- **Enchant templates.** One template item. The template's tooltip shows which enchants the drawing makes and the exact chance of each level.
 - **Research Handbook.** A Thaumonomicon-style map of knowledge nodes with side tabs. It has one page per rune and one per enchant. Carry it to see the enchant pages beside the scribing table, or click with it in hand to open the map.
 
 Not built yet: the altar that fixes a template onto an item, rune discovery and progression, recipes for most items, and a lot of art. Most of the in-game behaviour has been written and unit tested but not played through yet.
@@ -17,7 +17,7 @@ Not built yet: the altar that fixes a template onto an item, rune discovery and 
 Runes and enchants are data
 ---------------------------
 
-Runes, the enchant table, the template tiers and the line-break numbers are JSON files under `data/<namespace>/enchantmod/` (`rune/`, `enchant/`, `template/` and `forecast.json`). A data pack or another mod can add or change them without code. The server sends them to clients when a player joins or data reloads, and a wrong entry is dropped with a warning in the log. The file formats and the lang keys for their texts are described in the "Data-driven runes and enchants" and "Template tiers" sections of the design document.
+Runes, the enchant table, and the line-break numbers are JSON files under `data/<namespace>/enchantmod/` (`rune/`, `enchant/` and `forecast.json`). A data pack or another mod can add or change them without code. The server sends them to clients when a player joins or data reloads, and a wrong entry is dropped with a warning in the log. The file formats and the lang keys for their texts are described in the "Data-driven runes and enchants" section of the design document.
 
 Building
 --------

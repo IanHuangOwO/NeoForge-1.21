@@ -6,9 +6,7 @@ import java.util.List;
 
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.blocks.ModBlocks;
-import com.mamechin.enchantmod.items.template.EnchantTemplate;
 import com.mamechin.enchantmod.items.ModItems;
-import com.mamechin.enchantmod.scribing.rules.TemplateLimits;
 import com.mamechin.enchantmod.items.inkwell.EnchantInkwell;
 
 import net.minecraft.core.registries.Registries;
@@ -28,7 +26,6 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 /** The scribing table screen: three table slots, the player inventory, and the edits sent by the screen. */
 public class ScribingTableMenu extends AbstractContainerMenu {
     private static final TagKey<Item> INKWELLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "inkwells"));
-    private static final TagKey<Item> TEMPLATES = com.mamechin.enchantmod.altar.AltarBlockEntity.TEMPLATES;
     private static final TagKey<Item> QUILLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "quills"));
 
     public static final int OP_PLACE = 0, OP_ERASE = 1, OP_LINE = 2;
@@ -66,7 +63,7 @@ public class ScribingTableMenu extends AbstractContainerMenu {
         addSlot(new SlotItemHandler(inventory, ScribingTableBlockEntity.TEMPLATE, 8, 62) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(TEMPLATES);
+                return stack.is(ModItems.ENCHANT_TEMPLATE.get());
             }
 
             @Override
@@ -90,11 +87,6 @@ public class ScribingTableMenu extends AbstractContainerMenu {
         return inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE).getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY);
     }
 
-    /** What the template in the table allows (the whole grid, no cap, when there is none). */
-    public TemplateLimits tier() {
-        return EnchantTemplate.tierOf(inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE));
-    }
-
     /** Ink left in the inkwell in the table: how many more cells can be drawn. */
     public int ink() {
         return EnchantInkwell.remaining(inventory.getStackInSlot(ScribingTableBlockEntity.INKWELL));
@@ -112,9 +104,9 @@ public class ScribingTableMenu extends AbstractContainerMenu {
         if (!canEdit()) return;
         Blueprint current = blueprint();
         Blueprint next = switch (op) {
-            case OP_PLACE -> BlueprintRules.place(current, cell, rune, tier());
+            case OP_PLACE -> BlueprintRules.place(current, cell, rune);
             case OP_ERASE -> BlueprintRules.erase(current, cell);
-            case OP_LINE -> BlueprintRules.addLine(current, cell, cell2, path, tier());
+            case OP_LINE -> BlueprintRules.addLine(current, cell, cell2, path);
             default -> null;
         };
         if (next == null) return;

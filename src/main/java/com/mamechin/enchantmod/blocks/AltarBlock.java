@@ -1,6 +1,7 @@
 package com.mamechin.enchantmod.blocks;
 
 import com.mamechin.enchantmod.altar.AltarBlockEntity;
+import com.mamechin.enchantmod.items.EnchantTemplate;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -53,7 +54,7 @@ public class AltarBlock extends Block implements EntityBlock {
             if (!level.isClientSide) altar.enchant(player);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
-        int slot = held.is(AltarBlockEntity.TEMPLATES) ? AltarBlockEntity.TEMPLATE : AltarBlockEntity.ITEM;
+        int slot = held.getItem() instanceof EnchantTemplate ? AltarBlockEntity.TEMPLATE : AltarBlockEntity.ITEM;
         if (!altar.inventory().getStackInSlot(slot).isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide) {
             altar.inventory().setStackInSlot(slot, held.copyWithCount(1));

@@ -57,7 +57,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
 
     private int cellAt(double mouseX, double mouseY) {
         int x = (int) Math.floor((mouseX - leftPos - GRID_X) / CELL), y = (int) Math.floor((mouseY - topPos - GRID_Y) / CELL);
-        return x < 0 || y < 0 || x >= BlueprintRules.WIDTH || y >= BlueprintRules.HEIGHT || !menu.tier().contains(y * BlueprintRules.WIDTH + x) ? -1 : y * BlueprintRules.WIDTH + x; // outside the template's area is not part of the grid
+        return x < 0 || y < 0 || x >= BlueprintRules.WIDTH || y >= BlueprintRules.HEIGHT ? -1 : y * BlueprintRules.WIDTH + x;
     }
 
     private int paletteAt(double mouseX, double mouseY) {
@@ -88,7 +88,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     private void extendLine(int mouseX, int mouseY) {
         if (lineStart < 0) return;
         int target = cellAt(mouseX, mouseY);
-        if (target >= 0 && !LineRouting.extend(menu.blueprint(), lineStart, linePath, target, menu.tier())) cancelLine();
+        if (target >= 0 && !LineRouting.extend(menu.blueprint(), lineStart, linePath, target)) cancelLine();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
             int cell = cellAt(mouseX, mouseY);
             if (cell >= 0) {
                 Set<Integer> cells = BlueprintRules.footprint(cell, held.size());
-                Blueprint placed = BlueprintRules.place(menu.blueprint(), cell, held.id(), menu.tier());
+                Blueprint placed = BlueprintRules.place(menu.blueprint(), cell, held.id());
                 boolean fine = placed != null && BlueprintRules.cost(menu.blueprint(), placed) <= menu.ink();
                 int color = fine ? 0x6040C040 : 0x60C04040;
                 for (int c : cells == null ? Set.of(cell) : cells) {
@@ -145,12 +145,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
         Blueprint blueprint = menu.blueprint();
         Set<Integer> runeCells = BlueprintRules.runeCells(blueprint);
         for (int cell = 0; cell < BlueprintRules.CELLS; cell++) {
-            if (runeCells.contains(cell)) continue;
-            blitCell(graphics, CELL_TEXTURE, cell);
-            if (!menu.tier().contains(cell)) { // a cell this template cannot be drawn on
-                int x = leftPos + GRID_X + (cell % BlueprintRules.WIDTH) * CELL, y = topPos + GRID_Y + (cell / BlueprintRules.WIDTH) * CELL;
-                graphics.fill(x, y, x + CELL - 1, y + CELL - 1, 0xB0141420);
-            }
+            if (!runeCells.contains(cell)) blitCell(graphics, CELL_TEXTURE, cell);
         }
         for (Blueprint.RuneAt placed : blueprint.runes()) {
             Rune rune = Rune.byId(placed.rune());

@@ -41,16 +41,10 @@ public final class LineRouting {
      * path (or taking them back when the target is behind the tail); stops at anything occupied. False when there is no rune at lineStart.
      */
     public static boolean extend(Blueprint blueprint, int lineStart, List<Integer> linePath, int target) {
-        return extend(blueprint, lineStart, linePath, target, TemplateLimits.FULL);
-    }
-
-    /** As above; cells outside the template's drawing area count as taken, so the line stops at its edge. */
-    public static boolean extend(Blueprint blueprint, int lineStart, List<Integer> linePath, int target, TemplateLimits tier) {
         Blueprint.RuneAt start = BlueprintRules.runeAt(blueprint, lineStart);
         if (start == null) return false;
         Set<Integer> taken = new HashSet<>(BlueprintRules.occupied(blueprint));
         taken.addAll(linePath);
-        for (int cell = 0; cell < BlueprintRules.CELLS; cell++) if (!tier.contains(cell)) taken.add(cell);
         for (int guard = 0; guard < BlueprintRules.CELLS; guard++) {
             int next;
             if (linePath.isEmpty()) {

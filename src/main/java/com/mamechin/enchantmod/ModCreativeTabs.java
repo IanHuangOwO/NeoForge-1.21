@@ -31,9 +31,7 @@ public final class ModCreativeTabs {
                 output.accept(ModFluids.INK_TIER1.bucket().get());
                 output.accept(ModFluids.INK_TIER2.bucket().get());
                 output.accept(ModItems.SCRIBING_TABLE.get());
-                output.accept(ModItems.ENCHANT_TEMPLATE_TIER0.get());
-                output.accept(ModItems.ENCHANT_TEMPLATE_TIER1.get());
-                output.accept(ModItems.ENCHANT_TEMPLATE_TIER2.get());
+                output.accept(ModItems.ENCHANT_TEMPLATE.get());
                 output.accept(ModItems.RESEARCH_HANDBOOK.get());
                 output.accept(ModItems.SMALL_CAULDRON.get());
                 output.accept(ModItems.ALTAR.get());
