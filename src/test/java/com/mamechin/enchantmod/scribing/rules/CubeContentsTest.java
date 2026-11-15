@@ -31,13 +31,16 @@ class CubeContentsTest {
     }
 
     @Test
-    void theSameEnchantKeepsTheBestOutcome() {
+    void theSameEnchantAddsUp() {
         // A: level 2 at 50%, else fail. B: level 3 at 40%, level 2 at 30%, else fail.
         List<CubeContents.Entry> entries = CubeContents.combine(List.of(result(Map.of(2, 0.5)), result(Map.of(3, 0.4, 2, 0.3)))).entries();
         assertEquals(1, entries.size());
         CubeContents.Entry entry = entries.get(0);
-        assertEquals(0.45, entry.chances().get(0).chance(), 1e-9); // B makes 2, or B fails and A makes 2
-        assertEquals(0.40, entry.chances().get(1).chance(), 1e-9); // only B makes 3
+        assertEquals(List.of(2, 3, 4, 5), entry.chances().stream().map(CubeContents.Chance::level).toList());
+        assertEquals(0.30, entry.chances().get(0).chance(), 1e-9); // 2: B makes 2 and A fails, or A makes 2 and B fails
+        assertEquals(0.20, entry.chances().get(1).chance(), 1e-9); // 3: B makes 3 and A fails
+        assertEquals(0.15, entry.chances().get(2).chance(), 1e-9); // 4: both make 2
+        assertEquals(0.20, entry.chances().get(3).chance(), 1e-9); // 5: A makes 2 and B makes 3
         assertEquals(0.15, entry.failChance(), 1e-9);              // both fail
     }
 

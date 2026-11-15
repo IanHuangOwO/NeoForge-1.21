@@ -56,31 +56,27 @@ public record CubeContents(List<Entry> entries) {
     public static final StreamCodec<ByteBuf, CubeContents> STREAM_CODEC = Entry.STREAM_CODEC.apply(ByteBufCodecs.list(256)).map(CubeContents::new, CubeContents::entries);
 
     /**
-     * Combines forecasts. The same enchantment made more than once (by one template or several) keeps the best outcome: the
-     * results are independent, so the chance that the best level is at most L is the product of each one's chance of at most L.
+     * Combines forecasts. The same enchantment made more than once (by one template or several) adds up: each result is an
+     * independent roll that gives its level or nothing, and the cube's level is the sum, so the chance of each total is a
+     * convolution of the results' chances. A total of 0 is a failed fixation.
      */
     public static CubeContents combine(List<EnchantForecast.Result> results) {
         Map<String, List<EnchantForecast.Result>> byEnchantment = new LinkedHashMap<>();
         for (EnchantForecast.Result r : results) byEnchantment.computeIfAbsent(r.enchant().enchantment(), k -> new ArrayList<>()).add(r);
         List<Entry> entries = new ArrayList<>();
         for (Map.Entry<String, List<EnchantForecast.Result>> group : byEnchantment.entrySet()) {
-            TreeMap<Integer, Double> levels = new TreeMap<>();
-            for (EnchantForecast.Result r : group.getValue()) for (int level : r.levels().keySet()) if (level > 0) levels.put(level, 0.0);
-            double before = 1; // chance that the best level is below the one being looked at; to begin with, that every result failed
-            for (EnchantForecast.Result r : group.getValue()) before *= 1 - r.levels().values().stream().mapToDouble(Double::doubleValue).sum();
-            for (int level : new ArrayList<>(levels.keySet())) {
-                double atMost = 1;
-                for (EnchantForecast.Result r : group.getValue()) {
-                    double above = 0;
-                    for (Map.Entry<Integer, Double> e : r.levels().entrySet()) if (e.getKey() > level) above += e.getValue();
-                    double notAbove = 1 - above;
-                    atMost *= notAbove;
+            TreeMap<Integer, Double> total = new TreeMap<>(Map.of(0, 1.0)); // chance of each summed level so far
+            for (EnchantForecast.Result r : group.getValue()) {
+                TreeMap<Integer, Double> next = new TreeMap<>();
+                double fail = 1 - r.levels().values().stream().mapToDouble(Double::doubleValue).sum();
+                for (Map.Entry<Integer, Double> t : total.entrySet()) {
+                    next.merge(t.getKey(), t.getValue() * Math.max(0, fail), Double::sum);
+                    for (Map.Entry<Integer, Double> l : r.levels().entrySet()) next.merge(t.getKey() + l.getKey(), t.getValue() * l.getValue(), Double::sum);
                 }
-                levels.put(level, Math.max(0, atMost - before));
-                before = atMost;
+                total = next;
             }
             List<Chance> chances = new ArrayList<>();
-            for (Map.Entry<Integer, Double> e : levels.entrySet()) if (e.getValue() > 1e-9) chances.add(new Chance(e.getKey(), e.getValue()));
+            for (Map.Entry<Integer, Double> e : total.entrySet()) if (e.getKey() > 0 && e.getValue() > 1e-9) chances.add(new Chance(e.getKey(), e.getValue()));
             if (!chances.isEmpty()) entries.add(new Entry(group.getKey(), List.copyOf(chances)));
         }
         return new CubeContents(List.copyOf(entries));
