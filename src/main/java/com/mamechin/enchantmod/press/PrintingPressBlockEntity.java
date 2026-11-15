@@ -145,7 +145,7 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
         presser = null;
         ItemStack cube = inventory.getStackInSlot(CUBE);
         if (!(cube.getItem() instanceof EnchantCube) || EnchantCube.isPressed(cube)) return; // the cube is gone or already pressed: nothing to press into
-        CubeContents contents = CubeContents.combine(forecasts(usableTemplates())); // read again: only the templates the cube opens now count
+        CubeContents contents = CubeContents.combine(forecasts(usableTemplates())).capped(((EnchantCube) cube.getItem()).maxLevel()); // read again: only the templates the cube opens now count
         if (contents.entries().isEmpty()) return;
         ItemStack pressed = cube.copy();
         pressed.set(ModDataComponents.CUBE_CONTENTS.get(), contents);

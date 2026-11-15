@@ -14,11 +14,17 @@ import net.minecraft.world.item.TooltipFlag;
 
 /** Base for every enchant cube tier. A cube holds the enchants pressed into it (CubeContents); the tier sets how many templates the printing press may press into it. */
 public abstract class EnchantCube extends Item {
-    private final int capacity;
+    private final int capacity, maxLevel;
 
-    protected EnchantCube(Properties properties, int capacity) {
+    protected EnchantCube(Properties properties, int capacity, int maxLevel) {
         super(properties.stacksTo(1));
         this.capacity = capacity;
+        this.maxLevel = maxLevel;
+    }
+
+    /** The highest level of one enchantment the cube can carry; pressing caps the sum of the templates' levels at this. */
+    public int maxLevel() {
+        return maxLevel;
     }
 
     /** How many templates can be pressed into this cube at once. */
@@ -41,6 +47,7 @@ public abstract class EnchantCube extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, context, tooltip, flag);
         tooltip.add(Component.translatable("tooltip.enchantmod.cube.capacity", capacity).withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.add(Component.translatable("tooltip.enchantmod.cube.max_level", maxLevel).withStyle(ChatFormatting.DARK_GRAY));
         ForecastTooltip.add(tooltip, stack.getOrDefault(ModDataComponents.CUBE_CONTENTS.get(), CubeContents.EMPTY));
     }
 }

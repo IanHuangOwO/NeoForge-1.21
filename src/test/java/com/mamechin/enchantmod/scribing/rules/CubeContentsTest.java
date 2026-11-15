@@ -51,4 +51,15 @@ class CubeContentsTest {
         assertEquals(2, entry.roll(0.6));
         assertEquals(0, entry.roll(0.8));
     }
+
+    @Test
+    void aCapMergesTheHigherLevelsIntoIt() {
+        CubeContents capped = new CubeContents(List.of(new CubeContents.Entry("minecraft:efficiency",
+                List.of(new CubeContents.Chance(2, 0.3), new CubeContents.Chance(5, 0.2), new CubeContents.Chance(7, 0.1))))).capped(5);
+        CubeContents.Entry entry = capped.entries().get(0);
+        assertEquals(2, entry.chances().size());
+        assertEquals(5, entry.chances().get(1).level());
+        assertEquals(0.3, entry.chances().get(1).chance(), 1e-9);
+        assertEquals(0.4, entry.failChance(), 1e-9);
+    }
 }

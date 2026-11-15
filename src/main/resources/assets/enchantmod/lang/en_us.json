@@ -12,6 +12,7 @@
   "item.enchantmod.enchant_cube_tier1": "Gold Enchant Cube",
   "item.enchantmod.enchant_cube_tier2": "Diamond Enchant Cube",
   "container.enchantmod.printing_press": "Printing Press",
+  "tooltip.enchantmod.cube.max_level": "Carries levels up to %s",
   "tooltip.enchantmod.cube.capacity": "Presses up to %s template(s)",
   "message.enchantmod.press.need_cube": "The press needs an enchant cube",
   "message.enchantmod.press.nothing": "No template in the press makes an enchant",

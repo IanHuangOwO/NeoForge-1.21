@@ -55,6 +55,17 @@ public record CubeContents(List<Entry> entries) {
     public static final Codec<CubeContents> CODEC = Entry.CODEC.listOf().xmap(CubeContents::new, CubeContents::entries);
     public static final StreamCodec<ByteBuf, CubeContents> STREAM_CODEC = Entry.STREAM_CODEC.apply(ByteBufCodecs.list(256)).map(CubeContents::new, CubeContents::entries);
 
+    /** The same contents with no level above {@code max}: the chance of a higher level becomes the chance of {@code max}. */
+    public CubeContents capped(int max) {
+        List<Entry> out = new ArrayList<>();
+        for (Entry e : entries) {
+            TreeMap<Integer, Double> levels = new TreeMap<>();
+            for (Chance c : e.chances()) levels.merge(Math.min(c.level(), max), c.chance(), Double::sum);
+            out.add(new Entry(e.enchantment(), levels.entrySet().stream().map(l -> new Chance(l.getKey(), l.getValue())).toList()));
+        }
+        return new CubeContents(List.copyOf(out));
+    }
+
     /**
      * Combines forecasts. The same enchantment made more than once (by one template or several) adds up: each result is an
      * independent roll that gives its level or nothing, and the cube's level is the sum, so the chance of each total is a
