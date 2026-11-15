@@ -59,7 +59,7 @@ class LineRoutingTest {
 
     @Test
     void aLineStopsAtTheEdgeOfTheTemplateArea() {
-        TemplateTier area = new TemplateTier("x:area", 9, 7, Integer.MAX_VALUE); // columns 3..11
+        TemplateLimits area = new TemplateLimits("x:area", 9, 7, Integer.MAX_VALUE); // columns 3..11
         Blueprint bp = BlueprintRules.place(Blueprint.EMPTY, c(4, 3), "berkana", area);
         List<Integer> path = new ArrayList<>();
         LineRouting.extend(bp, c(4, 3), path, c(14, 3), area);

@@ -82,8 +82,8 @@ class DefinitionParserTest {
                 "m:flat", "{\"height\":0}",
                 "m:neg", "{\"max_level\":-1}"), null));
         assertEquals(3, warnings.size(), warnings.toString());
-        assertEquals(new TemplateTier("m:good", 9, 7, 3), Definitions.template("m:good"));
+        assertEquals(new TemplateLimits("m:good", 9, 7, 3), Definitions.template("m:good"));
         assertEquals(Integer.MAX_VALUE, Definitions.template("m:uncapped").maxLevel());
-        assertEquals(TemplateTier.FULL, Definitions.template("m:wide"));
+        assertEquals(TemplateLimits.FULL, Definitions.template("m:wide"));
     }
 }

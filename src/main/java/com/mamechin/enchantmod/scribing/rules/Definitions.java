@@ -22,7 +22,7 @@ public final class Definitions {
     }
 
     /** One parsed set of definitions. version changes every time a new set is installed, so caches can tell. */
-    public record Snapshot(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes, Map<String, TemplateTier> templates, int version) {
+    public record Snapshot(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes, Map<String, TemplateLimits> templates, int version) {
         public static final Snapshot EMPTY = new Snapshot(List.of(), List.of(), ForecastRules.DEFAULT, Raw.EMPTY, Map.of(), Map.of(), Map.of(), 0);
     }
 
@@ -64,8 +64,8 @@ public final class Definitions {
     }
 
     /** What the template item with this id allows; the whole grid with no level cap when there is no file for it. */
-    public static TemplateTier template(String itemId) {
-        return current.templates().getOrDefault(itemId, TemplateTier.FULL);
+    public static TemplateLimits template(String itemId) {
+        return current.templates().getOrDefault(itemId, TemplateLimits.FULL);
     }
 
     /** The enchant row made by exactly these canonical rune ids, sorted, or null. */

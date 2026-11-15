@@ -21,7 +21,7 @@ import com.google.gson.JsonParser;
  */
 public final class DefinitionParser {
     /** What parse returns; Definitions.install turns it into the current set. */
-    public record Parsed(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Definitions.Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes, Map<String, TemplateTier> templates) {}
+    public record Parsed(List<Rune> runes, List<Enchant> enchants, ForecastRules rules, Definitions.Raw raw, Map<String, Rune> runeById, Map<String, Enchant> byRunes, Map<String, TemplateLimits> templates) {}
 
     private DefinitionParser() {}
 
@@ -60,7 +60,7 @@ public final class DefinitionParser {
             kept.add(enchant);
         }
 
-        Map<String, TemplateTier> templates = new HashMap<>();
+        Map<String, TemplateLimits> templates = new HashMap<>();
         for (Map.Entry<String, String> e : new TreeMap<>(raw.templates()).entrySet()) {
             try {
                 templates.put(e.getKey(), template(e.getKey(), JsonParser.parseString(e.getValue()).getAsJsonObject()));
@@ -117,13 +117,13 @@ public final class DefinitionParser {
         return new Enchant(id, enchantment, List.copyOf(sorted), EnchantGroups.CATEGORY_ORDER.contains(category) ? category : "general", integer(o, "order", 0));
     }
 
-    private static TemplateTier template(String item, JsonObject o) {
+    private static TemplateLimits template(String item, JsonObject o) {
         int width = integer(o, "width", BlueprintRules.WIDTH), height = integer(o, "height", BlueprintRules.HEIGHT), maxLevel = integer(o, "max_level", 0);
         if (width < 1 || width > BlueprintRules.WIDTH || height < 1 || height > BlueprintRules.HEIGHT) {
             throw new IllegalArgumentException("width must be 1 to " + BlueprintRules.WIDTH + " and height 1 to " + BlueprintRules.HEIGHT);
         }
         if (maxLevel < 0) throw new IllegalArgumentException("max_level must be 0 (no cap) or more");
-        return new TemplateTier(item, width, height, maxLevel == 0 ? Integer.MAX_VALUE : maxLevel);
+        return new TemplateLimits(item, width, height, maxLevel == 0 ? Integer.MAX_VALUE : maxLevel);
     }
 
     private static ForecastRules rules(JsonObject o) {

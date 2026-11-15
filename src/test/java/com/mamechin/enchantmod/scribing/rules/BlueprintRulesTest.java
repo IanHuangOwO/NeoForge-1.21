@@ -129,7 +129,7 @@ class BlueprintRulesTest {
 
     @Test
     void aTemplateOnlyAllowsItsDrawingArea() {
-        TemplateTier small = new TemplateTier("x:small", 9, 7, Integer.MAX_VALUE); // columns 3..11, rows 2..8
+        TemplateLimits small = new TemplateLimits("x:small", 9, 7, Integer.MAX_VALUE); // columns 3..11, rows 2..8
         assertTrue(small.contains(c(3, 2)));
         assertFalse(small.contains(c(2, 2)));
         assertFalse(small.contains(c(3, 9)));
@@ -139,6 +139,6 @@ class BlueprintRulesTest {
         Blueprint bp = BlueprintRules.place(BlueprintRules.place(Blueprint.EMPTY, c(4, 3), "berkana", small), c(8, 3), "isa", small);
         assertNotNull(BlueprintRules.addLine(bp, c(4, 3), c(8, 3), List.of(c(6, 3)), small));
         Blueprint edge = BlueprintRules.place(BlueprintRules.place(Blueprint.EMPTY, c(4, 3), "berkana"), c(4, 7), "isa"); // 4,7 covers rows 6..8
-        assertNull(BlueprintRules.addLine(edge, c(4, 3), c(4, 7), List.of(c(4, 5)), new TemplateTier("x:narrow", 3, 11, Integer.MAX_VALUE) /* columns 6..8 only */));
+        assertNull(BlueprintRules.addLine(edge, c(4, 3), c(4, 7), List.of(c(4, 5)), new TemplateLimits("x:narrow", 3, 11, Integer.MAX_VALUE) /* columns 6..8 only */));
     }
 }

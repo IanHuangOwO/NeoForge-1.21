@@ -9,9 +9,9 @@ package com.mamechin.enchantmod.scribing.rules;
  * @param height   rows of the grid that can be drawn on
  * @param maxLevel highest level the forecast may give, Integer.MAX_VALUE for no cap
  */
-public record TemplateTier(String item, int width, int height, int maxLevel) {
+public record TemplateLimits(String item, int width, int height, int maxLevel) {
     /** The whole grid, no cap: used for anything without a file. */
-    public static final TemplateTier FULL = new TemplateTier("", BlueprintRules.WIDTH, BlueprintRules.HEIGHT, Integer.MAX_VALUE);
+    public static final TemplateLimits FULL = new TemplateLimits("", BlueprintRules.WIDTH, BlueprintRules.HEIGHT, Integer.MAX_VALUE);
 
     public int left() {
         return (BlueprintRules.WIDTH - width) / 2;

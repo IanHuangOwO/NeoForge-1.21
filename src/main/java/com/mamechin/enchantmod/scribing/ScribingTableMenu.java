@@ -6,9 +6,9 @@ import java.util.List;
 
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.blocks.ModBlocks;
-import com.mamechin.enchantmod.items.EnchantTemplate;
+import com.mamechin.enchantmod.items.template.EnchantTemplate;
 import com.mamechin.enchantmod.items.ModItems;
-import com.mamechin.enchantmod.scribing.rules.TemplateTier;
+import com.mamechin.enchantmod.scribing.rules.TemplateLimits;
 import com.mamechin.enchantmod.items.inkwell.EnchantInkwell;
 
 import net.minecraft.core.registries.Registries;
@@ -91,7 +91,7 @@ public class ScribingTableMenu extends AbstractContainerMenu {
     }
 
     /** What the template in the table allows (the whole grid, no cap, when there is none). */
-    public TemplateTier tier() {
+    public TemplateLimits tier() {
         return EnchantTemplate.tierOf(inventory.getStackInSlot(ScribingTableBlockEntity.TEMPLATE));
     }
 

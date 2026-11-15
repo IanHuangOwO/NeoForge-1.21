@@ -83,11 +83,11 @@ public final class BlueprintRules {
     }
 
     public static Blueprint place(Blueprint bp, int cell, String runeId) {
-        return place(bp, cell, runeId, TemplateTier.FULL);
+        return place(bp, cell, runeId, TemplateLimits.FULL);
     }
 
     /** Places a rune; every cell it covers must be inside the template's drawing area. */
-    public static Blueprint place(Blueprint bp, int cell, String runeId, TemplateTier tier) {
+    public static Blueprint place(Blueprint bp, int cell, String runeId, TemplateLimits tier) {
         // shortcut: any rune is accepted; once runes are discovered, check the player's known runes here
         if (Rune.byId(runeId) == null) return null;
         Set<Integer> cells = footprint(cell, sizeOf(runeId));
@@ -128,11 +128,11 @@ public final class BlueprintRules {
      * allowed.
      */
     public static Blueprint addLine(Blueprint bp, int a, int b, List<Integer> path) {
-        return addLine(bp, a, b, path, TemplateTier.FULL);
+        return addLine(bp, a, b, path, TemplateLimits.FULL);
     }
 
     /** As above, with every path cell inside the template's drawing area. */
-    public static Blueprint addLine(Blueprint bp, int a, int b, List<Integer> path, TemplateTier tier) {
+    public static Blueprint addLine(Blueprint bp, int a, int b, List<Integer> path, TemplateLimits tier) {
         if (a == b || !hasRune(bp, a) || !hasRune(bp, b) || path.isEmpty() || path.size() > CELLS || bp.lines().size() >= CELLS) return null;
         Blueprint.RuneAt runeA = runeAt(bp, a), runeB = runeAt(bp, b);
         Set<Integer> taken = occupied(bp);
