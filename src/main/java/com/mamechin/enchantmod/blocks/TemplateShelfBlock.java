@@ -23,16 +23,15 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 /**
- * A shelf for six enchant templates standing side by side. Click a strip of the front face: a full strip gives its template
+ * A shelf for six enchant templates stacked one above the other. Click a strip of the front face: a full strip gives its template
  * back, an empty strip takes the template in hand (like the chiseled bookshelf).
  */
 public class TemplateShelfBlock extends Block implements EntityBlock {
     public static final MapCodec<TemplateShelfBlock> CODEC = simpleCodec(TemplateShelfBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    /** FULL[i] is true while slot i, counted from the viewer's right, holds a template. */
+    /** FULL[i] is true while slot i, counted from the top, holds a template. */
     public static final BooleanProperty[] FULL = new BooleanProperty[TemplateShelfBlockEntity.SLOTS];
 
     static {
@@ -67,20 +66,11 @@ public class TemplateShelfBlock extends Block implements EntityBlock {
         return new TemplateShelfBlockEntity(pos, state);
     }
 
-    /** The strip of the front face that was hit, 0 to 5 from the viewer's right, or -1 when another face was hit. */
+    /** The strip of the front face that was hit, 0 to 5 from the top, or -1 when another face was hit. */
     private static int slotAt(BlockState state, BlockHitResult hit) {
-        Direction facing = state.getValue(FACING);
-        if (hit.getDirection() != facing) return -1;
-        Vec3 rel = hit.getLocation().subtract(hit.getBlockPos().getX(), hit.getBlockPos().getY(), hit.getBlockPos().getZ());
-        double across = switch (facing.getCounterClockWise()) { // the viewer's right
-            case EAST -> rel.x;
-            case WEST -> 1 - rel.x;
-            case SOUTH -> rel.z;
-            default -> 1 - rel.z;
-        };
-        // the model puts slot 0 at its lowest x, which is the viewer's right, and its six slots fill the open part, 1 to 15 px
-        double px = (1 - across) * 16;
-        return Mth.clamp((int) Math.floor((px - 1) / (14.0 / TemplateShelfBlockEntity.SLOTS)), 0, TemplateShelfBlockEntity.SLOTS - 1);
+        if (hit.getDirection() != state.getValue(FACING)) return -1;
+        double py = (hit.getLocation().y - hit.getBlockPos().getY()) * 16; // the six slots fill the open part, 1 to 15 px up
+        return Mth.clamp((int) Math.floor((15 - py) / (14.0 / TemplateShelfBlockEntity.SLOTS)), 0, TemplateShelfBlockEntity.SLOTS - 1);
     }
 
     @Override
