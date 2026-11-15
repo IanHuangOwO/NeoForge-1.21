@@ -3,6 +3,7 @@ package com.mamechin.enchantmod.scribing;
 import java.util.function.Supplier;
 
 import com.mamechin.enchantmod.EnchantMod;
+import com.mamechin.enchantmod.press.PrintingPressMenu;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
@@ -14,6 +15,9 @@ public final class ModMenus {
 
     public static final Supplier<MenuType<ScribingTableMenu>> SCRIBING_TABLE =
             MENUS.register("scribing_table", () -> IMenuTypeExtension.create(ScribingTableMenu::new));
+
+    public static final Supplier<MenuType<PrintingPressMenu>> PRINTING_PRESS =
+            MENUS.register("printing_press", () -> IMenuTypeExtension.create(PrintingPressMenu::new));
 
     private ModMenus() {}
 }

@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
-import com.mamechin.enchantmod.items.EnchantTemplate;
+import com.mamechin.enchantmod.items.cube.EnchantCube;
 import com.mamechin.enchantmod.scribing.ModDataComponents;
-import com.mamechin.enchantmod.scribing.rules.Blueprint;
-import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.scribing.rules.CubeContents;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -37,9 +36,9 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 
 import com.mamechin.enchantmod.EnchantMod;
 
-/** The altar holds the item to enchant and an enchant template. A quill used on it fixes the template's enchants onto the item. */
+/** The altar holds the item to enchant and an enchant cube. A quill used on it fixes the cube's enchants onto the item. */
 public class AltarBlockEntity extends BlockEntity {
-    public static final int ITEM = 0, TEMPLATE = 1;
+    public static final int ITEM = 0, CUBE = 1;
     public static final TagKey<Item> QUILLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "quills"));
 
     private final ItemStackHandler inventory = new ItemStackHandler(2) {
@@ -50,7 +49,7 @@ public class AltarBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return (slot == TEMPLATE) == (stack.getItem() instanceof EnchantTemplate) && !stack.is(QUILLS);
+            return (slot == CUBE) == (stack.getItem() instanceof EnchantCube) && !stack.is(QUILLS);
         }
 
         @Override
@@ -75,25 +74,24 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     /**
-     * Fixes the template's enchants onto the item, each rolled from its forecast. An enchant the item cannot take, or that
-     * clashes with one already there, is skipped. The template is kept. Server side only.
+     * Fixes the cube's enchants onto the item, each rolled from its chances. An enchant the item cannot take, or that
+     * clashes with one already there, is skipped. The cube is kept. Server side only.
      */
     public void enchant(Player player) {
-        ItemStack target = inventory.getStackInSlot(ITEM), template = inventory.getStackInSlot(TEMPLATE);
-        if (target.isEmpty() || template.isEmpty()) {
+        ItemStack target = inventory.getStackInSlot(ITEM), cube = inventory.getStackInSlot(CUBE);
+        if (target.isEmpty() || cube.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.enchantmod.altar.need_both"), true);
             return;
         }
-        Blueprint blueprint = template.getOrDefault(ModDataComponents.BLUEPRINT.get(), Blueprint.EMPTY);
-        List<EnchantForecast.Result> results = EnchantForecast.forecast(blueprint);
+        CubeContents contents = cube.getOrDefault(ModDataComponents.CUBE_CONTENTS.get(), CubeContents.EMPTY);
         var registry = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
         List<Component> done = new ArrayList<>();
         int[] failed = {0};
         EnchantmentHelper.updateEnchantments(target, enchants -> {
-            for (EnchantForecast.Result result : results) {
-                Holder<Enchantment> holder = registry.get(ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse(result.enchant().enchantment()))).orElse(null);
+            for (CubeContents.Entry entry : contents.entries()) {
+                Holder<Enchantment> holder = registry.get(ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse(entry.enchantment()))).orElse(null);
                 if (holder == null || !holder.value().canEnchant(target) || !EnchantmentHelper.isEnchantmentCompatible(enchants.keySet(), holder)) continue;
-                int levelGot = EnchantForecast.roll(result, level.random.nextDouble());
+                int levelGot = entry.roll(level.random.nextDouble());
                 if (levelGot <= 0) failed[0]++;
                 else {
                     enchants.upgrade(holder, levelGot);

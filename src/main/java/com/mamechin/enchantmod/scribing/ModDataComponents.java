@@ -1,6 +1,7 @@
 package com.mamechin.enchantmod.scribing;
 
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
+import com.mamechin.enchantmod.scribing.rules.CubeContents;
 import com.mamechin.enchantmod.EnchantMod;
 
 import net.minecraft.core.component.DataComponentType;
@@ -15,6 +16,10 @@ public final class ModDataComponents {
     /** The layout drawn on an enchant template. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Blueprint>> BLUEPRINT =
             COMPONENTS.registerComponentType("blueprint", b -> b.persistent(Blueprint.CODEC).networkSynchronized(Blueprint.STREAM_CODEC));
+
+    /** The enchants pressed into an enchant cube, with the chance of each level. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CubeContents>> CUBE_CONTENTS =
+            COMPONENTS.registerComponentType("cube_contents", b -> b.persistent(CubeContents.CODEC).networkSynchronized(CubeContents.STREAM_CODEC));
 
     private ModDataComponents() {}
 }

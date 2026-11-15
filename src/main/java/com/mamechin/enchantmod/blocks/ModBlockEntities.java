@@ -1,6 +1,8 @@
 package com.mamechin.enchantmod.blocks;
 
 import com.mamechin.enchantmod.altar.AltarBlockEntity;
+import com.mamechin.enchantmod.press.PrintingPressBlockEntity;
+import com.mamechin.enchantmod.shelf.TemplateShelfBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronSize;
 import java.util.function.Supplier;
@@ -25,6 +27,12 @@ public final class ModBlockEntities {
 
     public static final Supplier<BlockEntityType<AltarBlockEntity>> ALTAR = BLOCK_ENTITIES.register("altar",
             () -> BlockEntityType.Builder.of(AltarBlockEntity::new, ModBlocks.ALTAR.get()).build(null));
+
+    public static final Supplier<BlockEntityType<TemplateShelfBlockEntity>> TEMPLATE_SHELF = BLOCK_ENTITIES.register("template_shelf",
+            () -> BlockEntityType.Builder.of(TemplateShelfBlockEntity::new, ModBlocks.TEMPLATE_SHELF.get()).build(null));
+
+    public static final Supplier<BlockEntityType<PrintingPressBlockEntity>> PRINTING_PRESS = BLOCK_ENTITIES.register("printing_press",
+            () -> BlockEntityType.Builder.of(PrintingPressBlockEntity::new, ModBlocks.PRINTING_PRESS.get()).build(null));
 
     private ModBlockEntities() {}
 }

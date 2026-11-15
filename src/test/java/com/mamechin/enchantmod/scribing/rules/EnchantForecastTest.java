@@ -50,15 +50,6 @@ class EnchantForecastTest {
     }
 
     @Test
-    void aRollPicksTheLevelOrFails() {
-        Blueprint one = new Blueprint(List.of(new RuneAt(1, "tiwaz"), new RuneAt(2, "sowilo")), List.of(line(1, 2)));
-        EnchantForecast.Result smite = EnchantForecast.forecast(one).get(0);
-        assertEquals(1, EnchantForecast.roll(smite, 0.0));
-        assertEquals(1, EnchantForecast.roll(smite, S - 1e-6));
-        assertEquals(0, EnchantForecast.roll(smite, S + 1e-6));
-    }
-
-    @Test
     void groupsThatMatchNoRowMakeNothing() {
         assertTrue(EnchantForecast.forecast(new Blueprint(List.of(new RuneAt(1, "berkana"), new RuneAt(2, "isa")), List.of(line(1, 2)))).isEmpty());
         assertTrue(EnchantForecast.forecast(new Blueprint(List.of(new RuneAt(1, "berkana"), new RuneAt(2, "berkana")), List.of(line(1, 2)))).isEmpty());

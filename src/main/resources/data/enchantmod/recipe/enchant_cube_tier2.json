@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:diamond"
+    },
+    {
+      "item": "enchantmod:enchant_cube_tier1"
+    }
+  ],
+  "result": {
+    "id": "enchantmod:enchant_cube_tier2",
+    "count": 1
+  }
+}

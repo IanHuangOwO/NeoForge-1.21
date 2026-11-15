@@ -1,0 +1,273 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf"
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "slot_0": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_0"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "slot_0": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_0",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "slot_0": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_0",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "slot_0": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_0",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "slot_1": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_1"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "slot_1": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_1",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "slot_1": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_1",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "slot_1": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_1",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "slot_2": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_2"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "slot_2": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_2",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "slot_2": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_2",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "slot_2": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_2",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "slot_3": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_3"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "slot_3": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_3",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "slot_3": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_3",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "slot_3": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_3",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "slot_4": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_4"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "slot_4": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_4",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "slot_4": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_4",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "slot_4": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_4",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "slot_5": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_5"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "slot_5": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_5",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "slot_5": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_5",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "slot_5": "true"
+      },
+      "apply": {
+        "model": "enchantmod:block/template_shelf_slot_5",
+        "y": 270
+      }
+    }
+  ]
+}

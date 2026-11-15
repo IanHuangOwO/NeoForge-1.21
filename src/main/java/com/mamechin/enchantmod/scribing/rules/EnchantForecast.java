@@ -53,16 +53,6 @@ public final class EnchantForecast {
         return dist;
     }
 
-    /** Turns one roll in [0, 1) into the level the enchant gets, or 0 when the fixation fails. The chances are those of the forecast. */
-    public static int roll(Result result, double roll) {
-        double acc = 0;
-        for (Map.Entry<Integer, Double> e : result.levels().entrySet()) {
-            acc += e.getValue();
-            if (roll < acc) return e.getKey();
-        }
-        return 0;
-    }
-
     public static List<Result> forecast(Blueprint bp) {
         Map<Integer, Rune> runes = new TreeMap<>();
         for (Blueprint.RuneAt r : bp.runes()) {

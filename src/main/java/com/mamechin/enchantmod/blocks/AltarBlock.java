@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.blocks;
 
 import com.mamechin.enchantmod.altar.AltarBlockEntity;
-import com.mamechin.enchantmod.items.EnchantTemplate;
+import com.mamechin.enchantmod.items.cube.EnchantCube;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -21,7 +21,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * The altar. Right click with a template or any item to put it on (one of each), with an empty hand to take the template,
+ * The altar. Right click with an enchant cube or any item to put it on (one of each), with an empty hand to take the cube,
  * then the item, back off, and with a quill to enchant.
  */
 public class AltarBlock extends Block implements EntityBlock {
@@ -54,7 +54,7 @@ public class AltarBlock extends Block implements EntityBlock {
             if (!level.isClientSide) altar.enchant(player);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
-        int slot = held.getItem() instanceof EnchantTemplate ? AltarBlockEntity.TEMPLATE : AltarBlockEntity.ITEM;
+        int slot = held.getItem() instanceof EnchantCube ? AltarBlockEntity.CUBE : AltarBlockEntity.ITEM;
         if (!altar.inventory().getStackInSlot(slot).isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide) {
             altar.inventory().setStackInSlot(slot, held.copyWithCount(1));
@@ -66,7 +66,7 @@ public class AltarBlock extends Block implements EntityBlock {
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!(level.getBlockEntity(pos) instanceof AltarBlockEntity altar)) return InteractionResult.PASS;
-        int slot = altar.inventory().getStackInSlot(AltarBlockEntity.TEMPLATE).isEmpty() ? AltarBlockEntity.ITEM : AltarBlockEntity.TEMPLATE;
+        int slot = altar.inventory().getStackInSlot(AltarBlockEntity.CUBE).isEmpty() ? AltarBlockEntity.ITEM : AltarBlockEntity.CUBE;
         ItemStack stack = altar.inventory().getStackInSlot(slot);
         if (stack.isEmpty()) return InteractionResult.PASS;
         if (!level.isClientSide) {

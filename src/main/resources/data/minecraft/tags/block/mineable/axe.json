@@ -1,1 +1,6 @@
-{ "values": [ "enchantmod:scribing_table" ] }
+{
+  "values": [
+    "enchantmod:scribing_table",
+    "enchantmod:template_shelf"
+  ]
+}

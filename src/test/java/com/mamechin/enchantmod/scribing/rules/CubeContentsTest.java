@@ -1,0 +1,51 @@
+package com.mamechin.enchantmod.scribing.rules;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+class CubeContentsTest {
+    private static Enchant efficiency;
+
+    @BeforeAll
+    static void load() {
+        TestDefinitions.load();
+        efficiency = Definitions.enchants().stream().filter(e -> e.enchantment().equals("minecraft:efficiency")).findFirst().orElseThrow();
+    }
+
+    private static EnchantForecast.Result result(Map<Integer, Double> levels) {
+        return new EnchantForecast.Result(efficiency, levels, 1 - levels.values().stream().mapToDouble(Double::doubleValue).sum());
+    }
+
+    @Test
+    void oneResultKeepsItsChances() {
+        CubeContents.Entry entry = CubeContents.combine(List.of(result(Map.of(2, 0.6, 3, 0.3)))).entries().get(0);
+        assertEquals(2, entry.chances().get(0).level());
+        assertEquals(0.6, entry.chances().get(0).chance(), 1e-9);
+        assertEquals(0.3, entry.chances().get(1).chance(), 1e-9);
+        assertEquals(0.1, entry.failChance(), 1e-9);
+    }
+
+    @Test
+    void theSameEnchantKeepsTheBestOutcome() {
+        // A: level 2 at 50%, else fail. B: level 3 at 40%, level 2 at 30%, else fail.
+        List<CubeContents.Entry> entries = CubeContents.combine(List.of(result(Map.of(2, 0.5)), result(Map.of(3, 0.4, 2, 0.3)))).entries();
+        assertEquals(1, entries.size());
+        CubeContents.Entry entry = entries.get(0);
+        assertEquals(0.45, entry.chances().get(0).chance(), 1e-9); // B makes 2, or B fails and A makes 2
+        assertEquals(0.40, entry.chances().get(1).chance(), 1e-9); // only B makes 3
+        assertEquals(0.15, entry.failChance(), 1e-9);              // both fail
+    }
+
+    @Test
+    void aRollPicksTheLevelOrFails() {
+        CubeContents.Entry entry = new CubeContents.Entry("minecraft:efficiency", List.of(new CubeContents.Chance(1, 0.5), new CubeContents.Chance(2, 0.25)));
+        assertEquals(1, entry.roll(0.0));
+        assertEquals(2, entry.roll(0.6));
+        assertEquals(0, entry.roll(0.8));
+    }
+}
