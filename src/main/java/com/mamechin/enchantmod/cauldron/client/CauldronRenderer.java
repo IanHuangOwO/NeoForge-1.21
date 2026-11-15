@@ -5,7 +5,6 @@ import java.util.List;
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.cauldron.SmallCauldronBlock;
 import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
-import com.mamechin.enchantmod.cauldron.CauldronSize;
 import com.mamechin.enchantmod.cauldron.CauldronContent;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronBrewingRecipe;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -42,7 +41,6 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
     private static final float LIQUID_ALPHA = 190.0F / 255.0F; // how see-through the liquid is (1 = solid)
     private static final float SPACING = 0.5F;
     private static final float TEXT_SCALE = 0.016F;
-    private static final int ROUND_SEGMENTS = 24;
 
     private static final float RISE_TICKS = 8.0F;    // lift off
     private static final float DIVE_TICKS = 14.0F;   // fall into the liquid
@@ -92,7 +90,7 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
             float dy = MAX_DRIFT_Y * wander(time, seed + 23.0F, 0.043F, 0.029F, 0.061F);
             float x = 0.5F + dx;
             float z = 0.5F + dz;
-            float y = cauldron.size().hoverHeight() + dy; // small: centre of the block above; large: above the shell's rim
+            float y = cauldron.size().hoverHeight() + dy; // centre of the block above
             float local = (i - (types.size() - 1) / 2.0F) * spacing;          // along the viewer's right
             float scale = 1.0F;
             boolean showCount = true;
@@ -163,7 +161,6 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
                     | (int) Mth.lerp(t, from >> 8 & 255, to >> 8 & 255) << 8
                     | (int) Mth.lerp(t, from & 255, to & 255);
         }
-        boolean large = cauldron.size() == CauldronSize.LARGE;
         float floor = cauldron.size().surface(0);
         float targetTop = lvl == 0 ? view.top : cauldron.size().surface(lvl) + 0.002F;
         view.update(time, lvl == 0 && view.top == 0 ? floor : targetTop, lvl == 0 ? 0.0F : LIQUID_ALPHA, rgb);
@@ -174,37 +171,12 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
                 .apply(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/small_cauldron_liquid_mask"));
         VertexConsumer vc = buffer.getBuffer(RenderType.translucent());
         Matrix4f m = pose.last().pose();
-        if (large) { // the bowl is round and its width changes with height
-            float r = bowlRadius(view.top);
-            for (int i = 0; i < ROUND_SEGMENTS; i++) { // fan of triangles (centre, p, next) drawn as degenerate quads
-                float a0 = -Mth.TWO_PI * i / ROUND_SEGMENTS, a1 = -Mth.TWO_PI * (i + 1) / ROUND_SEGMENTS;
-                float[][] pts = {{0, 0}, {Mth.cos(a0), Mth.sin(a0)}, {Mth.cos(a1), Mth.sin(a1)}, {Mth.cos(a1), Mth.sin(a1)}};
-                for (float[] p : pts) {
-                    vc.addVertex(m, 0.5F + p[0] * r, view.top, 0.5F + p[1] * r)
-                            .setColor((int) view.r, (int) view.g, (int) view.b, (int) (view.alpha * 255))
-                            .setUv(Mth.lerp(0.5F + p[0] * 0.5F, sprite.getU0(), sprite.getU1()), Mth.lerp(0.5F + p[1] * 0.5F, sprite.getV0(), sprite.getV1()))
-                            .setLight(light).setNormal(pose.last(), 0, 1, 0);
-                }
-            }
-            return;
-        }
         float[][] corners = {{min, min, sprite.getU0(), sprite.getV0()}, {min, max, sprite.getU0(), sprite.getV1()},
                 {max, max, sprite.getU1(), sprite.getV1()}, {max, min, sprite.getU1(), sprite.getV0()}};
         for (float[] c : corners) {
             vc.addVertex(m, c[0], view.top, c[1]).setColor((int) view.r, (int) view.g, (int) view.b, (int) (view.alpha * 255))
                     .setUv(c[2], c[3]).setLight(light).setNormal(pose.last(), 0, 1, 0);
         }
-    }
-
-    /** Inner radius of the large bowl (in blocks) at a height above the core's base, from the model: floor, belly, neck. */
-    private static float bowlRadius(float top) {
-        float px = top * 16.0F;
-        float[][] profile = {{-8, 13}, {0, 20.5F}, {10, 21F}, {26, 14F}}; // {height px, radius px}
-        if (px <= profile[0][0]) return profile[0][1] / 16.0F;
-        for (int i = 1; i < profile.length; i++) {
-            if (px <= profile[i][0]) return Mth.lerp((px - profile[i - 1][0]) / (profile[i][0] - profile[i - 1][0]), profile[i - 1][1], profile[i][1]) / 16.0F;
-        }
-        return profile[profile.length - 1][1] / 16.0F;
     }
 
     /** Smooth pseudo-random value in [-1, 1]: weighted sum of three sines with unrelated speeds. */
@@ -216,7 +188,6 @@ public class CauldronRenderer implements BlockEntityRenderer<CauldronBlockEntity
     public net.minecraft.world.phys.AABB getRenderBoundingBox(CauldronBlockEntity be) {
         // items hover one block above the cauldron, outside the block's own bounding box
         var box = new net.minecraft.world.phys.AABB(be.getBlockPos());
-        // the large one is the legs, the body and the opening around the core, with the items floating above it
-        return be.size() == CauldronSize.LARGE ? box.inflate(1, 0, 1).expandTowards(0, -1, 0).expandTowards(0, 2.5, 0) : box.expandTowards(0, 1.5, 0).inflate(1, 0, 1);
+        return box.expandTowards(0, 1.5, 0).inflate(1, 0, 1);
     }
 }

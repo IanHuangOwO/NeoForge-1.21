@@ -58,7 +58,6 @@ public class EnchantModClient {
     @SubscribeEvent
     static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SMALL_CAULDRON.get(), CauldronRenderer::new);
-        event.registerBlockEntityRenderer(ModBlockEntities.LARGE_CAULDRON.get(), CauldronRenderer::new);
     }
 
     /** Ink fluids reuse the vanilla water textures, tinted per tier. */

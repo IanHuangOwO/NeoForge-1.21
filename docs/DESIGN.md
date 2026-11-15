@@ -213,7 +213,7 @@ Item `research_handbook` (named Research Handbook to match the earlier notes; cr
 
 ## Naming
 
-- Ids are tiered and neutral: `ink_tier0/1/2`, `inkwell_tier0/1/2`, `quill_tier0/1/2`, `small_cauldron`, `large_cauldron`. Renaming a tier later means a lang edit only.
+- Ids are tiered and neutral: `ink_tier0/1/2`, `inkwell_tier0/1/2`, `quill_tier0/1/2`, `small_cauldron`. Renaming a tier later means a lang edit only.
 - Display names use the material: Lapis Inkwell, Copper Quill, Calcite Cauldron, Dragon Ink and similar.
 - Enchant-related naming is preferred for new things.
 
@@ -229,17 +229,11 @@ Three tiers each for ink, inkwell, quill and cauldron.
 
 - Liquid of enchanting is brewed from water and lapis lazuli (heat 1) and is the base of every ink.
 - Tier 2 quill (obsidian plus ender eye) is a temporary recipe.
-- Cauldron tiers: small and large exist; a third is deferred ("we wait it out").
+- Cauldron tiers: only the small cauldron exists. The large cauldron was removed on 2026-11-15 because the author wants to rethink the concept; the earlier design (3x3x3 smooth basalt multiblock, 16000 mB, 32 slots, speed x2, OBJ model) is in git history before that commit.
 
 ## Cauldron
 
-Small and large cauldron share one brewing logic (`CauldronBlockEntity`); only the numbers in `CauldronSize` differ.
-
-| | Small | Large |
-|---|---|---|
-| Fluid | 4000 mB | 16000 mB |
-| Item slots | 8 | 32 |
-| Speed | x1 | x2 |
+The cauldron has one brewing logic (`CauldronBlockEntity`); the numbers that differ by size live in `CauldronSize` (only small exists): fluid 4000 mB, 8 item slots, speed x1.
 
 Brew rules:
 - A brew converts the whole tank.
@@ -251,38 +245,18 @@ Brew rules:
 - Mining level and hardness match the vanilla cauldron.
 - Idle cost matters: cached item list, no drawing when empty, tickers only while heated or brewing.
 
-## Large cauldron multiblock
-
-Layout (3x3x3, core at the centre):
-
-```
-y0: B A B   A H A   B A B
-y1: B B B   B C B   B B B
-y2: B B B   B A B   B B B
-```
-
-B smooth basalt, C small cauldron (becomes the core), A must be air, H any heat source (never converted, free to swap).
-
-- Forms automatically when the pattern is completed. Shift-click forming is planned (**TBD**; vanilla skips `useItemOn` when sneaking with an item, so it needs another hook).
-- The controller (core) holds all data. The 20 part blocks carry their cube position and forward clicks to it.
-- Removing any part dismantles it back to a small cauldron plus smooth basalt.
-- Looks: the core draws one OBJ model (`large_cauldron.obj`, 3 blocks across and tall, origin at the corner of the centre block). Parts are invisible but solid.
-- The model's bowl floor is 8 px above the structure floor, so a full-block heat source overlaps its underside. **TBD:** fix by shortening the model or using shorter heat blocks.
-
 ## Style and art
 
 - Textures start from vanilla textures with tints for development; custom art comes later.
 - Glowing inks have no light border.
-- 3D models: large cauldron is a generated OBJ model. The inkwell 3D model and per-tier cauldron ink models are deferred ("we will get to that").
+- 3D models: the inkwell 3D model and per-tier cauldron ink models are deferred ("we will get to that").
 - Particles: small and quiet (half-size bubbles).
 
 ## Not built yet
 
 - Scribing Table function and GUI (the two-block block exists, it does nothing yet).
-- Shift-click forming for the large cauldron.
 - Cauldron tier 3.
 - Per-tier cauldron ink models, inkwell 3D model.
-- In-game verification of the large cauldron (rendering, forming, dismantling, light, shapes).
 
 ## Technical gotchas
 

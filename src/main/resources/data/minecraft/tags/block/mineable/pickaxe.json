@@ -1,7 +1,5 @@
 {
   "values": [
-    "enchantmod:small_cauldron",
-    "enchantmod:large_cauldron",
-    "enchantmod:large_cauldron_part"
+    "enchantmod:small_cauldron"
   ]
 }

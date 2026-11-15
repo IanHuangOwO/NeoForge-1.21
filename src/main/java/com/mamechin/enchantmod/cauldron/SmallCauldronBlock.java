@@ -170,7 +170,7 @@ public class SmallCauldronBlock extends AbstractCauldronBlock implements EntityB
     @Override
     @SuppressWarnings("unchecked")
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (type != ModBlockEntities.SMALL_CAULDRON.get() && type != ModBlockEntities.LARGE_CAULDRON.get()) return null;
+        if (type != ModBlockEntities.SMALL_CAULDRON.get()) return null;
         // Only tick while there is something to do; the ticker is re-evaluated whenever the blockstate changes.
         if (level.isClientSide) {
             if (!state.getValue(HEATED) || state.getValue(LEVEL) == 0) return null;

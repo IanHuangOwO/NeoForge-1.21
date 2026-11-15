@@ -202,7 +202,7 @@ public class CauldronBlockEntity extends BlockEntity {
         return Math.max(1, recipe.brewTicks() / size.speed());
     }
 
-    /** Heat tier of the block under this cauldron (under the shell for the large one). */
+    /** Heat tier of the block under this cauldron. */
     public int heatTier() {
         return CauldronHeat.tier(level.getBlockState(worldPosition.below(size.heatDepth())));
     }
