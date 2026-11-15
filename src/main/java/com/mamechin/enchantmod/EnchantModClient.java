@@ -2,7 +2,6 @@ package com.mamechin.enchantmod;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
 import com.mamechin.enchantmod.altar.client.AltarRenderer;
-import com.mamechin.enchantmod.scribing.research.HandbookStoreScreen;
 import com.mamechin.enchantmod.cauldron.client.CauldronRenderer;
 import com.mamechin.enchantmod.fluid.EnchantFluid;
 import com.mamechin.enchantmod.scribing.ModMenus;
@@ -55,7 +54,6 @@ public class EnchantModClient {
     @SubscribeEvent
     static void onRegisterScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.SCRIBING_TABLE.get(), ScribingTableScreen::new);
-        event.register(ModMenus.HANDBOOK_STORE.get(), HandbookStoreScreen::new);
     }
 
     @SubscribeEvent

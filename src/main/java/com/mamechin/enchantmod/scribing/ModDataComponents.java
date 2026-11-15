@@ -1,7 +1,6 @@
 package com.mamechin.enchantmod.scribing;
 
 import com.mamechin.enchantmod.scribing.rules.Blueprint;
-import net.minecraft.world.item.component.ItemContainerContents;
 import com.mamechin.enchantmod.EnchantMod;
 
 import net.minecraft.core.component.DataComponentType;
@@ -16,10 +15,6 @@ public final class ModDataComponents {
     /** The layout drawn on an enchant template. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Blueprint>> BLUEPRINT =
             COMPONENTS.registerComponentType("blueprint", b -> b.persistent(Blueprint.CODEC).networkSynchronized(Blueprint.STREAM_CODEC));
-
-    /** The enchant templates kept in a research handbook. */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ItemContainerContents>> TEMPLATE_STORE =
-            COMPONENTS.registerComponentType("template_store", b -> b.persistent(ItemContainerContents.CODEC).networkSynchronized(ItemContainerContents.STREAM_CODEC));
 
     private ModDataComponents() {}
 }

@@ -2,7 +2,6 @@ package com.mamechin.enchantmod.scribing.research;
 
 import java.util.List;
 
-import com.mamechin.enchantmod.scribing.OpenStorePayload;
 import com.mamechin.enchantmod.scribing.rules.Definitions;
 import com.mamechin.enchantmod.scribing.rules.Rune;
 
@@ -13,7 +12,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
  * The research handbook: a map the player drags around, with one node per rune and enchant. Clicking a node opens its page;
@@ -85,14 +83,14 @@ public class ResearchScreen extends Screen {
         graphics.disableScissor();
         NineSlice.draw(graphics, MAP_FRAME, TAB_W - 4, 4, width - TAB_W, height - 8, 32, 6, false);
         closeButton(graphics, width - 22, 10, mouseX, mouseY);
-        for (int i = 0; i <= tabs.size(); i++) { // the last tab is the template store
+        for (int i = 0; i < tabs.size(); i++) {
             int ty = tabY(i); // the open tab is wider and joins the frame
             if (i == tab) graphics.blit(TAB_ON, 2, ty, 0, 0, 28, TAB_H, 28, TAB_H);
             else graphics.blit(TAB_OFF, 2, ty, 0, 0, 24, TAB_H, 24, TAB_H);
-            graphics.renderItem(ResearchPanel.tabIcon(i < tabs.size() ? tabs.get(i).key() : "templates"), 8, ty + 6);
+            graphics.renderItem(ResearchPanel.tabIcon(tabs.get(i).key()), 8, ty + 6);
         }
         int hoveredTab = tabAt(mouseX, mouseY);
-        if (hoveredTab >= 0) graphics.renderTooltip(font, ResearchPanel.tabName(hoveredTab < tabs.size() ? tabs.get(hoveredTab).key() : "templates"), mouseX, mouseY);
+        if (hoveredTab >= 0) graphics.renderTooltip(font, ResearchPanel.tabName(tabs.get(hoveredTab).key()), mouseX, mouseY);
         if (hovered != null) graphics.renderTooltip(font, nameOf(hovered), mouseX, mouseY);
     }
 
@@ -116,7 +114,7 @@ public class ResearchScreen extends Screen {
 
     private int tabAt(double mouseX, double mouseY) {
         if (reading || mouseX < 2 || mouseX >= TAB_W) return -1;
-        for (int i = 0; i <= tabs.size(); i++) if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) return i;
+        for (int i = 0; i < tabs.size(); i++) if (mouseY >= tabY(i) && mouseY < tabY(i) + TAB_H) return i;
         return -1;
     }
 
@@ -146,10 +144,6 @@ public class ResearchScreen extends Screen {
         }
         dragged = 0;
         int clicked = tabAt(mouseX, mouseY);
-        if (button == 0 && clicked == tabs.size()) {
-            PacketDistributor.sendToServer(new OpenStorePayload()); // the server opens the store; its screen replaces this one
-            return true;
-        }
         if (button == 0 && clicked >= 0) {
             tab = clicked;
             nodes = tabs.get(clicked).nodes();

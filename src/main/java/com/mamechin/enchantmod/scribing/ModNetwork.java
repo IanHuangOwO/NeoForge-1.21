@@ -10,7 +10,6 @@ public final class ModNetwork {
         var registrar = event.registrar("1");
         EditBlueprintPayload.register(registrar);
         DefinitionsPayload.register(registrar);
-        OpenStorePayload.register(registrar);
         RenameTemplatePayload.register(registrar);
     }
 }
