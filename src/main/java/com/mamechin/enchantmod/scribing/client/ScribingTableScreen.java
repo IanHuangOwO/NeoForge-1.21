@@ -36,7 +36,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * server, which checks it and stores the result on the template item; the screen only ever draws what the item holds.
  */
 public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMenu> {
-    private static final int GRID_X = 40, GRID_Y = 20, CELL = 9;
+    private static final int GRID_X = 67, GRID_Y = 29, CELL = 9;
     // shortcut: the palette is 4 columns of the 24 shipped runes; a data pack with many more runes overflows it, add scrolling or tabs then
     private static final int PALETTE_X = 186, PALETTE_Y = 18, PALETTE_CELL = 14, PALETTE_COLUMNS = 4;
 
@@ -65,7 +65,7 @@ public class ScribingTableScreen extends AbstractContainerScreen<ScribingTableMe
     @Override
     protected void init() {
         super.init();
-        nameBox = new EditBox(font, leftPos + GRID_X, topPos + 7, 135, 12, Component.translatable("gui.enchantmod.scribing_table.rename"));
+        nameBox = new EditBox(font, leftPos + 40, topPos + 7, 135, 12, Component.translatable("gui.enchantmod.scribing_table.rename"));
         nameBox.setMaxLength(RenameTemplatePayload.NAME_MAX);
         nameBox.setHint(Component.translatable("gui.enchantmod.scribing_table.rename").withStyle(ChatFormatting.DARK_GRAY));
         nameBox.setResponder(name -> {

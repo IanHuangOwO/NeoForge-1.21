@@ -69,9 +69,9 @@ class BlueprintRulesTest {
         assertNull(BlueprintRules.addLine(bp, c(1, 1), c(5, 1), List.of(c(3, 3))));          // not next to the runes
         assertNull(BlueprintRules.addLine(bp, c(1, 1), c(5, 1), List.of(c(3, 0), c(4, 1)))); // jump through a rune
         assertNull(BlueprintRules.addLine(bp, c(1, 1), c(1, 1), List.of(c(3, 1))));          // to itself
-        assertNull(BlueprintRules.addLine(bp, c(1, 1), c(9, 9), List.of(c(3, 1))));          // no rune there
-        Blueprint far = BlueprintRules.place(bp, c(9, 1), "isa");
-        assertNull(BlueprintRules.addLine(far, c(1, 1), c(9, 1), List.of(c(3, 1), c(7, 1)))); // gap in the path
+        assertNull(BlueprintRules.addLine(bp, c(1, 1), c(8, 8), List.of(c(3, 1))));          // no rune there
+        Blueprint far = BlueprintRules.place(bp, c(1, 7), "isa");
+        assertNull(BlueprintRules.addLine(far, c(1, 1), c(1, 7), List.of(c(3, 1), c(3, 5)))); // gap in the path
     }
 
     @Test
