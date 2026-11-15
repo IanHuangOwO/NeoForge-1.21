@@ -3,19 +3,19 @@ package com.mamechin.enchantmod;
 import org.slf4j.Logger;
 
 import com.mamechin.enchantmod.block.ModBlocks;
-import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
-import com.mamechin.enchantmod.cauldron.brewing.ModCauldronRecipes;
-import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
+import com.mamechin.enchantmod.block.cauldron.brewing.CauldronRecipes;
+import com.mamechin.enchantmod.block.cauldron.brewing.ModCauldronRecipes;
+import com.mamechin.enchantmod.block.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.fluid.ModCapabilities;
 import com.mamechin.enchantmod.fluid.ModFluids;
 import com.mamechin.enchantmod.item.ModItems;
-import com.mamechin.enchantmod.scribing.EditBlueprintPayload;
-import com.mamechin.enchantmod.scribing.ModDataComponents;
-import com.mamechin.enchantmod.scribing.ModMenus;
+import com.mamechin.enchantmod.block.scribing.EditBlueprintPayload;
+import com.mamechin.enchantmod.block.scribing.ModDataComponents;
+import com.mamechin.enchantmod.block.scribing.ModMenus;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
-import com.mamechin.enchantmod.cauldron.ModBlockEntities;
+import com.mamechin.enchantmod.block.ModBlockEntities;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;

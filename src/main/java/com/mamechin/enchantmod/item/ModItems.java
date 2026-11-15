@@ -9,7 +9,7 @@ import com.mamechin.enchantmod.item.quill.QuillTier0Item;
 import com.mamechin.enchantmod.item.quill.QuillTier1Item;
 import com.mamechin.enchantmod.item.quill.QuillTier2Item;
 
-import com.mamechin.enchantmod.scribing.EnchantTemplateItem;
+import com.mamechin.enchantmod.block.scribing.EnchantTemplateItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;

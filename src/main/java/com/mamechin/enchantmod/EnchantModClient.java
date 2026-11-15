@@ -1,12 +1,12 @@
 package com.mamechin.enchantmod;
 
-import com.mamechin.enchantmod.cauldron.ModBlockEntities;
-import com.mamechin.enchantmod.cauldron.client.CauldronRenderer;
+import com.mamechin.enchantmod.block.ModBlockEntities;
+import com.mamechin.enchantmod.block.cauldron.client.CauldronRenderer;
 import com.mamechin.enchantmod.fluid.EnchantFluid;
-import com.mamechin.enchantmod.scribing.ModMenus;
+import com.mamechin.enchantmod.block.scribing.ModMenus;
 import com.mamechin.enchantmod.item.ModItems;
-import com.mamechin.enchantmod.scribing.client.ResearchScreen;
-import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
+import com.mamechin.enchantmod.block.scribing.client.ResearchScreen;
+import com.mamechin.enchantmod.block.scribing.client.ScribingTableScreen;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
