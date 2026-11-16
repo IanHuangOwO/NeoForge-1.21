@@ -43,6 +43,10 @@ Code is grouped by feature under `src/main/java/com/mamechin/enchantmod/`:
 Credits and licence
 -------------------
 
-All rights reserved. The project started from the NeoForge MDK template, whose licence is in `TEMPLATE_LICENSE.txt`. By default the project uses Mojang's official mapping names, which are covered by their own licence: https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+- Source code: [LGPL-3.0](LICENSE).
+- Textures and models: [CC BY-NC-SA 3.0](LICENSE-ASSETS.md).
+- Text and translations: CC0.
+
+The project started from the NeoForge MDK template, whose licence is in `TEMPLATE_LICENSE.txt`. By default the project uses Mojang's official mapping names, which are covered by their own licence: https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
 
 Community documentation: https://docs.neoforged.net/ and the NeoForged Discord: https://discord.neoforged.net/
