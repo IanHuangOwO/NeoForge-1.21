@@ -1,0 +1,8 @@
+# shared by wheel_rotor, wheel_item, wheel_pillar, wheel_pillar_glow and pedestal. Both materials use texture slot #0. m_1 = glow (Ka 1 1 1)
+
+newmtl m_0
+map_Kd #0
+
+newmtl m_1
+Ka 1 1 1
+map_Kd #0

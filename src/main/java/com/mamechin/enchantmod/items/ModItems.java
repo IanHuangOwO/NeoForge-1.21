@@ -38,5 +38,8 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> ALTAR = ITEMS.registerSimpleBlockItem("altar", ModBlocks.ALTAR);
     public static final DeferredItem<BlockItem> SMALL_CAULDRON = ITEMS.registerSimpleBlockItem("small_cauldron", ModBlocks.SMALL_CAULDRON);
 
+    public static final DeferredItem<BlockItem> WHEEL_CORE = ITEMS.registerSimpleBlockItem("wheel_core", ModBlocks.WHEEL_CORE);
+    public static final DeferredItem<BlockItem> WHEEL_BODY = ITEMS.registerSimpleBlockItem("wheel_body", ModBlocks.WHEEL_BODY);
+
     private ModItems() {}
 }

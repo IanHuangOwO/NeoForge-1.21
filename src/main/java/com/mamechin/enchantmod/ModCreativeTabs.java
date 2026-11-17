@@ -35,6 +35,8 @@ public final class ModCreativeTabs {
                 output.accept(ModItems.RESEARCH_HANDBOOK.get());
                 output.accept(ModItems.SMALL_CAULDRON.get());
                 output.accept(ModItems.ALTAR.get());
+                output.accept(ModItems.WHEEL_CORE.get());
+                output.accept(ModItems.WHEEL_BODY.get());
                 output.accept(ModItems.TEMPLATE_SHELF.get());
                 output.accept(ModItems.PRINTING_PRESS.get());
                 output.accept(ModItems.ENCHANT_CUBE_TIER0.get());

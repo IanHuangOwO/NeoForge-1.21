@@ -1,0 +1,12 @@
+{
+  "variants": {
+    "facing=north,formed=false": { "model": "enchantmod:block/wheel_core" },
+    "facing=east,formed=false": { "model": "enchantmod:block/wheel_core", "y": 90 },
+    "facing=south,formed=false": { "model": "enchantmod:block/wheel_core", "y": 180 },
+    "facing=west,formed=false": { "model": "enchantmod:block/wheel_core", "y": 270 },
+    "facing=north,formed=true": { "model": "enchantmod:block/wheel_empty" },
+    "facing=east,formed=true": { "model": "enchantmod:block/wheel_empty", "y": 90 },
+    "facing=south,formed=true": { "model": "enchantmod:block/wheel_empty", "y": 180 },
+    "facing=west,formed=true": { "model": "enchantmod:block/wheel_empty", "y": 270 }
+  }
+}

@@ -1,1 +1,3 @@
-{ "parent": "enchantmod:block/altar" }
+{
+	"parent": "enchantmod:block/altar_item"
+}

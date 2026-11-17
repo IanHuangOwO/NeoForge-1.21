@@ -15,18 +15,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
- * The altar. Right click with an enchant cube or any item to put it on (one of each), with an empty hand to take the cube,
- * then the item, back off, and with a quill to enchant.
+ * The altar (tier 0): a pillar with a four-arm flyer on top whose bobbin is the enchant cube; the item floats above. Right click with
+ * an enchant cube or any item to put it on (one of each), with an empty hand to take the cube, then the item, back off, and with a
+ * quill to start the 10 second enchanting. Nothing goes on or off while it runs. With a formed spinning wheel facing it from
+ * {@code WheelLayout.PEDESTAL_DISTANCE} blocks away it is tier 2 (for now only the look changes).
  */
 public class AltarBlock extends Block implements EntityBlock {
     public static final MapCodec<AltarBlock> CODEC = simpleCodec(AltarBlock::new);
-    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 12, 16);
+    private static final VoxelShape SHAPE = Block.box(2, 0, 2, 14, 12, 14);
 
     public AltarBlock(Properties properties) {
         super(properties);
@@ -51,9 +55,11 @@ public class AltarBlock extends Block implements EntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack held, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!(level.getBlockEntity(pos) instanceof AltarBlockEntity altar)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (held.is(AltarBlockEntity.QUILLS)) {
-            if (!level.isClientSide) altar.enchant(player);
+            if (!level.isClientSide) altar.start(player);
             return ItemInteractionResult.sidedSuccess(level.isClientSide);
         }
+        if (altar.busy()) return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        if (held.isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // an empty hand takes back, in useWithoutItem
         int slot = held.getItem() instanceof EnchantCube ? AltarBlockEntity.CUBE : AltarBlockEntity.ITEM;
         if (!altar.inventory().getStackInSlot(slot).isEmpty()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide) {
@@ -65,7 +71,7 @@ public class AltarBlock extends Block implements EntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!(level.getBlockEntity(pos) instanceof AltarBlockEntity altar)) return InteractionResult.PASS;
+        if (!(level.getBlockEntity(pos) instanceof AltarBlockEntity altar) || altar.busy() || !player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
         int slot = altar.inventory().getStackInSlot(AltarBlockEntity.CUBE).isEmpty() ? AltarBlockEntity.ITEM : AltarBlockEntity.CUBE;
         ItemStack stack = altar.inventory().getStackInSlot(slot);
         if (stack.isEmpty()) return InteractionResult.PASS;
@@ -74,6 +80,12 @@ public class AltarBlock extends Block implements EntityBlock {
             player.getInventory().placeItemBackInInventory(stack);
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        if (type != ModBlockEntities.ALTAR.get()) return null;
+        return level.isClientSide ? (l, p, s, be) -> ((AltarBlockEntity) be).clientTick() : (l, p, s, be) -> ((AltarBlockEntity) be).serverTick();
     }
 
     @Override

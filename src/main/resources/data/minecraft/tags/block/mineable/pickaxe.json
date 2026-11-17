@@ -2,6 +2,8 @@
   "values": [
     "enchantmod:small_cauldron",
     "enchantmod:altar",
-    "enchantmod:printing_press"
+    "enchantmod:printing_press",
+    "enchantmod:wheel_core",
+    "enchantmod:wheel_pillar"
   ]
 }

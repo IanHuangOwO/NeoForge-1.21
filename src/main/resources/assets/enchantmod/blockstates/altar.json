@@ -1,1 +1,7 @@
-{ "variants": { "": { "model": "enchantmod:block/altar" } } }
+{
+	"variants": {
+		"": {
+			"model": "enchantmod:block/altar_base"
+		}
+	}
+}
