@@ -3,7 +3,19 @@
   "pools": [
     {
       "rolls": 1,
-      "entries": [ { "type": "minecraft:item", "name": "minecraft:smooth_basalt" } ],
+      "entries": [
+        {
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "name": "minecraft:gold_block",
+              "conditions": [ { "condition": "minecraft:block_state_property", "block": "enchantmod:wheel_pillar", "properties": { "base": "true" } } ]
+            },
+            { "type": "minecraft:item", "name": "minecraft:smooth_basalt" }
+          ]
+        }
+      ],
       "conditions": [ { "condition": "minecraft:survives_explosion" } ]
     }
   ]

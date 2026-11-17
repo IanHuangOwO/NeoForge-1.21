@@ -5,21 +5,23 @@ import java.util.List;
 
 /**
  * Where the parts of the spinning wheel sit, as offsets from the core (pure, no Minecraft). The wheel is an upright ring of frame
- * blocks 5 across round the core, plus the four blocks touching the core ({@link #PATTERN}); its plane is at right angles to the core's facing, with a smooth basalt pillar
- * on each side from the ground up to the core's height ({@link #pillars}), 7 across in all. {@code facingX} is true when the core
+ * blocks 7 across round the core, plus straight beams from the ring to the core ({@link #PATTERN}); its plane is at right angles to the core's facing, with a smooth basalt pillar
+ * on each side from the ground up to the core's height ({@link #pillars}), 9 across in all. {@code facingX} is true when the core
  * faces east or west, so the wheel's plane runs along Z. (A 9-wide ring with 8 beams is kept for a later tier: see the design doc.)
  */
 public final class WheelLayout {
-    public static final int RADIUS = 2;
+    public static final int RADIUS = 3;
     /** The altar stands this many blocks out on the facing side, on the bottom row ({@code -RADIUS}); with a formed wheel there it is tier 2. */
-    public static final int PEDESTAL_DISTANCE = 3;
+    public static final int PEDESTAL_DISTANCE = 4;
     /** Front view, top row first; '#' is a frame block, 'C' the core. Symmetric through the core, which {@link #bodies} relies on. */
     static final String[] PATTERN = {
-            ".###.",
-            "#.#.#",
-            "##C##",
-            "#.#.#",
-            ".###.",
+            "..###..",
+            ".#.#.#.",
+            "#..#..#",
+            "###C###",
+            "#..#..#",
+            ".#.#.#.",
+            "..###..",
     };
 
     private WheelLayout() {}

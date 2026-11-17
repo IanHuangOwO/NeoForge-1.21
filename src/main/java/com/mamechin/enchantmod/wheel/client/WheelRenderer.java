@@ -28,16 +28,16 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
- * Draws a formed spinning wheel from its core: the wheel (Fable's {@code wheel_rotor}, authored facing north, axis through the core's
+ * Draws a formed spinning wheel from its core: the wheel (Fable's {@code wheel_small_rotor}, authored facing north, axis through the core's
  * centre) and its two pillars, and the cube of the altar in front of it in the socket before the hub. While the altar enchants, the
  * wheel rises from resting (half a model block below the authored pose) to floating (half a block above) and spins with the altar's
  * speed, and the wheel's and pillars' glow layers are drawn at full brightness (dark carved runes otherwise).
  */
 public class WheelRenderer implements BlockEntityRenderer<WheelCoreBlockEntity> {
-    public static final ModelResourceLocation ROTOR = part("wheel_rotor"), ROTOR_GLOW = part("wheel_rotor_glow"), PILLAR = part("wheel_pillar"), PILLAR_GLOW = part("wheel_pillar_glow");
+    public static final ModelResourceLocation ROTOR = part("wheel_small_rotor"), ROTOR_GLOW = part("wheel_small_rotor_glow"), PILLAR = part("wheel_small_pillar"), PILLAR_GLOW = part("wheel_small_pillar_glow");
     private static final float RESTING_LIFT = -0.5F, RISE = 1; // in model blocks
-    /** The models were drawn for a 9-wide wheel; they are scaled about the core's centre to fit the layout's ring (5/9 for the 5-wide ring). */
-    private static final int MODEL_RADIUS = 4;
+    /** The models (Fable's 7-wide pack) are scaled about the core's centre to fit the layout's ring; 1 while the layout is 7 wide too. */
+    private static final int MODEL_RADIUS = 3;
     private static final float SCALE = (WheelLayout.RADIUS + 0.5F) / (MODEL_RADIUS + 0.5F);
 
     private final ItemRenderer itemRenderer;

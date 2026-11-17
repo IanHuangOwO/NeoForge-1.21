@@ -22,24 +22,24 @@ class WheelLayoutTest {
                 assertTrue(WheelLayout.isBody(-o[0], -o[1], -o[2], facingX), "symmetric");
                 assertEquals(0, facingX ? o[0] : o[2], "flat across the facing");
             }
-            assertEquals(16, distinct.size());
+            assertEquals(24, distinct.size());
             assertFalse(distinct.contains(List.of(0, 0, 0)));
         }
-        assertTrue(WheelLayout.isBody(0, -2, 0, false), "bottom of the ring");
-        assertTrue(WheelLayout.isBody(2, 1, 0, false), "side of the ring");
-        assertFalse(WheelLayout.isBody(2, 2, 0, false), "cut corner");
-        assertTrue(WheelLayout.isBody(1, 0, 0, false), "next to the core");
-        assertFalse(WheelLayout.isBody(1, 1, 0, false), "inside the ring, diagonal to the core");
+        assertTrue(WheelLayout.isBody(0, -3, 0, false), "bottom of the ring");
+        assertTrue(WheelLayout.isBody(3, 1, 0, false), "side of the ring");
+        assertTrue(WheelLayout.isBody(2, 0, 0, false), "beam");
+        assertFalse(WheelLayout.isBody(3, 3, 0, false), "cut corner");
+        assertFalse(WheelLayout.isBody(1, 1, 0, false), "between beams");
         assertFalse(WheelLayout.isBody(1, 0, 0, true), "off the plane");
     }
 
     @Test
     void pillarsStandBesideTheRingUpToTheCore() {
         List<int[]> pillars = WheelLayout.pillars(false);
-        assertEquals(6, pillars.size());
+        assertEquals(8, pillars.size());
         for (int[] o : pillars) {
-            assertEquals(3, Math.abs(o[0]));
-            assertTrue(o[1] >= -2 && o[1] <= 0);
+            assertEquals(4, Math.abs(o[0]));
+            assertTrue(o[1] >= -3 && o[1] <= 0);
             assertFalse(WheelLayout.isBody(o[0], o[1], o[2], false));
         }
         assertEquals(0, WheelLayout.pillars(true).get(0)[0], "along Z when facing east or west");

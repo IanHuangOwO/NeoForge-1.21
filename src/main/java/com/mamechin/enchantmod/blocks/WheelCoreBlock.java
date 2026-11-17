@@ -97,26 +97,27 @@ public class WheelCoreBlock extends Block implements EntityBlock {
 
     /**
      * Forms the wheel when the core is unformed, every body position holds an unformed body block and every pillar position holds
-     * smooth basalt. The basalt is swapped for the invisible {@link WheelPillarBlock} so the pillar model can be drawn in its place.
+     * smooth basalt over a gold block. These are swapped for the invisible {@link WheelPillarBlock} so the pillar model can be drawn in
+     * their place.
      */
     static void tryForm(Level level, BlockPos core) {
         BlockState state = level.getBlockState(core);
         if (!(state.getBlock() instanceof WheelCoreBlock) || state.getValue(FORMED)) return;
         var bodies = bodies(core, state.getValue(FACING));
         var pillars = pillars(core, state.getValue(FACING));
-        for (BlockPos pos : pillars) if (!level.getBlockState(pos).is(Blocks.SMOOTH_BASALT)) return;
+        for (BlockPos pos : pillars) if (!level.getBlockState(pos).is(WheelPillarBlock.original(isPillarBase(core, pos)))) return;
         for (BlockPos pos : bodies) {
             BlockState body = level.getBlockState(pos);
             if (!(body.getBlock() instanceof WheelBodyBlock) || body.getValue(FORMED)) return;
         }
         for (BlockPos pos : bodies) level.setBlock(pos, level.getBlockState(pos).setValue(FORMED, true), 3);
-        for (BlockPos pos : pillars) level.setBlock(pos, ModBlocks.WHEEL_PILLAR.get().defaultBlockState(), 3);
+        for (BlockPos pos : pillars) level.setBlock(pos, ModBlocks.WHEEL_PILLAR.get().defaultBlockState().setValue(WheelPillarBlock.BASE, isPillarBase(core, pos)), 3);
         level.setBlock(core, state.setValue(FORMED, true), 3);
     }
 
     /**
      * Releases a formed wheel: the core (if still there) first, so the pillar and body blocks changed after it find no owner and do
-     * not release it again; then the bodies, and the pillars turn back into smooth basalt. Only a formed core owns its parts.
+     * not release it again; then the bodies, and the pillars turn back into smooth basalt and gold. Only a formed core owns its parts.
      */
     static void unform(Level level, BlockPos core, Direction facing) {
         BlockState state = level.getBlockState(core);
@@ -126,8 +127,14 @@ public class WheelCoreBlock extends Block implements EntityBlock {
             if (body.getBlock() instanceof WheelBodyBlock && body.getValue(FORMED)) level.setBlock(pos, body.setValue(FORMED, false), 3);
         }
         for (BlockPos pos : pillars(core, facing)) {
-            if (level.getBlockState(pos).getBlock() instanceof WheelPillarBlock) level.setBlock(pos, Blocks.SMOOTH_BASALT.defaultBlockState(), 3);
+            BlockState pillar = level.getBlockState(pos);
+            if (pillar.getBlock() instanceof WheelPillarBlock) level.setBlock(pos, WheelPillarBlock.original(pillar.getValue(WheelPillarBlock.BASE)).defaultBlockState(), 3);
         }
+    }
+
+    /** The bottom block of each pillar is a gold block, the rest smooth basalt. */
+    static boolean isPillarBase(BlockPos core, BlockPos pillar) {
+        return pillar.getY() == core.getY() - WheelLayout.RADIUS;
     }
 
     static List<BlockPos> pillars(BlockPos core, Direction facing) {

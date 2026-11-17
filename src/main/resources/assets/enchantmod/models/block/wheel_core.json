@@ -1,4 +1,4 @@
 {
   "parent": "minecraft:block/orientable",
-  "textures": { "front": "minecraft:block/copper_grate", "side": "minecraft:block/cut_copper", "top": "minecraft:block/cut_copper" }
+  "textures": { "front": "enchantmod:block/wheel_core_front", "side": "enchantmod:block/wheel_core_side", "top": "enchantmod:block/wheel_core_top" }
 }
