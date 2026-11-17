@@ -3,7 +3,6 @@ package com.mamechin.enchantmod.wheel.client;
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.blocks.WheelCoreBlock;
 import com.mamechin.enchantmod.altar.AltarBlockEntity;
-import com.mamechin.enchantmod.altar.AltarSpin;
 import com.mamechin.enchantmod.wheel.WheelCoreBlockEntity;
 import com.mamechin.enchantmod.wheel.WheelLayout;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -57,7 +56,7 @@ public class WheelRenderer implements BlockEntityRenderer<WheelCoreBlockEntity> 
         Direction facing = core.getBlockState().getValue(WheelCoreBlock.FACING);
         if (!core.getBlockState().getValue(WheelCoreBlock.FORMED)) return;
         AltarBlockEntity altar = level.getBlockEntity(WheelCoreBlock.altarPos(core.getBlockPos(), facing)) instanceof AltarBlockEntity a ? a : null;
-        float speed = altar == null ? 0 : AltarSpin.speed(altar.elapsed(partialTick));
+        float speed = altar == null ? 0 : altar.speed(partialTick);
         float lift = RESTING_LIFT + RISE * speed, angle = altar == null ? 0 : altar.angle(partialTick);
         int light = LevelRenderer.getLightColor(level, core.getBlockPos().relative(facing));
 

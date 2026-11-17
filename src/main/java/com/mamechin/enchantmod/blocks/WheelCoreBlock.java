@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
  * The middle of the spinning wheel. It faces the player who placed it; the wheel's frame blocks stand in the plane across that
  * facing ({@link WheelLayout}). With the smooth basalt pillars ({@link WheelLayout#pillars}) and every
  * frame there and not part of another wheel, the wheel forms. It holds nothing: the altar in front of it ({@link #altarPos}) keeps the
- * cube and the item, and the wheel only shows the altar's cube and spins with it (tier 2 altar).
+ * cube and the item, and the wheel only shows the altar's cube and spins with it (tier 1 altar).
  */
 public class WheelCoreBlock extends Block implements EntityBlock {
     public static final MapCodec<WheelCoreBlock> CODEC = simpleCodec(WheelCoreBlock::new);

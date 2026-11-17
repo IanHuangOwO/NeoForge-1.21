@@ -11,7 +11,7 @@ import java.util.List;
  */
 public final class WheelLayout {
     public static final int RADIUS = 3;
-    /** The altar stands this many blocks out on the facing side, on the bottom row ({@code -RADIUS}); with a formed wheel there it is tier 2. */
+    /** The altar stands this many blocks out on the facing side, on the bottom row ({@code -RADIUS}); with a formed wheel there it is tier 1. */
     public static final int PEDESTAL_DISTANCE = 4;
     /** Front view, top row first; '#' is a frame block, 'C' the core. Symmetric through the core, which {@link #bodies} relies on. */
     static final String[] PATTERN = {

@@ -1,0 +1,56 @@
+{
+  "rarities": {
+    "common": 1,
+    "uncommon": 2,
+    "rare": 4,
+    "very_rare": 8
+  },
+  "default_rarity": "common",
+  "enchantments": {
+    "minecraft:protection": "common",
+    "minecraft:sharpness": "common",
+    "minecraft:efficiency": "common",
+    "minecraft:power": "common",
+    "minecraft:piercing": "common",
+
+    "minecraft:fire_protection": "uncommon",
+    "minecraft:feather_falling": "uncommon",
+    "minecraft:projectile_protection": "uncommon",
+    "minecraft:smite": "uncommon",
+    "minecraft:bane_of_arthropods": "uncommon",
+    "minecraft:knockback": "uncommon",
+    "minecraft:unbreaking": "uncommon",
+    "minecraft:loyalty": "uncommon",
+    "minecraft:quick_charge": "uncommon",
+    "minecraft:density": "uncommon",
+
+    "minecraft:blast_protection": "rare",
+    "minecraft:respiration": "rare",
+    "minecraft:aqua_affinity": "rare",
+    "minecraft:depth_strider": "rare",
+    "minecraft:frost_walker": "rare",
+    "minecraft:fire_aspect": "rare",
+    "minecraft:looting": "rare",
+    "minecraft:sweeping_edge": "rare",
+    "minecraft:fortune": "rare",
+    "minecraft:punch": "rare",
+    "minecraft:flame": "rare",
+    "minecraft:luck_of_the_sea": "rare",
+    "minecraft:lure": "rare",
+    "minecraft:impaling": "rare",
+    "minecraft:riptide": "rare",
+    "minecraft:multishot": "rare",
+    "minecraft:breach": "rare",
+    "minecraft:wind_burst": "rare",
+    "minecraft:mending": "rare",
+
+    "minecraft:thorns": "very_rare",
+    "minecraft:binding_curse": "very_rare",
+    "minecraft:soul_speed": "very_rare",
+    "minecraft:swift_sneak": "very_rare",
+    "minecraft:silk_touch": "very_rare",
+    "minecraft:infinity": "very_rare",
+    "minecraft:channeling": "very_rare",
+    "minecraft:vanishing_curse": "very_rare"
+  }
+}

@@ -2,7 +2,6 @@ package com.mamechin.enchantmod.altar.client;
 
 import com.mamechin.enchantmod.altar.AltarBlockEntity;
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.altar.AltarSpin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -56,7 +55,7 @@ public class AltarRenderer implements BlockEntityRenderer<AltarBlockEntity> {
             itemRenderer.renderStatic(item, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
             pose.popPose();
         }
-        boolean active = AltarSpin.speed(altar.elapsed(partialTick)) > 0;
+        boolean active = altar.speed(partialTick) > 0;
         VertexConsumer consumer = buffer.getBuffer(RenderType.cutout());
         if (active) draw(pose, consumer, BASE_GLOW, LightTexture.FULL_BRIGHT, overlay);
         pose.pushPose();

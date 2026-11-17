@@ -15,7 +15,9 @@ import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
 import com.mamechin.enchantmod.blocks.TemplateShelfBlock;
 import com.mamechin.enchantmod.shelf.TemplateShelfBlockEntity;
 
+import com.mamechin.enchantmod.altar.AltarBlockEntity;
 import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
@@ -77,6 +79,23 @@ public class EnchantModClient {
         if (stack.isEmpty()) return;
         GuiGraphics graphics = event.getGuiGraphics();
         graphics.renderTooltip(mc.font, stack, graphics.guiWidth() / 2 + 6, graphics.guiHeight() / 2 + 6);
+    }
+
+    /** Holding a quill and pointing at an altar shows its tier and the enchant power it has linked, beside the crosshair. */
+    @SubscribeEvent
+    static void onRenderAltarInfo(RenderGuiEvent.Post event) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.screen != null || mc.options.hideGui || mc.level == null || mc.player == null || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK) return;
+        if (!mc.player.getMainHandItem().is(AltarBlockEntity.QUILLS) && !mc.player.getOffhandItem().is(AltarBlockEntity.QUILLS)) return;
+        if (!(mc.level.getBlockEntity(hit.getBlockPos()) instanceof AltarBlockEntity altar)) return;
+        GuiGraphics graphics = event.getGuiGraphics();
+        int x = graphics.guiWidth() / 2 + 8, y = graphics.guiHeight() / 2 + 6;
+        if (altar.tier() < 0) {
+            graphics.drawString(mc.font, Component.translatable("gui.enchantmod.altar.not_scanned"), x, y, 0xFFE0C070);
+            return;
+        }
+        graphics.drawString(mc.font, Component.translatable("gui.enchantmod.altar.tier", altar.tier()), x, y, 0xFFE0C070);
+        graphics.drawString(mc.font, Component.translatable("gui.enchantmod.altar.power", altar.power()), x, y + 10, 0xFFE0C070);
     }
 
     @SubscribeEvent

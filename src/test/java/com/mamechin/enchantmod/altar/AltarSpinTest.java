@@ -6,13 +6,17 @@ import org.junit.jupiter.api.Test;
 
 class AltarSpinTest {
     @Test
-    void rampsUpHoldsAndRampsDown() {
-        assertEquals(0, AltarSpin.speed(0));
-        assertEquals(0.5F, AltarSpin.speed(20));
-        assertEquals(1, AltarSpin.speed(40));
-        assertEquals(1, AltarSpin.speed(AltarSpin.ENCHANT_AT));
-        assertEquals(0.5F, AltarSpin.speed(180));
-        assertEquals(0, AltarSpin.speed(200));
-        assertEquals(0, AltarSpin.speed(-5));
+    void threeSecondsUpThenOneSecondPerLevelThenTwoDown() {
+        int duration = AltarSpin.duration(5);
+        assertEquals(60 + 100 + 40, duration);
+        assertEquals(160, AltarSpin.enchantAt(duration));
+        assertEquals(80, AltarSpin.drainEnd(1));
+        assertEquals(0, AltarSpin.speed(0, duration));
+        assertEquals(0.5F, AltarSpin.speed(30, duration));
+        assertEquals(1, AltarSpin.speed(60, duration));
+        assertEquals(1, AltarSpin.speed(160, duration));
+        assertEquals(0.5F, AltarSpin.speed(180, duration));
+        assertEquals(0, AltarSpin.speed(duration, duration));
+        assertEquals(0, AltarSpin.speed(-5, duration));
     }
 }

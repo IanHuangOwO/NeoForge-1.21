@@ -2,6 +2,9 @@ package com.mamechin.enchantmod.items.quill;
 
 import java.util.Optional;
 
+import com.mamechin.enchantmod.blocks.AltarBlock;
+
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -19,6 +22,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 
 /** Base for every quill tier. Behavior shared by all quills goes here. */
 public abstract class EnchantQuill extends Item {
@@ -33,6 +37,12 @@ public abstract class EnchantQuill extends Item {
     protected EnchantQuill(Properties properties, BookRite bookRite) {
         super(properties);
         this.bookRite = bookRite;
+    }
+
+    /** Vanilla skips a block's click when the player sneaks with an item in hand; the altar needs shift and a quill to scan. */
+    @Override
+    public boolean doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
+        return level.getBlockState(pos).getBlock() instanceof AltarBlock;
     }
 
     /** The rite for this stack; the one place to read a custom enchant on the quill when there is one. */

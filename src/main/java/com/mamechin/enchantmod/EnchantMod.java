@@ -9,6 +9,7 @@ import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.fluid.ModCapabilities;
 import com.mamechin.enchantmod.fluid.ModFluids;
 import com.mamechin.enchantmod.items.ModItems;
+import com.mamechin.enchantmod.altar.AltarPowerLoader;
 import com.mamechin.enchantmod.scribing.DefinitionLoader;
 import com.mamechin.enchantmod.scribing.ModNetwork;
 import com.mamechin.enchantmod.scribing.ModDataComponents;
@@ -43,6 +44,7 @@ public class EnchantMod {
         ModMenus.MENUS.register(modEventBus);
         modEventBus.addListener(ModNetwork::register);
         NeoForge.EVENT_BUS.addListener(DefinitionLoader::onAddReloadListeners);
+        NeoForge.EVENT_BUS.addListener(AltarPowerLoader::onAddReloadListeners);
         NeoForge.EVENT_BUS.addListener(DefinitionLoader::onDatapackSync);
         ModCreativeTabs.TABS.register(modEventBus);
 
