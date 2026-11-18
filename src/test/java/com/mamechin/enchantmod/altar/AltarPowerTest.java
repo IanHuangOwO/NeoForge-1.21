@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import com.mamechin.enchantmod.balance.Balance;
+
 class AltarPowerTest {
     @Test
     void booksAreTakenFromTheFrontUntilTheCostIsPaid() {
@@ -20,15 +22,9 @@ class AltarPowerTest {
 
     @Test
     void cylinderIsRoundAndLeavesTheAltarOut() {
-        List<int[]> cells = AltarPower.cylinder(new AltarPower.Area(4, 0, 2));
+        List<int[]> cells = AltarPower.cylinder(new Balance.Area(4, 0, 2));
         for (int[] o : cells) assertTrue(o[0] * o[0] + o[2] * o[2] <= 16 && o[1] >= 0 && o[1] <= 2);
         assertEquals(49 * 3 - 1, cells.size()); // 49 columns within radius 4
         assertTrue(cells.stream().noneMatch(o -> o[0] == 0 && o[1] == 0 && o[2] == 0));
-    }
-
-    @Test
-    void tierOneAreaIsCentredOnTheCore() {
-        assertEquals(new AltarPower.Area(8, -1, 7), AltarPower.area(1, 3));
-        assertEquals(new AltarPower.Area(4, 0, 2), AltarPower.area(0, 3));
     }
 }

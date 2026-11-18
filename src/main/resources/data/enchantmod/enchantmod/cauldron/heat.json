@@ -1,0 +1,19 @@
+{
+  "minecraft:torch": {
+    "tier": 1
+  },
+  "minecraft:soul_torch": {
+    "tier": 1
+  },
+  "minecraft:campfire": {
+    "tier": 2,
+    "requires_lit": true
+  },
+  "minecraft:soul_campfire": {
+    "tier": 2,
+    "requires_lit": true
+  },
+  "minecraft:lava": {
+    "tier": 3
+  }
+}

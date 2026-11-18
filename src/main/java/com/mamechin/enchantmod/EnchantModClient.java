@@ -16,7 +16,10 @@ import com.mamechin.enchantmod.blocks.TemplateShelfBlock;
 import com.mamechin.enchantmod.shelf.TemplateShelfBlockEntity;
 
 import com.mamechin.enchantmod.altar.AltarBlockEntity;
+import com.mamechin.enchantmod.particle.ModParticles;
+import com.mamechin.enchantmod.particle.client.DrainGlyphParticle;
 import net.minecraft.client.Minecraft;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
@@ -96,6 +99,11 @@ public class EnchantModClient {
         }
         graphics.drawString(mc.font, Component.translatable("gui.enchantmod.altar.tier", altar.tier()), x, y, 0xFFE0C070);
         graphics.drawString(mc.font, Component.translatable("gui.enchantmod.altar.power", altar.power()), x, y + 10, 0xFFE0C070);
+    }
+
+    @SubscribeEvent
+    static void onRegisterParticles(RegisterParticleProvidersEvent event) {
+        event.registerSpriteSet(ModParticles.DRAIN_GLYPH.get(), DrainGlyphParticle.Provider::new);
     }
 
     @SubscribeEvent

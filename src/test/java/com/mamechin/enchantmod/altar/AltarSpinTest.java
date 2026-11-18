@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class AltarSpinTest {
     @Test
-    void threeSecondsUpThenOneSecondPerLevelThenTwoDown() {
+    void shippedDefaultsAreThreeSecondsUpOneSecondPerLevelTwoDown() {
         int duration = AltarSpin.duration(5);
         assertEquals(60 + 100 + 40, duration);
         assertEquals(160, AltarSpin.enchantAt(duration));

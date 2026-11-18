@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.mamechin.enchantmod.balance.Balance;
+
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
 import com.mamechin.enchantmod.items.EnchantTemplate;
 import com.mamechin.enchantmod.items.cube.EnchantCube;
@@ -93,7 +95,7 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
 
     /** True while a pressing runs; the slots are then locked. On the client this follows the animation. */
     public boolean isBusy() {
-        if (level != null && level.isClientSide) return animStrokes > 0 && level.getGameTime() - animStart < PressAnimation.duration(animStrokes);
+        if (level != null && level.isClientSide) return animStrokes > 0 && level.getGameTime() - animStart < animStrokes * ticksPerTemplate();
         return remaining > 0;
     }
 
@@ -108,7 +110,12 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
         return list;
     }
 
-    /** Server side: starts the pressing, one second per template. The cube and the templates are checked again when it ends. */
+    /** Ticks per template from {@code press.json}; the stroke animation is played faster or slower to fit. */
+    private static int ticksPerTemplate() {
+        return Balance.current().press().ticksPerTemplate();
+    }
+
+    /** Server side: starts the pressing, {@link #ticksPerTemplate} per template. The cube and the templates are checked again when it ends. */
     public void press(Player player) {
         if (isBusy()) return;
         if (!(inventory.getStackInSlot(CUBE).getItem() instanceof EnchantCube)) {
@@ -124,7 +131,7 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
             player.displayClientMessage(Component.translatable("message.enchantmod.press.nothing"), true);
             return;
         }
-        total = remaining = PressAnimation.duration(templates.size());
+        total = remaining = templates.size() * ticksPerTemplate();
         presser = player.getUUID();
         level.blockEvent(worldPosition, getBlockState().getBlock(), 1, templates.size());
         setChanged();
@@ -139,7 +146,8 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
     /** Server side, every tick: counts the pressing down, a stamp sound at every impact, and finishes it. */
     public void serverTick() {
         if (remaining <= 0) return;
-        if ((total - remaining) % PressAnimation.STROKE == PressAnimation.DOWN) level.playSound(null, worldPosition, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.5F, 1.2F);
+        int perTemplate = ticksPerTemplate();
+        if ((total - remaining) % perTemplate == PressAnimation.DOWN * perTemplate / PressAnimation.STROKE) level.playSound(null, worldPosition, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.5F, 1.2F);
         if (--remaining > 0) return;
         Player player = presser == null ? null : level.getPlayerByUUID(presser);
         presser = null;
@@ -168,7 +176,7 @@ public class PrintingPressBlockEntity extends BlockEntity implements MenuProvide
     /** Client side: where the moving parts are now. */
     public PressAnimation.Pose pose(float partialTick) {
         if (level == null || animStrokes <= 0) return PressAnimation.Pose.REST;
-        return PressAnimation.at(level.getGameTime() + partialTick - animStart, animStrokes);
+        return PressAnimation.at((level.getGameTime() + partialTick - animStart) * PressAnimation.STROKE / ticksPerTemplate(), animStrokes);
     }
 
     @Override

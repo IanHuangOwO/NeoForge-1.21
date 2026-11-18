@@ -1,0 +1,14 @@
+{
+  "enchantmod:quill_tier0": {
+    "power": 10,
+    "xp_levels": 3
+  },
+  "enchantmod:quill_tier1": {
+    "power": 20,
+    "xp_levels": 6
+  },
+  "enchantmod:quill_tier2": {
+    "power": 30,
+    "xp_levels": 10
+  }
+}

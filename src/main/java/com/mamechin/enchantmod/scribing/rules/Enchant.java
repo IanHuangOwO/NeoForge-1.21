@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.scribing.rules;
 import java.util.List;
 
 /**
- * One row of the core table, from data/&lt;namespace&gt;/enchantmod/enchant/&lt;name&gt;.json.
+ * One row of the core table, from data/&lt;namespace&gt;/enchantmod/scribing/enchant/&lt;name&gt;.json.
  *
  * @param id          the row's own id, "namespace:name"; its texts are research.namespace.name and .why
  * @param enchantment the enchantment it makes, "namespace:path" (a bare id means minecraft)

@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 /** Installs the runes and enchants shipped in the mod's own data folder, the way the game does when data loads. */
 public final class TestDefinitions {
-    private static final Path DATA = Path.of("src/main/resources/data/enchantmod/enchantmod");
+    private static final Path DATA = Path.of("src/main/resources/data/enchantmod/enchantmod/scribing");
 
     private TestDefinitions() {}
 

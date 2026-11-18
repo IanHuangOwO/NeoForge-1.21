@@ -1,32 +1,21 @@
 package com.mamechin.enchantmod.cauldron.heat;
 
-import com.mamechin.enchantmod.EnchantMod;
+import com.mamechin.enchantmod.balance.Balance;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.neoforged.neoforge.registries.datamaps.DataMapType;
-import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 /**
- * Heat tier of the block under a cauldron, read from data/enchantmod/data_maps/block/cauldron_heat.json.
+ * Heat tier of the block under a cauldron, read from data/enchantmod/enchantmod/cauldron/heat.json (a balance file, {@link Balance}).
  * Addons and datapacks add heat sources by adding entries there; no code needed.
  */
 public final class CauldronHeat {
-    public static final DataMapType<net.minecraft.world.level.block.Block, HeatSource> DATA_MAP = DataMapType.builder(
-            ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "cauldron_heat"), Registries.BLOCK, HeatSource.CODEC)
-            .synced(HeatSource.CODEC, false).build(); // synced so the client can predict the HEATED state
-
-    public static void register(RegisterDataMapTypesEvent event) {
-        event.register(DATA_MAP);
-    }
-
     /** Heat tier of a single block state; 0 when it is no heat source (or an unlit one). */
     public static int tier(BlockState state) {
-        HeatSource source = state.getBlockHolder().getData(DATA_MAP);
+        Balance.Heat source = Balance.current().heat().get(BuiltInRegistries.BLOCK.getKey(state.getBlock()).toString());
         if (source == null) return 0;
         if (source.requiresLit() && state.hasProperty(BlockStateProperties.LIT) && !state.getValue(BlockStateProperties.LIT)) return 0;
         return source.tier();

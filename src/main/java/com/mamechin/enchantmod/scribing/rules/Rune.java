@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.scribing.rules;
 import java.util.List;
 
 /**
- * One rune, as described by its JSON file (data/&lt;namespace&gt;/enchantmod/rune/&lt;name&gt;.json). The id is "namespace:name".
+ * One rune, as described by its JSON file (data/&lt;namespace&gt;/enchantmod/scribing/rune/&lt;name&gt;.json). The id is "namespace:name".
  *
  * @param glyph       the one character drawn for it
  * @param size        side of the square it covers on the grid (1 to 3)

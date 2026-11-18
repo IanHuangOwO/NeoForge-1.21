@@ -8,7 +8,8 @@ import java.util.UUID;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
 import com.mamechin.enchantmod.blocks.WheelCoreBlock;
-import com.mamechin.enchantmod.wheel.WheelLayout;
+import com.mamechin.enchantmod.balance.Balance;
+import com.mamechin.enchantmod.particle.ModParticles;
 import com.mamechin.enchantmod.items.cube.EnchantCube;
 import com.mamechin.enchantmod.scribing.ModDataComponents;
 import com.mamechin.enchantmod.scribing.rules.CubeContents;
@@ -19,7 +20,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -154,7 +154,7 @@ public class AltarBlockEntity extends BlockEntity {
         }
         tier = WheelCoreBlock.wheelFor(level, worldPosition) != null ? 1 : 0;
         List<BlockPos> found = new ArrayList<>();
-        for (int[] o : AltarPower.cylinder(AltarPower.area(tier, WheelLayout.RADIUS))) {
+        for (int[] o : AltarPower.cylinder(Balance.current().altar().area(tier))) {
             BlockPos pos = worldPosition.offset(o[0], o[1], o[2]);
             if (level.getBlockEntity(pos) instanceof ChiseledBookShelfBlockEntity) found.add(pos);
         }
@@ -173,11 +173,11 @@ public class AltarBlockEntity extends BlockEntity {
         return sum;
     }
 
-    /** Enchant power of a book: the sum over its stored enchants of level times the enchantment's weight ({@link AltarPowerTable}). */
+    /** Enchant power of a book: the sum over its stored enchants of level times the enchantment's weight ({@code altar.json}). */
     private static int bookPower(ItemStack stack) {
         ItemEnchantments stored = stack.get(DataComponents.STORED_ENCHANTMENTS);
         if (stored == null) return 0;
-        AltarPowerTable table = AltarPowerTable.current();
+        Balance.Altar table = Balance.current().altar();
         int sum = 0;
         for (var e : stored.entrySet()) {
             String id = e.getKey().unwrapKey().map(k -> k.location().toString()).orElse("");
@@ -209,7 +209,8 @@ public class AltarBlockEntity extends BlockEntity {
 
     /**
      * Starts the enchanting when the linked shelves hold enough power: the cost is the sum of the highest level each fitting enchant
-     * can roll, and one random enchanted book per shelf is picked, the shelves in a random order (a shelf that is gone is skipped).
+     * can roll (times the cost per level), and random enchanted books are picked, up to {@code books_per_shelf} from each shelf, the
+     * shelves in a random order (a shelf that is gone is skipped).
      * Server side only.
      */
     public void start(Player player) {
@@ -231,7 +232,7 @@ public class AltarBlockEntity extends BlockEntity {
             player.displayClientMessage(Component.translatable("message.enchantmod.altar.nothing"), true);
             return;
         }
-        int cost = fits.stream().mapToInt(e -> e.getKey().chances().stream().mapToInt(CubeContents.Chance::level).max().orElse(0)).sum();
+        int cost = Balance.current().altar().costPerLevel() * fits.stream().mapToInt(e -> e.getKey().chances().stream().mapToInt(CubeContents.Chance::level).max().orElse(0)).sum();
         List<BlockPos> order = new ArrayList<>(shelves);
         Util.shuffle(order, level.random);
         List<Drain> books = new ArrayList<>();
@@ -240,10 +241,11 @@ public class AltarBlockEntity extends BlockEntity {
             if (!(level.getBlockEntity(pos) instanceof ChiseledBookShelfBlockEntity shelf)) continue;
             List<Integer> slots = new ArrayList<>();
             for (int slot = 0; slot < shelf.getContainerSize(); slot++) if (bookPower(shelf.getItem(slot)) > 0) slots.add(slot);
-            if (slots.isEmpty()) continue;
-            int slot = slots.get(level.random.nextInt(slots.size())); // one book per shelf
-            books.add(new Drain(pos, slot, bookLevels(shelf.getItem(slot))));
-            powers.add(bookPower(shelf.getItem(slot)));
+            Util.shuffle(slots, level.random);
+            for (int slot : slots.subList(0, Math.min(slots.size(), Balance.current().altar().booksPerShelf()))) {
+                books.add(new Drain(pos, slot, bookLevels(shelf.getItem(slot))));
+                powers.add(bookPower(shelf.getItem(slot)));
+            }
         }
         int needed = AltarPower.booksNeeded(powers.stream().mapToInt(Integer::intValue).toArray(), cost);
         if (needed < 0) {
@@ -302,10 +304,10 @@ public class AltarBlockEntity extends BlockEntity {
         return true;
     }
 
-    /** Client: every half second while a book drains, a wave of enchant glyphs leaves its shelf for the altar, or at tier 1 for the wheel's hub, which sends one on to the altar. */
+    /** Client: every tick while a book drains, a random burst of enchant glyphs leaves its shelf for the altar, or at tier 1 for the wheel's hub, which sends one on to the altar. */
     private void spawnTrails() {
         int elapsed = duration - remaining;
-        if (elapsed < AltarSpin.RAMP_UP || elapsed % 10 != 0) return;
+        if (elapsed < AltarSpin.rampUp()) return;
         Vec3 altar = Vec3.atLowerCornerOf(worldPosition).add(0.5, 1.0, 0.5);
         BlockPos core = tier >= 1 ? WheelCoreBlock.wheelFor(level, worldPosition) : null;
         Vec3 hub = core == null ? null : Vec3.atCenterOf(core);
@@ -318,21 +320,28 @@ public class AltarBlockEntity extends BlockEntity {
         if (any && hub != null) wave(hub, altar);
     }
 
-    /** A few enchant glyphs that fly from {@code from} to {@code to} (the vanilla particle starts at pos + velocity and homes on pos). */
+    /**
+     * A random burst of 0 to 3 enchant glyphs (1.5 a tick on average) that fly from anywhere in the block round {@code from} to near
+     * {@code to}, each on its own wandering path ({@code drain_glyph}: it starts at pos + velocity and lands exactly on pos).
+     */
     private void wave(Vec3 from, Vec3 to) {
-        for (int i = 0; i < 4; i++) {
-            double jitter = 0.3;
-            level.addParticle(ParticleTypes.ENCHANT, to.x, to.y, to.z,
-                    from.x - to.x + (level.random.nextDouble() - 0.5) * jitter,
-                    from.y - to.y + (level.random.nextDouble() - 0.5) * jitter,
-                    from.z - to.z + (level.random.nextDouble() - 0.5) * jitter);
+        int count = level.random.nextInt(4);
+        for (int i = 0; i < count; i++) {
+            double ex = to.x + spread(0.4), ey = to.y + spread(0.4), ez = to.z + spread(0.4);
+            level.addParticle(ModParticles.DRAIN_GLYPH.get(), ex, ey, ez,
+                    from.x + spread(1.0) - ex, from.y + spread(1.0) - ey, from.z + spread(1.0) - ez);
         }
+    }
+
+    /** A random offset in [-width / 2, width / 2). */
+    private double spread(double width) {
+        return (level.random.nextDouble() - 0.5) * width;
     }
 
     /** A picked book went missing: no enchant, the cube is kept, and the spin slows down from here. */
     private void abort() {
         drains.clear();
-        remaining = AltarSpin.RAMP_DOWN - 1; // past the roll, so it only slows down
+        remaining = AltarSpin.rampDown() - 1; // past the roll, so it only slows down
         power = currentPower();
         sync();
         tell(player(), Component.translatable("message.enchantmod.altar.lost_book"));

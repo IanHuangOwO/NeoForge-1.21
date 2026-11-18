@@ -19,12 +19,12 @@ import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 /**
- * Reads the runes, enchant rows and forecast numbers from data packs (data/namespace/enchantmod/rune, /enchant and forecast.json)
+ * Reads the runes, enchant rows and forecast numbers from data packs (data/namespace/enchantmod/scribing/rune, /enchant and forecast.json)
  * whenever data loads or /reload runs, installs them in Definitions, and sends the raw files to every client that gets the data.
  */
 public final class DefinitionLoader extends SimplePreparableReloadListener<Definitions.Raw> {
-    private static final String RUNES = "enchantmod/rune", ENCHANTS = "enchantmod/enchant";
-    private static final ResourceLocation FORECAST = ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "enchantmod/forecast.json");
+    private static final String RUNES = "enchantmod/scribing/rune", ENCHANTS = "enchantmod/scribing/enchant";
+    private static final ResourceLocation FORECAST = ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "enchantmod/scribing/forecast.json");
 
     public static void onAddReloadListeners(AddReloadListenerEvent event) {
         event.addListener(new DefinitionLoader());

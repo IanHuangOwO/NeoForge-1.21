@@ -3,25 +3,19 @@ package com.mamechin.enchantmod.altar;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mamechin.enchantmod.balance.Balance;
+
 /**
- * The altar's enchant power rules (pure; first numbers, to tune). The altar links the chiseled bookshelves in a cylinder round it;
- * every enchanted book in them is worth the sum over its enchants of level times the enchantment's weight ({@link AltarPowerTable}). An enchanting costs
- * the sum of the highest level each of the cube's enchants can roll, and is paid by draining whole books, one per shelf, the shelves
- * in a random order; they all drain at once during the spin ({@link AltarSpin}).
+ * The altar's enchant power rules (pure; the numbers are in {@code altar.json}, {@link Balance.Altar}). The altar links the chiseled
+ * bookshelves in its tier's cylinder; every enchanted book in them is worth the sum over its enchants of level times the
+ * enchantment's weight. An enchanting costs the sum of the highest level each of the cube's enchants can roll, times the cost per
+ * level, and is paid by draining whole books (a set number per shelf, the shelves in a random order) all at once during the spin.
  */
 public final class AltarPower {
     private AltarPower() {}
 
-    /** The scan cylinder of a tier: horizontal radius and the lowest and highest row, relative to the altar. */
-    public record Area(int radius, int minY, int maxY) {}
-
-    /** Tier 0: radius 4, the altar's row up to 2 above. Tier 1 (with the spinning wheel): radius 8, 9 rows centred on the wheel's core ({@code coreHeight} above the altar). */
-    public static Area area(int tier, int coreHeight) {
-        return tier >= 1 ? new Area(8, coreHeight - 4, coreHeight + 4) : new Area(4, 0, 2);
-    }
-
     /** Offsets {dx, dy, dz} inside the cylinder (dx² + dz² ≤ radius²), the altar's own position left out. */
-    public static List<int[]> cylinder(Area area) {
+    public static List<int[]> cylinder(Balance.Area area) {
         List<int[]> list = new ArrayList<>();
         int r = area.radius();
         for (int dy = area.minY(); dy <= area.maxY(); dy++) {

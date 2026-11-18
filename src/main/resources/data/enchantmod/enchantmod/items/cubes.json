@@ -1,0 +1,14 @@
+{
+  "enchantmod:enchant_cube_tier0": {
+    "capacity": 1,
+    "max_level": 5
+  },
+  "enchantmod:enchant_cube_tier1": {
+    "capacity": 3,
+    "max_level": 10
+  },
+  "enchantmod:enchant_cube_tier2": {
+    "capacity": 6,
+    "max_level": 20
+  }
+}

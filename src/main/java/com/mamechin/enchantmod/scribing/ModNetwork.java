@@ -11,5 +11,6 @@ public final class ModNetwork {
         EditBlueprintPayload.register(registrar);
         DefinitionsPayload.register(registrar);
         RenameTemplatePayload.register(registrar);
+        com.mamechin.enchantmod.balance.BalancePayload.register(registrar);
     }
 }

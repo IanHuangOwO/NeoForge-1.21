@@ -1,4 +1,25 @@
 {
+  "spin": {
+    "ramp_up_ticks": 60,
+    "ramp_down_ticks": 40,
+    "drain_ticks_per_level": 20
+  },
+  "cost": {
+    "power_per_level": 1
+  },
+  "books_per_shelf": 1,
+  "scan": [
+    {
+      "radius": 4,
+      "min_y": 0,
+      "max_y": 2
+    },
+    {
+      "radius": 8,
+      "min_y": -1,
+      "max_y": 7
+    }
+  ],
   "rarities": {
     "common": 1,
     "uncommon": 2,
@@ -12,7 +33,6 @@
     "minecraft:efficiency": "common",
     "minecraft:power": "common",
     "minecraft:piercing": "common",
-
     "minecraft:fire_protection": "uncommon",
     "minecraft:feather_falling": "uncommon",
     "minecraft:projectile_protection": "uncommon",
@@ -23,7 +43,6 @@
     "minecraft:loyalty": "uncommon",
     "minecraft:quick_charge": "uncommon",
     "minecraft:density": "uncommon",
-
     "minecraft:blast_protection": "rare",
     "minecraft:respiration": "rare",
     "minecraft:aqua_affinity": "rare",
@@ -43,7 +62,6 @@
     "minecraft:breach": "rare",
     "minecraft:wind_burst": "rare",
     "minecraft:mending": "rare",
-
     "minecraft:thorns": "very_rare",
     "minecraft:binding_curse": "very_rare",
     "minecraft:soul_speed": "very_rare",

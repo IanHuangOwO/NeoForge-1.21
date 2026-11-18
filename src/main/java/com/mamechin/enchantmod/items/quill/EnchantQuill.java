@@ -2,10 +2,12 @@ package com.mamechin.enchantmod.items.quill;
 
 import java.util.Optional;
 
+import com.mamechin.enchantmod.balance.Balance;
 import com.mamechin.enchantmod.blocks.AltarBlock;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -45,9 +47,10 @@ public abstract class EnchantQuill extends Item {
         return level.getBlockState(pos).getBlock() instanceof AltarBlock;
     }
 
-    /** The rite for this stack; the one place to read a custom enchant on the quill when there is one. */
+    /** The rite for this stack, from {@code quills.json} by item id, else the tier class's numbers; the one place to read a custom enchant on the quill when there is one. */
     public BookRite bookRite(ItemStack quill) {
-        return bookRite;
+        Balance.Quill q = Balance.current().quill(BuiltInRegistries.ITEM.getKey(this).toString(), new Balance.Quill(bookRite.power(), bookRite.xpLevels()));
+        return new BookRite(q.power(), q.xpLevels());
     }
 
     /** Spend one use of the given stack. Breaks it at 0 durability. */

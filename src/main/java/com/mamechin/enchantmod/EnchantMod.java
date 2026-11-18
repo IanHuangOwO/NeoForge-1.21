@@ -5,11 +5,10 @@ import org.slf4j.Logger;
 import com.mamechin.enchantmod.blocks.ModBlocks;
 import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
 import com.mamechin.enchantmod.cauldron.brewing.ModCauldronRecipes;
-import com.mamechin.enchantmod.cauldron.heat.CauldronHeat;
 import com.mamechin.enchantmod.fluid.ModCapabilities;
 import com.mamechin.enchantmod.fluid.ModFluids;
 import com.mamechin.enchantmod.items.ModItems;
-import com.mamechin.enchantmod.altar.AltarPowerLoader;
+import com.mamechin.enchantmod.balance.BalanceLoader;
 import com.mamechin.enchantmod.scribing.DefinitionLoader;
 import com.mamechin.enchantmod.scribing.ModNetwork;
 import com.mamechin.enchantmod.scribing.ModDataComponents;
@@ -30,7 +29,6 @@ public class EnchantMod {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public EnchantMod(IEventBus modEventBus, ModContainer modContainer) {
-        modEventBus.addListener(CauldronHeat::register);
         ModFluids.FLUID_TYPES.register(modEventBus);
         ModFluids.FLUIDS.register(modEventBus);
         modEventBus.addListener(ModCapabilities::register);
@@ -42,9 +40,11 @@ public class EnchantMod {
         ModItems.ITEMS.register(modEventBus);
         ModDataComponents.COMPONENTS.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
+        com.mamechin.enchantmod.particle.ModParticles.PARTICLE_TYPES.register(modEventBus);
         modEventBus.addListener(ModNetwork::register);
         NeoForge.EVENT_BUS.addListener(DefinitionLoader::onAddReloadListeners);
-        NeoForge.EVENT_BUS.addListener(AltarPowerLoader::onAddReloadListeners);
+        NeoForge.EVENT_BUS.addListener(BalanceLoader::onAddReloadListeners);
+        NeoForge.EVENT_BUS.addListener(BalanceLoader::onDatapackSync);
         NeoForge.EVENT_BUS.addListener(DefinitionLoader::onDatapackSync);
         ModCreativeTabs.TABS.register(modEventBus);
 
