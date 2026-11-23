@@ -38,7 +38,7 @@ public final class ModBlocks {
             PrintingPressBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.ANVIL).noOcclusion());
 
     /** A formed wheel or sphere core gives a faint light, the enchanting table's 7 like the altar (author, 2026-11-23). */
-    private static final java.util.function.ToIntFunction<net.minecraft.world.level.block.state.BlockState> FORMED_GLOW = state -> state.getValue(WheelBodyBlock.FORMED) ? 7 : 0;
+    private static final java.util.function.ToIntFunction<net.minecraft.world.level.block.state.BlockState> FORMED_GLOW = state -> state.getValue(com.mamechin.enchantmod.multiblock.Multiblock.FORMED) ? 7 : 0;
 
     public static final DeferredBlock<WheelCoreBlock> WHEEL_CORE = BLOCKS.registerBlock("wheel_core",
             WheelCoreBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion().lightLevel(FORMED_GLOW).pushReaction(PushReaction.BLOCK));

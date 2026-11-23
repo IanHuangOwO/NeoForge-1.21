@@ -10,7 +10,7 @@ import com.mamechin.enchantmod.blocks.cauldron.ModCapabilities;
 import com.mamechin.enchantmod.registry.ModFluids;
 import com.mamechin.enchantmod.registry.ModItems;
 import com.mamechin.enchantmod.balance.BalanceLoader;
-import com.mamechin.enchantmod.blocks.scribing.DefinitionLoader;
+import com.mamechin.enchantmod.enchanting.DefinitionLoader;
 import com.mamechin.enchantmod.registry.ModNetwork;
 import com.mamechin.enchantmod.registry.ModDataComponents;
 import com.mamechin.enchantmod.registry.ModMenus;

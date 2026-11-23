@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.multiblock.sphere;
 
+import com.mamechin.enchantmod.multiblock.Multiblock;
 import com.mamechin.enchantmod.registry.ModBlocks;
-import com.mamechin.enchantmod.multiblock.wheel.WheelBodyBlock;
 import com.mojang.serialization.MapCodec;
 import com.mamechin.enchantmod.multiblock.GuidedCoreBlockEntity;
 import net.minecraft.world.InteractionHand;
@@ -31,7 +31,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
  */
 public class SphereCoreBlock extends Block implements EntityBlock {
     public static final MapCodec<SphereCoreBlock> CODEC = simpleCodec(SphereCoreBlock::new);
-    public static final BooleanProperty FORMED = WheelBodyBlock.FORMED;
+    public static final BooleanProperty FORMED = Multiblock.FORMED;
 
     public SphereCoreBlock(Properties properties) {
         super(properties);

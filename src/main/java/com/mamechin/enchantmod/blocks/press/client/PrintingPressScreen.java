@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.blocks.press.client;
 
 import com.mamechin.enchantmod.blocks.press.PrintingPressMenu;
-import com.mamechin.enchantmod.blocks.scribing.research.GuiArt;
+import com.mamechin.enchantmod.client.gui.GuiArt;
 
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;

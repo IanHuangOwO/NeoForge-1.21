@@ -1,0 +1,133 @@
+{
+	"parent": "minecraft:block/block",
+	"loader": "neoforge:obj",
+	"flip_v": true,
+	"automatic_culling": false,
+	"model": "enchantmod:models/item/yggdrasil/seed_glow.obj",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "enchantmod:item/yggdrasil/yggdrasil",
+		"particle": "enchantmod:item/yggdrasil/yggdrasil"
+	},
+	"display": {
+		"gui": {
+			"rotation": [
+				25,
+				215,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				2.119,
+				2.119,
+				2.119
+			]
+		},
+		"ground": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				2,
+				0
+			],
+			"scale": [
+				1.186,
+				1.186,
+				1.186
+			]
+		},
+		"fixed": {
+			"rotation": [
+				0,
+				180,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				2.119,
+				2.119,
+				2.119
+			]
+		},
+		"thirdperson_righthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				1
+			],
+			"scale": [
+				1.271,
+				1.271,
+				1.271
+			]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				1
+			],
+			"scale": [
+				1.271,
+				1.271,
+				1.271
+			]
+		},
+		"firstperson_righthand": {
+			"rotation": [
+				0,
+				35,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				0
+			],
+			"scale": [
+				1.271,
+				1.271,
+				1.271
+			]
+		},
+		"firstperson_lefthand": {
+			"rotation": [
+				0,
+				35,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				0
+			],
+			"scale": [
+				1.271,
+				1.271,
+				1.271
+			]
+		}
+	}
+}

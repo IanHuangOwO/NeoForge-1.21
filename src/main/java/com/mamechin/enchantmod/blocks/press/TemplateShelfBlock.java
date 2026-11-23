@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.blocks.press;
 
-import com.mamechin.enchantmod.items.EnchantTemplate;
+import com.mamechin.enchantmod.items.template.EnchantTemplate;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;

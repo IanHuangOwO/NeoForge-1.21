@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.registry;
 
-import com.mamechin.enchantmod.items.EnchantTemplate;
-import com.mamechin.enchantmod.items.ResearchHandbook;
+import com.mamechin.enchantmod.items.template.EnchantTemplate;
+import com.mamechin.enchantmod.items.handbook.ResearchHandbook;
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.items.cube.CubeTier0;
 import com.mamechin.enchantmod.items.cube.CubeTier1;

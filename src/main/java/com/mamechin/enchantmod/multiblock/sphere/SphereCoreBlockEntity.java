@@ -48,12 +48,12 @@ public class SphereCoreBlockEntity extends GuidedCoreBlockEntity implements Menu
     private final ItemStackHandler tree = new ItemStackHandler(1) {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof YggdrasilItem && stack.has(ModDataComponents.TREE);
+            return stack.getItem() instanceof YggdrasilItem && stack.has(ModDataComponents.TREE) && stack.get(ModDataComponents.TREE).bound();
         }
 
         @Override
         protected void onContentsChanged(int slot) {
-            setChanged();
+            sync(); // clients draw the tree in the sphere
         }
     };
 
@@ -94,8 +94,10 @@ public class SphereCoreBlockEntity extends GuidedCoreBlockEntity implements Menu
         if (owner == null) return;
         long time = level.getGameTime();
         if (time % YggdrasilItem.GROWTH_STEP == 0) {
+            int before = YggdrasilItem.stageIndex(stack);
             YggdrasilItem.grow(stack, owner, YggdrasilItem.GROWTH_STEP);
-            setChanged();
+            if (YggdrasilItem.stageIndex(stack) != before) sync(); // a new stage changes the tree clients draw
+            else setChanged();
         }
         Balance.Stage stage = YggdrasilItem.stage(stack);
         if (time % (stage.checkSeconds() * 20L) == 0) refill(owner, stage.xpPerLevel());

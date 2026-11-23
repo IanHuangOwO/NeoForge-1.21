@@ -1,36 +1,30 @@
 package com.mamechin.enchantmod.blocks.scribing;
 
+import com.mamechin.enchantmod.registry.ModTags;
 import com.mamechin.enchantmod.registry.ModDataComponents;
 import com.mamechin.enchantmod.registry.ModMenus;
-import com.mamechin.enchantmod.blocks.scribing.rules.Blueprint;
-import com.mamechin.enchantmod.blocks.scribing.rules.BlueprintRules;
+import com.mamechin.enchantmod.enchanting.Blueprint;
+import com.mamechin.enchantmod.enchanting.BlueprintRules;
 import java.util.List;
 
-import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.registry.ModBlocks;
 import com.mamechin.enchantmod.registry.ModItems;
 import com.mamechin.enchantmod.items.inkwell.EnchantInkwell;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 /** The scribing table screen: three table slots, the player inventory, and the edits sent by the screen. */
 public class ScribingTableMenu extends AbstractContainerMenu {
-    private static final TagKey<Item> INKWELLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "inkwells"));
-    private static final TagKey<Item> QUILLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "quills"));
 
     public static final int OP_PLACE = 0, OP_ERASE = 1, OP_LINE = 2;
 
@@ -55,13 +49,13 @@ public class ScribingTableMenu extends AbstractContainerMenu {
         addSlot(new SlotItemHandler(inventory, ScribingTableBlockEntity.INKWELL, 8, 18) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(INKWELLS);
+                return stack.is(ModTags.INKWELLS);
             }
         });
         addSlot(new SlotItemHandler(inventory, ScribingTableBlockEntity.QUILL, 8, 40) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.is(QUILLS);
+                return stack.is(ModTags.QUILLS);
             }
         });
         addSlot(new SlotItemHandler(inventory, ScribingTableBlockEntity.TEMPLATE, 8, 62) {

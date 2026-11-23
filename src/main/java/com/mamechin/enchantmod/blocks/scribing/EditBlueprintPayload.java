@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.blocks.scribing;
 
-import com.mamechin.enchantmod.blocks.scribing.rules.BlueprintRules;
+import com.mamechin.enchantmod.enchanting.BlueprintRules;
 import java.util.List;
 
 import com.mamechin.enchantmod.EnchantMod;

@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.multiblock.wheel;
 
+import com.mamechin.enchantmod.multiblock.Multiblock;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
  */
 public class WheelBodyBlock extends Block {
     public static final MapCodec<WheelBodyBlock> CODEC = simpleCodec(WheelBodyBlock::new);
-    public static final BooleanProperty FORMED = BooleanProperty.create("formed");
+    public static final BooleanProperty FORMED = Multiblock.FORMED;
 
     public WheelBodyBlock(Properties properties) {
         super(properties);

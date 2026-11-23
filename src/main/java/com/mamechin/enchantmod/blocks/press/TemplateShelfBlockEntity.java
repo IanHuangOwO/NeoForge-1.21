@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.blocks.press;
 
 import com.mamechin.enchantmod.registry.ModBlockEntities;
-import com.mamechin.enchantmod.items.EnchantTemplate;
+import com.mamechin.enchantmod.items.template.EnchantTemplate;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

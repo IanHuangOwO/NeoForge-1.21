@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.blocks.altar;
 
+import com.mamechin.enchantmod.registry.ModTags;
 import com.mamechin.enchantmod.registry.ModBlockEntities;
 import com.mamechin.enchantmod.items.cube.EnchantCube;
 import com.mojang.serialization.MapCodec;
@@ -54,7 +55,7 @@ public class AltarBlock extends Block implements EntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack held, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (!(level.getBlockEntity(pos) instanceof AltarBlockEntity altar)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-        if (held.is(AltarBlockEntity.QUILLS)) {
+        if (held.is(ModTags.QUILLS)) {
             if (!level.isClientSide) {
                 if (player.isShiftKeyDown()) altar.scan(player);
                 else altar.start(player);

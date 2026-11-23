@@ -74,13 +74,23 @@ public class YggdrasilItem extends Item {
         return stageName(stage(stack));
     }
 
-    /** Use in the air binds an unbound seed to the player. */
+    /** An unbound tree at the start of each stage, for the creative tab (author, 2026-11-23); the first use in the air binds it, keeping its age. */
+    public static List<ItemStack> stages(Item item) {
+        return Balance.current().yggdrasil().stages().stream().map(stage -> {
+            ItemStack stack = new ItemStack(item);
+            if (stage.age() > 0) stack.set(ModDataComponents.TREE, new TreeData(TreeData.NOBODY, "", stage.age(), 0));
+            return stack;
+        }).toList();
+    }
+
+    /** Use in the air binds an unbound tree to the player. */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.has(ModDataComponents.TREE)) return InteractionResultHolder.pass(stack);
+        TreeData data = stack.get(ModDataComponents.TREE);
+        if (data != null && data.bound()) return InteractionResultHolder.pass(stack);
         if (!level.isClientSide) {
-            stack.set(ModDataComponents.TREE, new TreeData(player.getUUID(), player.getGameProfile().getName(), 0, 0));
+            stack.set(ModDataComponents.TREE, new TreeData(player.getUUID(), player.getGameProfile().getName(), data == null ? 0 : data.age(), 0));
             player.displayClientMessage(Component.translatable("message.enchantmod.yggdrasil.bound"), true);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
@@ -89,8 +99,9 @@ public class YggdrasilItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         TreeData data = stack.get(ModDataComponents.TREE);
-        if (data == null) {
+        if (data == null || !data.bound()) {
             tooltip.add(Component.translatable("item.enchantmod.yggdrasil.unbound").withStyle(ChatFormatting.GRAY));
+            if (data != null) tooltip.add(Component.translatable("item.enchantmod.yggdrasil.age", data.age(), 0).withStyle(ChatFormatting.GRAY));
             return;
         }
         Balance.Yggdrasil y = Balance.current().yggdrasil();

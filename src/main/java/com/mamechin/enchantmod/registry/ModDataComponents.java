@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.registry;
 
-import com.mamechin.enchantmod.blocks.scribing.rules.Blueprint;
-import com.mamechin.enchantmod.blocks.scribing.rules.CubeContents;
+import com.mamechin.enchantmod.enchanting.Blueprint;
+import com.mamechin.enchantmod.enchanting.CubeContents;
 import com.mamechin.enchantmod.EnchantMod;
 
 import net.minecraft.core.component.DataComponentType;

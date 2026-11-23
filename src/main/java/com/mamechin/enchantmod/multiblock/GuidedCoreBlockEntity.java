@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.multiblock;
 
+import com.mamechin.enchantmod.registry.ModTags;
 import com.mamechin.enchantmod.blocks.altar.AltarBlockEntity;
 
 import net.minecraft.core.BlockPos;
@@ -52,7 +53,7 @@ public abstract class GuidedCoreBlockEntity extends BlockEntity {
 
     /** The core block's quill click: toggles the guide of an unformed core. */
     public static ItemInteractionResult toggle(ItemStack held, boolean formed, Level level, BlockPos pos, Player player) {
-        if (!held.is(AltarBlockEntity.QUILLS) || formed || !(level.getBlockEntity(pos) instanceof GuidedCoreBlockEntity core)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (!held.is(ModTags.QUILLS) || formed || !(level.getBlockEntity(pos) instanceof GuidedCoreBlockEntity core)) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide) {
             core.setGuide(!core.guide);
             player.displayClientMessage(Component.translatable(core.guide ? "message.enchantmod.guide.on" : "message.enchantmod.guide.off"), true);

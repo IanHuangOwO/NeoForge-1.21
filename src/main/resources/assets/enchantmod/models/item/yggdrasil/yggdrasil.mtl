@@ -1,0 +1,8 @@
+# both materials use texture slot #0 of the model JSON. m_1 = glow (Ka 1 1 1)
+
+newmtl m_0
+map_Kd #0
+
+newmtl m_1
+Ka 1 1 1
+map_Kd #0

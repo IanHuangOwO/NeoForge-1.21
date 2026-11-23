@@ -1,17 +1,17 @@
 package com.mamechin.enchantmod.blocks.scribing.client;
 
-import com.mamechin.enchantmod.blocks.scribing.research.GuiArt;
-import com.mamechin.enchantmod.blocks.scribing.research.ResearchPanel;
+import com.mamechin.enchantmod.client.gui.GuiArt;
+import com.mamechin.enchantmod.items.handbook.ResearchPanel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import com.mamechin.enchantmod.registry.ModItems;
-import com.mamechin.enchantmod.blocks.scribing.rules.Blueprint;
-import com.mamechin.enchantmod.blocks.scribing.rules.BlueprintRules;
-import com.mamechin.enchantmod.blocks.scribing.rules.LineRouting;
+import com.mamechin.enchantmod.enchanting.Blueprint;
+import com.mamechin.enchantmod.enchanting.BlueprintRules;
+import com.mamechin.enchantmod.enchanting.LineRouting;
 import com.mamechin.enchantmod.blocks.scribing.EditBlueprintPayload;
-import com.mamechin.enchantmod.blocks.scribing.rules.Rune;
+import com.mamechin.enchantmod.enchanting.Rune;
 import com.mamechin.enchantmod.blocks.scribing.ScribingTableMenu;
 
 import com.mamechin.enchantmod.blocks.scribing.RenameTemplatePayload;

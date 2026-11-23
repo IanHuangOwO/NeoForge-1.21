@@ -1,6 +1,133 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "minecraft:block/oak_sapling"
-  }
+	"parent": "minecraft:block/block",
+	"loader": "neoforge:obj",
+	"flip_v": true,
+	"automatic_culling": false,
+	"model": "enchantmod:models/item/yggdrasil/sapling.obj",
+	"render_type": "minecraft:cutout",
+	"textures": {
+		"0": "enchantmod:item/yggdrasil/yggdrasil",
+		"particle": "enchantmod:item/yggdrasil/yggdrasil"
+	},
+	"display": {
+		"gui": {
+			"rotation": [
+				25,
+				215,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				0.688,
+				0.688,
+				0.688
+			]
+		},
+		"ground": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				2,
+				0
+			],
+			"scale": [
+				0.385,
+				0.385,
+				0.385
+			]
+		},
+		"fixed": {
+			"rotation": [
+				0,
+				180,
+				0
+			],
+			"translation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				0.688,
+				0.688,
+				0.688
+			]
+		},
+		"thirdperson_righthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				1
+			],
+			"scale": [
+				0.413,
+				0.413,
+				0.413
+			]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				1
+			],
+			"scale": [
+				0.413,
+				0.413,
+				0.413
+			]
+		},
+		"firstperson_righthand": {
+			"rotation": [
+				0,
+				35,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				0
+			],
+			"scale": [
+				0.413,
+				0.413,
+				0.413
+			]
+		},
+		"firstperson_lefthand": {
+			"rotation": [
+				0,
+				35,
+				0
+			],
+			"translation": [
+				0,
+				3,
+				0
+			],
+			"scale": [
+				0.413,
+				0.413,
+				0.413
+			]
+		}
+	}
 }

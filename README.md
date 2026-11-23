@@ -35,14 +35,16 @@ Code layout
 
 Code is grouped by feature under `src/main/java/com/mamechin/enchantmod/`. Each feature folder holds its own blocks, block entities, menus and `client/` rendering:
 
-- `registry/` has the shared registers: blocks, block entities, items, data components, menus, network, creative tab, fluids, particles.
+- `registry/` has the shared registers: blocks, block entities, items, data components, menus, network, creative tab, fluids, particles, item tags.
 - `blocks/` has the work stations:
-  - `scribing/`: the scribing table, its menu and screen, the handbook, and `rules/`, the pure rules with no Minecraft code.
+  - `scribing/`: the scribing table, its menu and screen.
   - `altar/`: the altar and its drain glyphs.
   - `press/`: the printing press and the template shelf.
   - `cauldron/`: the cauldron, the enchant fluids, its actions, brewing recipes, rendering and heat.
 - `multiblock/` has the build guide with `wheel/` and `sphere/`.
-- `items/` has the quills, inkwells, cubes, template, handbook, `books/` (book tiers and the level cap) and `yggdrasil/`.
+- `enchanting/` is the enchant model the stations share: runes, enchants, blueprints, forecasts, cube contents, mostly pure code with no Minecraft.
+- `client/gui/` has the GUI drawing the screens share.
+- `items/` has `quill/`, `inkwell/`, `cube/`, `template/`, `handbook/` (the research handbook), `books/` (book tiers and the level cap) and `yggdrasil/`.
 - `mobs/allay/` has the allay capsule and bound allays; `balance/` loads the balance JSON.
 
 Resources use the same feature subfolders (`models/block/<feature>/`, `textures/block/<feature>/`, `textures/item/<feature>/`, `textures/gui/<feature>/`) where Minecraft allows it.

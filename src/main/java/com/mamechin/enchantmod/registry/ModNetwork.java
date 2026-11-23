@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.registry;
 
-import com.mamechin.enchantmod.blocks.scribing.DefinitionsPayload;
+import com.mamechin.enchantmod.enchanting.DefinitionsPayload;
 import com.mamechin.enchantmod.blocks.scribing.EditBlueprintPayload;
 import com.mamechin.enchantmod.blocks.scribing.RenameTemplatePayload;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;

@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.multiblock.wheel;
 
+import com.mamechin.enchantmod.multiblock.Multiblock;
 import com.mamechin.enchantmod.registry.ModBlocks;
 import com.mojang.serialization.MapCodec;
 import com.mamechin.enchantmod.multiblock.GuidedCoreBlockEntity;
@@ -38,7 +39,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 public class WheelCoreBlock extends Block implements EntityBlock {
     public static final MapCodec<WheelCoreBlock> CODEC = simpleCodec(WheelCoreBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final BooleanProperty FORMED = WheelBodyBlock.FORMED;
+    public static final BooleanProperty FORMED = Multiblock.FORMED;
 
     public WheelCoreBlock(Properties properties) {
         super(properties);

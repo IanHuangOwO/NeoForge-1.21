@@ -7,14 +7,12 @@ import java.util.UUID;
 import com.mamechin.enchantmod.balance.Balance;
 
 import com.mamechin.enchantmod.registry.ModBlockEntities;
-import com.mamechin.enchantmod.items.EnchantTemplate;
+import com.mamechin.enchantmod.items.template.EnchantTemplate;
 import com.mamechin.enchantmod.items.cube.EnchantCube;
 import com.mamechin.enchantmod.registry.ModDataComponents;
-import com.mamechin.enchantmod.blocks.scribing.rules.Blueprint;
-import com.mamechin.enchantmod.blocks.scribing.rules.CubeContents;
-import com.mamechin.enchantmod.blocks.scribing.rules.EnchantForecast;
-import com.mamechin.enchantmod.blocks.scribing.rules.PressAnimation;
-import com.mamechin.enchantmod.blocks.scribing.rules.PressLayout;
+import com.mamechin.enchantmod.enchanting.Blueprint;
+import com.mamechin.enchantmod.enchanting.CubeContents;
+import com.mamechin.enchantmod.enchanting.EnchantForecast;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

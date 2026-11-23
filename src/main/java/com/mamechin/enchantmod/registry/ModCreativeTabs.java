@@ -38,7 +38,7 @@ public final class ModCreativeTabs {
                 output.accept(ModItems.WHEEL_BODY.get());
                 output.accept(ModItems.SPHERE_CORE.get());
                 output.accept(ModItems.ALLAY_CAPSULE.get());
-                output.accept(ModItems.YGGDRASIL.get());
+                com.mamechin.enchantmod.items.yggdrasil.YggdrasilItem.stages(ModItems.YGGDRASIL.get()).forEach(output::accept);
                 output.accept(ModItems.BOOK_TIER1.get());
                 output.accept(ModItems.BOOK_TIER2.get());
                 output.accept(ModItems.ENCHANTED_BOOK_TIER1.get());

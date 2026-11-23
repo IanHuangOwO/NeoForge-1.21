@@ -1,5 +1,6 @@
 package com.mamechin.enchantmod.blocks.altar;
 
+import com.mamechin.enchantmod.registry.ModTags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,7 +16,7 @@ import com.mamechin.enchantmod.balance.Balance;
 import com.mamechin.enchantmod.registry.ModParticles;
 import com.mamechin.enchantmod.items.cube.EnchantCube;
 import com.mamechin.enchantmod.registry.ModDataComponents;
-import com.mamechin.enchantmod.blocks.scribing.rules.CubeContents;
+import com.mamechin.enchantmod.enchanting.CubeContents;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
@@ -35,10 +36,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -53,7 +52,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-import com.mamechin.enchantmod.EnchantMod;
 
 /**
  * The altar holds the item to enchant and an enchant cube. Shift and a quill scans: the altar links the nearest formed spinning wheel
@@ -65,7 +63,6 @@ import com.mamechin.enchantmod.EnchantMod;
  */
 public class AltarBlockEntity extends BlockEntity {
     public static final int ITEM = 0, CUBE = 1;
-    public static final TagKey<Item> QUILLS = TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "quills"));
 
     private final ItemStackHandler inventory = new ItemStackHandler(2) {
         @Override
@@ -75,7 +72,7 @@ public class AltarBlockEntity extends BlockEntity {
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return (slot == CUBE) == (stack.getItem() instanceof EnchantCube) && !stack.is(QUILLS);
+            return (slot == CUBE) == (stack.getItem() instanceof EnchantCube) && !stack.is(ModTags.QUILLS);
         }
 
         @Override

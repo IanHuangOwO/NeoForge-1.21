@@ -2,7 +2,6 @@ package com.mamechin.enchantmod.blocks.press;
 
 import com.mamechin.enchantmod.registry.ModBlocks;
 import com.mamechin.enchantmod.registry.ModMenus;
-import com.mamechin.enchantmod.blocks.scribing.rules.PressLayout;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;

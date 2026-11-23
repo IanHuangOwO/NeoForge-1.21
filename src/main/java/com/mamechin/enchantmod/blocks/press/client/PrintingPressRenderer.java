@@ -2,7 +2,7 @@ package com.mamechin.enchantmod.blocks.press.client;
 
 import com.mamechin.enchantmod.EnchantMod;
 import com.mamechin.enchantmod.blocks.press.PrintingPressBlockEntity;
-import com.mamechin.enchantmod.blocks.scribing.rules.PressAnimation;
+import com.mamechin.enchantmod.blocks.press.PressAnimation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;

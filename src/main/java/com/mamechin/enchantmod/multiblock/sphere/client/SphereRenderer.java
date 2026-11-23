@@ -36,7 +36,9 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import com.mamechin.enchantmod.items.yggdrasil.YggdrasilItem;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 
@@ -53,10 +55,16 @@ public class SphereRenderer implements BlockEntityRenderer<SphereCoreBlockEntity
     private static final String[] GEARS = {"sphere_gear_large", "sphere_gear_medium", "sphere_gear_small"};
     private static final float[] RING_SPIN = {14, -22, 35}, RING_PRECESSION = {5, -8, 11}, RING_TILT = {20, 65, -45}, RING_SWING = {15, 25, 40}, RING_PERIOD = {23, 17, 13};
     private static final float SHELL_DEGREES_PER_SECOND = 6, GEAR_TOOTH = 0.5236F; // radians per tooth of the large gear
+    /** The Yggdrasil's models by stage index (Fable's pack, 2026-11-23), drawn in the centre while one is in the sphere. */
+    private static final String[] TREE_STAGES = {"seed", "sprout", "sapling", "young_tree", "elder_tree", "yggdrasil"};
+    /** The tree turns against the shell (Fable suggests 6 degrees a second; the shell turns the other way at the same rate). */
+    private static final float TREE_DEGREES_PER_SECOND = -6, TREE_BOB = 0.05F, TREE_BOB_PERIOD = 6, TREE_SWAY_X = 1.5F, TREE_SWAY_X_PERIOD = 7,
+            TREE_SWAY_Z = 1, TREE_SWAY_Z_PERIOD = 9;
 
     /** Every model this renderer draws, for registering as additional models. */
-    public static final List<ModelResourceLocation> MODELS = Stream.of(Stream.of("sphere_shell"), Stream.of(RINGS), Stream.of(GEARS))
-            .flatMap(s -> s).flatMap(name -> Stream.of(part(name), part(name + "_glow"))).toList();
+    public static final List<ModelResourceLocation> MODELS = Stream.concat(
+            Stream.of(Stream.of("sphere_shell"), Stream.of(RINGS), Stream.of(GEARS)).flatMap(s -> s).flatMap(name -> Stream.of(part(name), part(name + "_glow"))),
+            Stream.of(TREE_STAGES).flatMap(name -> Stream.of(tree(name), tree(name + "_glow")))).toList();
 
     /**
      * Block cutout like the wheel's (lit by the light level only), but without back-face culling so the far panes show through the
@@ -72,6 +80,10 @@ public class SphereRenderer implements BlockEntityRenderer<SphereCoreBlockEntity
     private final List<Gear> gears = loadGears();
 
     public SphereRenderer(BlockEntityRendererProvider.Context context) {}
+
+    private static ModelResourceLocation tree(String name) {
+        return ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "item/yggdrasil/" + name));
+    }
 
     private static ModelResourceLocation part(String name) {
         return ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "block/sphere/" + name));
@@ -145,6 +157,20 @@ public class SphereRenderer implements BlockEntityRenderer<SphereCoreBlockEntity
             pose.mulPose(Axis.YP.rotationDegrees(RING_SPIN[i] * t));
             pose.translate(-0.5, -0.5, -0.5);
             draw(pose, consumer, part(RINGS[i]), light, glow ? part(RINGS[i] + "_glow") : null);
+            pose.popPose();
+        }
+
+        // the Yggdrasil floats in the centre: it turns, bobs and sways about the core's centre (Fable's README numbers)
+        ItemStack tree = core.tree().getStackInSlot(0);
+        if (!tree.isEmpty()) {
+            String stage = TREE_STAGES[Mth.clamp(YggdrasilItem.stageIndex(tree), 0, TREE_STAGES.length - 1)];
+            pose.pushPose();
+            pose.translate(0.5, 0.5 + TREE_BOB * Mth.sin(t * Mth.TWO_PI / TREE_BOB_PERIOD), 0.5);
+            pose.mulPose(Axis.YP.rotationDegrees(t * TREE_DEGREES_PER_SECOND));
+            pose.mulPose(Axis.XP.rotationDegrees(TREE_SWAY_X * Mth.sin(t * Mth.TWO_PI / TREE_SWAY_X_PERIOD)));
+            pose.mulPose(Axis.ZP.rotationDegrees(TREE_SWAY_Z * Mth.sin(t * Mth.TWO_PI / TREE_SWAY_Z_PERIOD)));
+            pose.translate(-0.5, -0.5, -0.5);
+            draw(pose, consumer, tree(stage), light, glow ? tree(stage + "_glow") : null);
             pose.popPose();
         }
     }
