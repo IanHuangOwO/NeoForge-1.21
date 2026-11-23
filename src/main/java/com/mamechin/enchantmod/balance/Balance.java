@@ -16,10 +16,11 @@ import com.google.gson.JsonParser;
  * merge, anything else is replaced), so a pack changes single values. This is a trust boundary: a wrong value is dropped with a
  * warning and the default (the shipped number) is used. The server sends the merged files to clients, which parse them the same way.
  */
-public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> quills, Press press, Map<String, Heat> heat, Books books) {
+public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> quills, Press press, Map<String, Heat> heat, Books books, Yggdrasil yggdrasil) {
     /** File name to its path under {@code data/<namespace>/enchantmod/}, grouped by feature. */
     public static final Map<String, String> FILES = Map.of("altar", "altar/altar.json", "cubes", "items/cubes.json", "quills", "items/quills.json", "press", "press/press.json",
-            "heat", "cauldron/heat.json", "books", "items/books.json");
+            "heat", "cauldron/heat.json", "books", "items/books.json",
+            "yggdrasil", "items/yggdrasil.json");
 
     /** The scan cylinder of a tier: radius and the lowest and highest row, all relative to the altar. */
     public record Area(int radius, int minY, int maxY) {}
@@ -62,6 +63,26 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
         }
     }
 
+    /**
+     * A Yggdrasil growth stage (author, 2026-11-23): its name (lang key {@code item.enchantmod.yggdrasil.<name>}), the age it starts at,
+     * the XP points each year of growth costs, the XP points one refilled enchant level costs, and the seconds between refill checks.
+     */
+    public record Stage(String name, int age, int yearCost, int xpPerLevel, int checkSeconds) {}
+
+    /** The Yggdrasil: game ticks per year of age, and its stages in rising age, the first at 0. */
+    public record Yggdrasil(int ticksPerYear, List<Stage> stages) {
+        /** The index of the stage a tree of {@code age} years is in. */
+        public int index(int age) {
+            int i = 0;
+            while (i + 1 < stages.size() && stages.get(i + 1).age() <= age) i++;
+            return i;
+        }
+
+        public Stage stage(int age) {
+            return stages.get(index(age));
+        }
+    }
+
     /** Ticks the press takes per template (the stroke animation is played to fit). */
     public record Press(int ticksPerTemplate) {}
 
@@ -69,7 +90,10 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
             List.of(new Area(8, -13, 13), new Area(16, -15, 15), new Area(32, -17, 17)), Map.of(), Map.of(), "");
     public static final Press DEFAULT_PRESS = new Press(20);
     public static final Books DEFAULT_BOOKS = new Books(true, List.of(2, 4, 16));
-    public static final Balance DEFAULT = new Balance(DEFAULT_ALTAR, Map.of(), Map.of(), DEFAULT_PRESS, Map.of(), DEFAULT_BOOKS);
+    public static final Yggdrasil DEFAULT_YGGDRASIL = new Yggdrasil(24000, List.of(new Stage("seed", 0, 7, 50, 120), new Stage("sprout", 10, 10, 40, 90),
+            new Stage("sapling", 50, 15, 30, 60), new Stage("young_tree", 150, 25, 22, 40), new Stage("elder_tree", 400, 40, 15, 25),
+            new Stage("yggdrasil", 1000, 60, 10, 15)));
+    public static final Balance DEFAULT = new Balance(DEFAULT_ALTAR, Map.of(), Map.of(), DEFAULT_PRESS, Map.of(), DEFAULT_BOOKS, DEFAULT_YGGDRASIL);
 
     private static volatile Balance current = DEFAULT;
 
@@ -115,7 +139,8 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
     public static Balance parse(Map<String, String> files, Consumer<String> warn) {
         return new Balance(altar(object(files.get("altar"), "altar", warn), warn), cubes(object(files.get("cubes"), "cubes", warn), warn),
                 quills(object(files.get("quills"), "quills", warn), warn), press(object(files.get("press"), "press", warn), warn),
-                heat(object(files.get("heat"), "heat", warn), warn), books(object(files.get("books"), "books", warn), warn));
+                heat(object(files.get("heat"), "heat", warn), warn), books(object(files.get("books"), "books", warn), warn),
+                yggdrasil(object(files.get("yggdrasil"), "yggdrasil", warn), warn));
     }
 
     private static JsonObject object(String text, String name, Consumer<String> warn) {
@@ -288,6 +313,30 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
             }
         }
         return new Books(enabled, caps);
+    }
+
+    private static Yggdrasil yggdrasil(JsonObject o, Consumer<String> warn) {
+        Yggdrasil d = DEFAULT_YGGDRASIL;
+        int ticksPerYear = integer(o, "ticks_per_year", d.ticksPerYear(), 1, "yggdrasil", warn);
+        List<Stage> stages = d.stages();
+        if (o.has("stages")) {
+            try {
+                List<Stage> list = new ArrayList<>();
+                for (JsonElement e : o.getAsJsonArray("stages")) {
+                    JsonObject s = e.getAsJsonObject();
+                    Stage stage = new Stage(s.get("name").getAsString(), s.get("age").getAsInt(), s.get("year_cost").getAsInt(),
+                            s.get("xp_per_level").getAsInt(), s.get("check_seconds").getAsInt());
+                    if (stage.yearCost() < 0 || stage.xpPerLevel() < 0 || stage.checkSeconds() < 1) throw new IllegalArgumentException(stage.name() + " has a negative cost or a check under 1 second");
+                    if (list.isEmpty() ? stage.age() != 0 : stage.age() <= list.get(list.size() - 1).age()) throw new IllegalArgumentException("ages must start at 0 and rise");
+                    list.add(stage);
+                }
+                if (list.isEmpty()) throw new IllegalArgumentException("empty");
+                stages = List.copyOf(list);
+            } catch (RuntimeException ex) {
+                warn.accept("yggdrasil.stages ignored: " + ex.getMessage());
+            }
+        }
+        return new Yggdrasil(ticksPerYear, stages);
     }
 
     private static Press press(JsonObject o, Consumer<String> warn) {

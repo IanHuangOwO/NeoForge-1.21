@@ -1,134 +1,134 @@
 {
-	"parent": "minecraft:block/block",
-	"loader": "neoforge:obj",
-	"flip_v": true,
-	"automatic_culling": false,
-	"model": "enchantmod:models/block/press_item.obj",
-	"render_type": "minecraft:cutout",
-	"ambientocclusion": false,
-	"textures": {
-		"0": "enchantmod:block/press",
-		"particle": "enchantmod:block/press"
-	},
-	"display": {
-		"gui": {
-			"rotation": [
-				30,
-				225,
-				0
-			],
-			"translation": [
-				0,
-				-3,
-				0
-			],
-			"scale": [
-				0.36,
-				0.36,
-				0.36
-			]
-		},
-		"ground": {
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"translation": [
-				0,
-				1,
-				0
-			],
-			"scale": [
-				0.2,
-				0.2,
-				0.2
-			]
-		},
-		"fixed": {
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"translation": [
-				0,
-				-3,
-				0
-			],
-			"scale": [
-				0.38,
-				0.38,
-				0.38
-			]
-		},
-		"thirdperson_righthand": {
-			"rotation": [
-				75,
-				45,
-				0
-			],
-			"translation": [
-				0,
-				1,
-				0
-			],
-			"scale": [
-				0.28,
-				0.28,
-				0.28
-			]
-		},
-		"thirdperson_lefthand": {
-			"rotation": [
-				75,
-				45,
-				0
-			],
-			"translation": [
-				0,
-				1,
-				0
-			],
-			"scale": [
-				0.28,
-				0.28,
-				0.28
-			]
-		},
-		"firstperson_righthand": {
-			"rotation": [
-				0,
-				45,
-				0
-			],
-			"translation": [
-				0,
-				-1,
-				0
-			],
-			"scale": [
-				0.3,
-				0.3,
-				0.3
-			]
-		},
-		"firstperson_lefthand": {
-			"rotation": [
-				0,
-				225,
-				0
-			],
-			"translation": [
-				0,
-				-1,
-				0
-			],
-			"scale": [
-				0.3,
-				0.3,
-				0.3
-			]
-		}
-	}
+  "parent": "minecraft:block/block",
+  "loader": "neoforge:obj",
+  "flip_v": true,
+  "automatic_culling": false,
+  "model": "enchantmod:models/block/press/press_item.obj",
+  "render_type": "minecraft:cutout",
+  "ambientocclusion": false,
+  "textures": {
+    "0": "enchantmod:block/press/press",
+    "particle": "enchantmod:block/press/press"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        -3,
+        0
+      ],
+      "scale": [
+        0.36,
+        0.36,
+        0.36
+      ]
+    },
+    "ground": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.2,
+        0.2,
+        0.2
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        -3,
+        0
+      ],
+      "scale": [
+        0.38,
+        0.38,
+        0.38
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.28,
+        0.28,
+        0.28
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        1,
+        0
+      ],
+      "scale": [
+        0.28,
+        0.28,
+        0.28
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        225,
+        0
+      ],
+      "translation": [
+        0,
+        -1,
+        0
+      ],
+      "scale": [
+        0.3,
+        0.3,
+        0.3
+      ]
+    }
+  }
 }

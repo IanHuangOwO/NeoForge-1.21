@@ -1,7 +1,7 @@
 package com.mamechin.enchantmod.items.cube;
 
 import com.mamechin.enchantmod.EnchantMod;
-import com.mamechin.enchantmod.scribing.ModDataComponents;
+import com.mamechin.enchantmod.registry.ModDataComponents;
 
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;

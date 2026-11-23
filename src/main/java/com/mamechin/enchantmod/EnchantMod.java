@@ -1,22 +1,23 @@
 package com.mamechin.enchantmod;
 
+import com.mamechin.enchantmod.registry.ModCreativeTabs;
 import org.slf4j.Logger;
 
-import com.mamechin.enchantmod.blocks.ModBlocks;
-import com.mamechin.enchantmod.cauldron.brewing.CauldronRecipes;
-import com.mamechin.enchantmod.cauldron.brewing.ModCauldronRecipes;
-import com.mamechin.enchantmod.fluid.ModCapabilities;
-import com.mamechin.enchantmod.fluid.ModFluids;
-import com.mamechin.enchantmod.items.ModItems;
+import com.mamechin.enchantmod.registry.ModBlocks;
+import com.mamechin.enchantmod.blocks.cauldron.brewing.CauldronRecipes;
+import com.mamechin.enchantmod.blocks.cauldron.brewing.ModCauldronRecipes;
+import com.mamechin.enchantmod.blocks.cauldron.ModCapabilities;
+import com.mamechin.enchantmod.registry.ModFluids;
+import com.mamechin.enchantmod.registry.ModItems;
 import com.mamechin.enchantmod.balance.BalanceLoader;
-import com.mamechin.enchantmod.scribing.DefinitionLoader;
-import com.mamechin.enchantmod.scribing.ModNetwork;
-import com.mamechin.enchantmod.scribing.ModDataComponents;
-import com.mamechin.enchantmod.scribing.ModMenus;
+import com.mamechin.enchantmod.blocks.scribing.DefinitionLoader;
+import com.mamechin.enchantmod.registry.ModNetwork;
+import com.mamechin.enchantmod.registry.ModDataComponents;
+import com.mamechin.enchantmod.registry.ModMenus;
 import com.mojang.logging.LogUtils;
 
 import net.neoforged.bus.api.IEventBus;
-import com.mamechin.enchantmod.blocks.ModBlockEntities;
+import com.mamechin.enchantmod.registry.ModBlockEntities;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -38,11 +39,11 @@ public class EnchantMod {
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
-        com.mamechin.enchantmod.books.BookEvents.register(modEventBus);
-        com.mamechin.enchantmod.allay.AllayBinding.register(modEventBus);
+        com.mamechin.enchantmod.items.books.BookEvents.register(modEventBus);
+        com.mamechin.enchantmod.mobs.allay.AllayBinding.register(modEventBus);
         ModDataComponents.COMPONENTS.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
-        com.mamechin.enchantmod.particle.ModParticles.PARTICLE_TYPES.register(modEventBus);
+        com.mamechin.enchantmod.registry.ModParticles.PARTICLE_TYPES.register(modEventBus);
         modEventBus.addListener(ModNetwork::register);
         NeoForge.EVENT_BUS.addListener(DefinitionLoader::onAddReloadListeners);
         NeoForge.EVENT_BUS.addListener(BalanceLoader::onAddReloadListeners);

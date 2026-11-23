@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "enchantmod:block/small_cauldron"
+      "model": "enchantmod:block/cauldron/small_cauldron"
     }
   }
 }

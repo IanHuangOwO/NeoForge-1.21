@@ -1,1 +1,1 @@
-{ "variants": { "formed=false": { "model": "enchantmod:block/sphere_core" }, "formed=true": { "model": "enchantmod:block/sphere_empty" } } }
+{ "variants": { "formed=false": { "model": "enchantmod:block/sphere/sphere_core" }, "formed=true": { "model": "enchantmod:block/sphere/sphere_empty" } } }

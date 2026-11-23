@@ -1,4 +1,0 @@
-{
-  "parent": "minecraft:block/orientable",
-  "textures": { "front": "enchantmod:block/wheel_core_front", "side": "enchantmod:block/wheel_core_side", "top": "enchantmod:block/wheel_core_top" }
-}

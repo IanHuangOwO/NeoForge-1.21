@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "enchantmod:item/liquid_of_enchanting_bucket"
+    "layer0": "enchantmod:item/fluid/liquid_of_enchanting_bucket"
   }
 }

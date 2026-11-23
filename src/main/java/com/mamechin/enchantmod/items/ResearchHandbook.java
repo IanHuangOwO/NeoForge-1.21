@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.items;
 
-import com.mamechin.enchantmod.scribing.research.ResearchScreen;
+import com.mamechin.enchantmod.blocks.scribing.research.ResearchScreen;
 
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;

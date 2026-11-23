@@ -1,1 +1,1 @@
-{ "variants": { "base=false": { "model": "enchantmod:block/wheel_empty" }, "base=true": { "model": "enchantmod:block/wheel_empty" } } }
+{ "variants": { "base=false": { "model": "enchantmod:block/wheel/wheel_empty" }, "base=true": { "model": "enchantmod:block/wheel/wheel_empty" } } }

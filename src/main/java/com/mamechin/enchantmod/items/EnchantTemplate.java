@@ -2,10 +2,10 @@ package com.mamechin.enchantmod.items;
 
 import java.util.List;
 
-import com.mamechin.enchantmod.scribing.ModDataComponents;
-import com.mamechin.enchantmod.scribing.rules.Blueprint;
-import com.mamechin.enchantmod.scribing.rules.CubeContents;
-import com.mamechin.enchantmod.scribing.rules.EnchantForecast;
+import com.mamechin.enchantmod.registry.ModDataComponents;
+import com.mamechin.enchantmod.blocks.scribing.rules.Blueprint;
+import com.mamechin.enchantmod.blocks.scribing.rules.CubeContents;
+import com.mamechin.enchantmod.blocks.scribing.rules.EnchantForecast;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;

@@ -73,4 +73,17 @@ class BalanceTest {
         assertEquals(Balance.DEFAULT_BOOKS.maxLevels(), off.books().maxLevels(), "a cap below 1 drops the list");
         assertEquals(1, warnings.size());
     }
+
+    @Test
+    void yggdrasilStagesByAge() {
+        Balance.Yggdrasil y = Balance.parse(Map.of(), m -> {}).yggdrasil();
+        assertEquals("seed", y.stage(0).name());
+        assertEquals("seed", y.stage(9).name());
+        assertEquals("sprout", y.stage(10).name());
+        assertEquals("yggdrasil", y.stage(5000).name());
+        List<String> warnings = new ArrayList<>();
+        Balance.Yggdrasil bad = Balance.parse(Map.of("yggdrasil", "{ \"stages\": [ { \"name\": \"a\", \"age\": 5, \"year_cost\": 1, \"xp_per_level\": 1, \"check_seconds\": 1 } ] }"), warnings::add).yggdrasil();
+        assertEquals(Balance.DEFAULT_YGGDRASIL, bad, "a first stage not at age 0 is refused");
+        assertEquals(1, warnings.size());
+    }
 }

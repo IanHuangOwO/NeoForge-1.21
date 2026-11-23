@@ -1,4 +1,6 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": { "layer0": "enchantmod:item/inkwell_tier2" }
+  "textures": {
+    "layer0": "enchantmod:item/inkwell/inkwell_tier2"
+  }
 }

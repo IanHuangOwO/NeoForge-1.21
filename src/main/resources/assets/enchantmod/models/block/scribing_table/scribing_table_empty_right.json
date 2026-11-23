@@ -1,0 +1,15 @@
+{
+	"parent": "minecraft:block/block",
+	"loader": "neoforge:obj",
+	"flip_v": true,
+	"automatic_culling": false,
+	"model": "enchantmod:models/block/scribing_table/scribing_table_empty_right.obj",
+	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "enchantmod:block/scribing_table/scribing_table",
+		"1": "enchantmod:block/scribing_table/scribing_table_parts",
+		"2": "enchantmod:block/scribing_table/scribing_table_glow",
+		"particle": "enchantmod:block/scribing_table/scribing_table"
+	}
+}

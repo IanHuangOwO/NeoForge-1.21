@@ -1,0 +1,13 @@
+{
+	"parent": "minecraft:block/block",
+	"loader": "neoforge:obj",
+	"flip_v": true,
+	"automatic_culling": false,
+	"model": "enchantmod:models/block/wheel/wheel_small_rotor_glow.obj",
+	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "enchantmod:block/wheel/spinning_wheel_small",
+		"particle": "enchantmod:block/wheel/spinning_wheel_small"
+	}
+}

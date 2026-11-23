@@ -3,7 +3,7 @@ package com.mamechin.enchantmod.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mamechin.enchantmod.scribing.rules.CubeContents;
+import com.mamechin.enchantmod.blocks.scribing.rules.CubeContents;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

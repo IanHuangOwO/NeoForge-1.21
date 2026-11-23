@@ -1,6 +1,6 @@
 package com.mamechin.enchantmod.items.inkwell;
 
-import com.mamechin.enchantmod.fluid.ModFluids;
+import com.mamechin.enchantmod.registry.ModFluids;
 
 public class InkwellTier1 extends EnchantInkwell {
     public InkwellTier1(Properties properties) {

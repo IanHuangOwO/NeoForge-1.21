@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.mamechin.enchantmod.balance.Balance;
 import com.mamechin.enchantmod.items.ForecastTooltip;
-import com.mamechin.enchantmod.scribing.ModDataComponents;
-import com.mamechin.enchantmod.scribing.rules.CubeContents;
+import com.mamechin.enchantmod.registry.ModDataComponents;
+import com.mamechin.enchantmod.blocks.scribing.rules.CubeContents;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;

@@ -1,0 +1,13 @@
+{
+	"parent": "minecraft:block/block",
+	"loader": "neoforge:obj",
+	"flip_v": true,
+	"automatic_culling": false,
+	"model": "enchantmod:models/block/press/press_base.obj",
+	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "enchantmod:block/press/press",
+		"particle": "enchantmod:block/press/press"
+	}
+}

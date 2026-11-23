@@ -1,0 +1,7 @@
+{
+	"parent": "minecraft:block/cube_column",
+	"textures": {
+		"end": "enchantmod:block/sphere/sphere_core_top",
+		"side": "enchantmod:block/sphere/sphere_core_side"
+	}
+}

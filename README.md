@@ -33,12 +33,19 @@ If libraries are missing in your IDE, run `./gradlew --refresh-dependencies`. `.
 Code layout
 -----------
 
-Code is grouped by feature under `src/main/java/com/mamechin/enchantmod/`:
+Code is grouped by feature under `src/main/java/com/mamechin/enchantmod/`. Each feature folder holds its own blocks, block entities, menus and `client/` rendering:
 
-- `scribing/` has the scribing table, its menu and screen, the handbook, and `rules/`, the pure rules with no Minecraft code.
-- `cauldron/` has the cauldron block entity, its actions, brewing recipes, rendering and heat.
-- `blocks/` and `items/` hold the classes Minecraft registers.
-- `fluid/` has the ink and enchanting fluids.
+- `registry/` has the shared registers: blocks, block entities, items, data components, menus, network, creative tab, fluids, particles.
+- `blocks/` has the work stations:
+  - `scribing/`: the scribing table, its menu and screen, the handbook, and `rules/`, the pure rules with no Minecraft code.
+  - `altar/`: the altar and its drain glyphs.
+  - `press/`: the printing press and the template shelf.
+  - `cauldron/`: the cauldron, the enchant fluids, its actions, brewing recipes, rendering and heat.
+- `multiblock/` has the build guide with `wheel/` and `sphere/`.
+- `items/` has the quills, inkwells, cubes, template, handbook, `books/` (book tiers and the level cap) and `yggdrasil/`.
+- `mobs/allay/` has the allay capsule and bound allays; `balance/` loads the balance JSON.
+
+Resources use the same feature subfolders (`models/block/<feature>/`, `textures/block/<feature>/`, `textures/item/<feature>/`, `textures/gui/<feature>/`) where Minecraft allows it.
 
 Credits and licence
 -------------------

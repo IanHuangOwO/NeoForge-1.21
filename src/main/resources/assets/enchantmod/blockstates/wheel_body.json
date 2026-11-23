@@ -1,6 +1,6 @@
 {
   "variants": {
-    "formed=false": { "model": "enchantmod:block/wheel_body" },
-    "formed=true": { "model": "enchantmod:block/wheel_empty" }
+    "formed=false": { "model": "enchantmod:block/wheel/wheel_body" },
+    "formed=true": { "model": "enchantmod:block/wheel/wheel_empty" }
   }
 }

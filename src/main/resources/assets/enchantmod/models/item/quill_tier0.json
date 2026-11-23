@@ -1,4 +1,6 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": { "layer0": "enchantmod:item/quill_tier0" }
+  "textures": {
+    "layer0": "enchantmod:item/quill/quill_tier0"
+  }
 }

@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "enchantmod:block/ink_tier0"
+      "model": "enchantmod:block/fluid/ink_tier0"
     }
   }
 }

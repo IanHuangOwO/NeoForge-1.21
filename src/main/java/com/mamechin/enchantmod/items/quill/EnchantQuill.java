@@ -3,8 +3,8 @@ package com.mamechin.enchantmod.items.quill;
 import java.util.Optional;
 
 import com.mamechin.enchantmod.balance.Balance;
-import com.mamechin.enchantmod.blocks.AltarBlock;
-import com.mamechin.enchantmod.books.Books;
+import com.mamechin.enchantmod.blocks.altar.AltarBlock;
+import com.mamechin.enchantmod.items.books.Books;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

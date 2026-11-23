@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/torchflower_seeds"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "enchantmod:stage": 1
+      },
+      "model": "enchantmod:item/yggdrasil/sprout"
+    },
+    {
+      "predicate": {
+        "enchantmod:stage": 2
+      },
+      "model": "enchantmod:item/yggdrasil/sapling"
+    },
+    {
+      "predicate": {
+        "enchantmod:stage": 3
+      },
+      "model": "enchantmod:item/yggdrasil/young_tree"
+    },
+    {
+      "predicate": {
+        "enchantmod:stage": 4
+      },
+      "model": "enchantmod:item/yggdrasil/elder_tree"
+    },
+    {
+      "predicate": {
+        "enchantmod:stage": 5
+      },
+      "model": "enchantmod:item/yggdrasil/yggdrasil"
+    }
+  ]
+}

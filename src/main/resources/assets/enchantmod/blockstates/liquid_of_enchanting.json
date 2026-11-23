@@ -1,7 +1,7 @@
 {
   "variants": {
     "": {
-      "model": "enchantmod:block/liquid_of_enchanting"
+      "model": "enchantmod:block/fluid/liquid_of_enchanting"
     }
   }
 }

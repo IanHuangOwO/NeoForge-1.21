@@ -1,4 +1,6 @@
 {
   "parent": "minecraft:item/generated",
-  "textures": { "layer0": "enchantmod:item/research_handbook" }
+  "textures": {
+    "layer0": "enchantmod:item/scribing/research_handbook"
+  }
 }

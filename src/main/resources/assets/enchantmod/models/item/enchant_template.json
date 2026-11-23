@@ -1,6 +1,6 @@
 {
-	"parent": "minecraft:item/generated",
-	"textures": {
-		"layer0": "enchantmod:item/enchant_template"
-	}
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "enchantmod:item/scribing/enchant_template"
+  }
 }

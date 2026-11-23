@@ -1,24 +1,24 @@
 package com.mamechin.enchantmod;
 
-import com.mamechin.enchantmod.blocks.ModBlockEntities;
-import com.mamechin.enchantmod.altar.client.AltarRenderer;
-import com.mamechin.enchantmod.sphere.client.SphereRenderer;
-import com.mamechin.enchantmod.wheel.client.WheelRenderer;
-import com.mamechin.enchantmod.press.client.PrintingPressRenderer;
-import com.mamechin.enchantmod.press.client.PrintingPressScreen;
-import com.mamechin.enchantmod.cauldron.client.CauldronRenderer;
-import com.mamechin.enchantmod.fluid.EnchantFluid;
-import com.mamechin.enchantmod.scribing.ModMenus;
-import com.mamechin.enchantmod.items.ModItems;
-import com.mamechin.enchantmod.scribing.research.ResearchScreen;
-import com.mamechin.enchantmod.scribing.client.ScribingTableScreen;
+import com.mamechin.enchantmod.registry.ModBlockEntities;
+import com.mamechin.enchantmod.blocks.altar.client.AltarRenderer;
+import com.mamechin.enchantmod.multiblock.sphere.client.SphereRenderer;
+import com.mamechin.enchantmod.multiblock.wheel.client.WheelRenderer;
+import com.mamechin.enchantmod.blocks.press.client.PrintingPressRenderer;
+import com.mamechin.enchantmod.blocks.press.client.PrintingPressScreen;
+import com.mamechin.enchantmod.blocks.cauldron.client.CauldronRenderer;
+import com.mamechin.enchantmod.blocks.cauldron.EnchantFluid;
+import com.mamechin.enchantmod.registry.ModMenus;
+import com.mamechin.enchantmod.registry.ModItems;
+import com.mamechin.enchantmod.blocks.scribing.research.ResearchScreen;
+import com.mamechin.enchantmod.blocks.scribing.client.ScribingTableScreen;
 
-import com.mamechin.enchantmod.blocks.TemplateShelfBlock;
-import com.mamechin.enchantmod.shelf.TemplateShelfBlockEntity;
+import com.mamechin.enchantmod.blocks.press.TemplateShelfBlock;
+import com.mamechin.enchantmod.blocks.press.TemplateShelfBlockEntity;
 
-import com.mamechin.enchantmod.altar.AltarBlockEntity;
-import com.mamechin.enchantmod.particle.ModParticles;
-import com.mamechin.enchantmod.particle.client.DrainGlyphParticle;
+import com.mamechin.enchantmod.blocks.altar.AltarBlockEntity;
+import com.mamechin.enchantmod.registry.ModParticles;
+import com.mamechin.enchantmod.blocks.altar.client.DrainGlyphParticle;
 import net.minecraft.client.Minecraft;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraft.network.chat.Component;
@@ -111,6 +111,7 @@ public class EnchantModClient {
     static void onRegisterScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenus.SCRIBING_TABLE.get(), ScribingTableScreen::new);
         event.register(ModMenus.PRINTING_PRESS.get(), PrintingPressScreen::new);
+        event.register(ModMenus.SPHERE.get(), com.mamechin.enchantmod.multiblock.sphere.client.SphereScreen::new);
     }
 
     @SubscribeEvent
@@ -167,6 +168,9 @@ public class EnchantModClient {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> net.minecraft.client.renderer.item.ItemProperties.register(ModItems.YGGDRASIL.get(),
+                net.minecraft.resources.ResourceLocation.fromNamespaceAndPath(EnchantMod.MODID, "stage"),
+                (stack, level, entity, seed) -> com.mamechin.enchantmod.items.yggdrasil.YggdrasilItem.stageIndex(stack)));
         // Some client setup code
         EnchantMod.LOGGER.info("HELLO FROM CLIENT SETUP");
         EnchantMod.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());

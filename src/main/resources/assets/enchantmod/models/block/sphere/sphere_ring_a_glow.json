@@ -1,0 +1,13 @@
+{
+	"parent": "minecraft:block/block",
+	"loader": "neoforge:obj",
+	"flip_v": true,
+	"automatic_culling": false,
+	"model": "enchantmod:models/block/sphere/sphere_ring_a_glow.obj",
+	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "enchantmod:block/sphere/spinning_sphere",
+		"particle": "enchantmod:block/sphere/spinning_sphere"
+	}
+}
