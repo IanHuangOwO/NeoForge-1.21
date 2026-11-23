@@ -15,5 +15,6 @@ public final class ModNetwork {
         DefinitionsPayload.register(registrar);
         RenameTemplatePayload.register(registrar);
         com.mamechin.enchantmod.balance.BalancePayload.register(registrar);
+        com.mamechin.enchantmod.multiblock.sphere.LightningPayload.register(registrar);
     }
 }

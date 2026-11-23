@@ -105,6 +105,23 @@ public class PrintingPressBlock extends Block implements EntityBlock {
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
+    /**
+     * Only the lower half drops the press (loot table); breaking either half removes the other through {@link #updateShape}. In creative,
+     * breaking the upper half first clears the lower one without drops, as vanilla does for doors.
+     */
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide && player.isCreative() && state.getValue(HALF) == DoubleBlockHalf.UPPER) {
+            BlockPos lower = pos.below();
+            BlockState other = level.getBlockState(lower);
+            if (other.is(this)) {
+                level.setBlock(lower, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
+                level.levelEvent(player, 2001, lower, Block.getId(other));
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide && level.getBlockEntity(pos) instanceof PrintingPressBlockEntity press) {

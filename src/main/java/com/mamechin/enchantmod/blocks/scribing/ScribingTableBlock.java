@@ -86,6 +86,23 @@ public class ScribingTableBlock extends Block implements EntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
+    /**
+     * Only the left part drops the table (loot table); breaking either part removes the other through {@link #updateShape}. In creative,
+     * breaking the right part first clears the left one without drops, as vanilla does for beds.
+     */
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide && player.isCreative() && state.getValue(PART) == Part.RIGHT) {
+            BlockPos left = pos.relative(partnerDirection(state));
+            BlockState other = level.getBlockState(left);
+            if (other.is(this)) {
+                level.setBlock(left, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
+                level.levelEvent(player, 2001, left, Block.getId(other));
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
     @Override
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock()) && !level.isClientSide && level.getBlockEntity(pos) instanceof ScribingTableBlockEntity table) {

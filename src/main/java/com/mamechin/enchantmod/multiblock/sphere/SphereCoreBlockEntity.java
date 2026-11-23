@@ -16,6 +16,12 @@ import com.mamechin.enchantmod.items.yggdrasil.YggdrasilItem;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -38,8 +44,9 @@ import net.neoforged.neoforge.items.ItemStackHandler;
  * always runs (Fable's design, author 2026-11-22), at {@link #IDLE_PACE} at rest (author, 2026-11-22: half speed) and up to
  * {@link #MAX_PACE} with the linked altar's spin. Ticks are accumulated, not multiplied, so the motion does not jump when the pace changes.
  * It also holds a bound Yggdrasil ({@link YggdrasilItem}, one slot, opened from the formed sphere): on the server it grows while its
- * owner is online, and every few seconds (by stage) it looks through the linked altar's shelves in a random order and raises one enchant
- * of the first book that has room ({@link Refill}), paid from the owner's XP.
+ * owner is online, and every few seconds (by stage) it looks through the linked altar's shelves in a random order and refills the first
+ * book it can ({@link Refill}: an enchanted book under its cap gets one enchant raised, a plain book gets a first enchant), paid from
+ * the owner's XP.
  */
 public class SphereCoreBlockEntity extends GuidedCoreBlockEntity implements MenuProvider {
     public static final float IDLE_PACE = 0.5F, MAX_PACE = 4;
@@ -113,14 +120,38 @@ public class SphereCoreBlockEntity extends GuidedCoreBlockEntity implements Menu
             List<Integer> slots = new ArrayList<>(List.of(0, 1, 2, 3, 4, 5));
             Util.shuffle(slots, level.random);
             for (int slot : slots) {
-                if (Refill.raise(shelf.getItem(slot), level.random)) {
+                ItemStack book = shelf.getItem(slot), enchanted = Refill.enchantPlain(book, level.registryAccess(), level.random);
+                if (!enchanted.isEmpty()) shelf.setItem(slot, enchanted); // an empty book becomes an enchanted one
+                if (!enchanted.isEmpty() || Refill.raise(book, level.random)) {
                     shelf.setChanged();
                     owner.giveExperiencePoints(-cost);
-                    level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1, 1);
+                    strike(shelf, slot);
                     return;
                 }
             }
         }
+    }
+
+    /**
+     * The refill's lightning from the sphere's centre to the book's slot on the shelf front (author, 2026-11-23), drawn by each nearby
+     * client ({@link LightningPayload}), with an amethyst chime and a quiet crackle at the shelf.
+     */
+    private void strike(ChiseledBookShelfBlockEntity shelf, int slot) {
+        BlockPos pos = shelf.getBlockPos();
+        Direction facing = shelf.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
+        // vanilla's slot layout seen from the front: columns split at 0.375 and 0.6875, the top row is slots 0 to 2
+        float u = new float[] {0.1875F, 0.53125F, 0.84375F}[slot % 3], v = slot < 3 ? 0.75F : 0.25F;
+        double x = pos.getX(), y = pos.getY() + v, z = pos.getZ();
+        switch (facing) {
+            case NORTH -> { x += 1 - u; z -= 0.02; }
+            case SOUTH -> { x += u; z += 1.02; }
+            case WEST -> { z += u; x -= 0.02; }
+            default -> { z += 1 - u; x += 1.02; }
+        }
+        LightningPayload bolt = new LightningPayload(Vec3.atCenterOf(worldPosition), new Vec3(x, y, z), level.random.nextLong());
+        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), bolt);
+        level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1, 1);
+        level.playSound(null, pos, SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.BLOCKS, 0.3F, 1.8F);
     }
 
     /** Drops the tree at the core (the sphere was broken or released). */

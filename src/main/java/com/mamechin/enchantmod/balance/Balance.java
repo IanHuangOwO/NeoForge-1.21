@@ -92,7 +92,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
     public static final Books DEFAULT_BOOKS = new Books(true, List.of(2, 4, 16));
     public static final Yggdrasil DEFAULT_YGGDRASIL = new Yggdrasil(24000, List.of(new Stage("seed", 0, 7, 50, 120), new Stage("sprout", 10, 10, 40, 90),
             new Stage("sapling", 50, 15, 30, 60), new Stage("young_tree", 150, 25, 22, 40), new Stage("elder_tree", 400, 40, 15, 25),
-            new Stage("yggdrasil", 1000, 60, 10, 15)));
+            new Stage("yggdrasil", 1000, 60, 10, 2)));
     public static final Balance DEFAULT = new Balance(DEFAULT_ALTAR, Map.of(), Map.of(), DEFAULT_PRESS, Map.of(), DEFAULT_BOOKS, DEFAULT_YGGDRASIL);
 
     private static volatile Balance current = DEFAULT;

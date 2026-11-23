@@ -6,6 +6,6 @@
     { "name": "sapling",    "age": 50,   "year_cost": 15, "xp_per_level": 30, "check_seconds": 60 },
     { "name": "young_tree", "age": 150,  "year_cost": 25, "xp_per_level": 22, "check_seconds": 40 },
     { "name": "elder_tree", "age": 400,  "year_cost": 40, "xp_per_level": 15, "check_seconds": 25 },
-    { "name": "yggdrasil",  "age": 1000, "year_cost": 60, "xp_per_level": 10, "check_seconds": 15 }
+    { "name": "yggdrasil",  "age": 1000, "year_cost": 60, "xp_per_level": 10, "check_seconds": 2 }
   ]
 }
