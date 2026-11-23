@@ -8,17 +8,11 @@
     "power_per_level": 1
   },
   "books_per_shelf": 1,
+  "max_allays": -1,
   "scan": [
-    {
-      "radius": 4,
-      "min_y": 0,
-      "max_y": 2
-    },
-    {
-      "radius": 8,
-      "min_y": -1,
-      "max_y": 7
-    }
+    { "radius": 8, "min_y": -13, "max_y": 13 },
+    { "radius": 16, "min_y": -15, "max_y": 15 },
+    { "radius": 32, "min_y": -17, "max_y": 17 }
   ],
   "rarities": {
     "common": 1,

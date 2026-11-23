@@ -7,7 +7,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
+import com.mamechin.enchantmod.books.Books;
+import com.mamechin.enchantmod.blocks.SphereCoreBlock;
 import com.mamechin.enchantmod.blocks.WheelCoreBlock;
+import com.mamechin.enchantmod.guide.GuidedCoreBlockEntity;
 import com.mamechin.enchantmod.balance.Balance;
 import com.mamechin.enchantmod.particle.ModParticles;
 import com.mamechin.enchantmod.items.cube.EnchantCube;
@@ -37,22 +40,24 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.block.entity.ChiseledBookShelfBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
 import com.mamechin.enchantmod.EnchantMod;
 
 /**
- * The altar holds the item to enchant and an enchant cube. Shift and a quill scans: the altar takes its tier (1 with a formed
- * spinning wheel facing it, else 0) and links the chiseled bookshelves in the tier's cylinder ({@link AltarPower}). A quill starts a 10
+ * The altar holds the item to enchant and an enchant cube. Shift and a quill scans: the altar links the nearest formed spinning wheel
+ * (core in its tier 0 area) and glass sphere (core in its tier 1 area), takes its tier (2 with both, 1 with the wheel, else 0) and links the chiseled bookshelves in the tier's cylinder ({@link AltarPower}). A quill starts a 10
  * enchanting ({@link AltarSpin}): the cost is worked out, one book per linked shelf is picked, the shelves in a random order, until
  * it is paid (or the altar refuses), the flyer spins up for 3 seconds, every picked book drains at once (one second per enchant level,
  * each becoming a plain book when done; the client draws a trail of enchant glyphs from each shelf to the altar, through the wheel
@@ -87,6 +92,8 @@ public class AltarBlockEntity extends BlockEntity {
     private float angle;
     /** The tier found by the last scan, -1 before the first. Synced. */
     private int tier = -1;
+    /** The formed wheel and sphere cores linked by the last scan, or null. Synced. */
+    private BlockPos wheel, sphere;
     /** The chiseled bookshelves linked by the last scan. */
     private List<BlockPos> shelves = List.of();
     /** Enchant power in the linked shelves, refreshed by the server once a second. Synced. */
@@ -142,6 +149,21 @@ public class AltarBlockEntity extends BlockEntity {
         return tier;
     }
 
+    /** The wheel core linked by the last scan, or null. */
+    public BlockPos wheel() {
+        return wheel;
+    }
+
+    /** The sphere core linked by the last scan, or null. */
+    public BlockPos sphere() {
+        return sphere;
+    }
+
+    /** The chiseled bookshelves linked by the last scan. */
+    public List<BlockPos> shelves() {
+        return shelves;
+    }
+
     public int power() {
         return power;
     }
@@ -152,16 +174,49 @@ public class AltarBlockEntity extends BlockEntity {
             player.displayClientMessage(Component.translatable("message.enchantmod.altar.busy"), true);
             return;
         }
-        tier = WheelCoreBlock.wheelFor(level, worldPosition) != null ? 1 : 0;
-        List<BlockPos> found = new ArrayList<>();
-        for (int[] o : AltarPower.cylinder(Balance.current().altar().area(tier))) {
-            BlockPos pos = worldPosition.offset(o[0], o[1], o[2]);
-            if (level.getBlockEntity(pos) instanceof ChiseledBookShelfBlockEntity) found.add(pos);
+        wheel = nearestFormed(WheelCoreBlock.class, WheelCoreBlock.FORMED, 0);
+        sphere = nearestFormed(SphereCoreBlock.class, SphereCoreBlock.FORMED, 1);
+        tier = wheel == null ? 0 : sphere == null ? 1 : 2;
+        for (BlockPos core : new BlockPos[] {wheel, sphere}) {
+            if (core != null && level.getBlockEntity(core) instanceof GuidedCoreBlockEntity guided) guided.setAltar(worldPosition);
         }
-        shelves = List.copyOf(found);
+        shelves = blockEntitiesIn(tier).stream().filter(be -> be instanceof ChiseledBookShelfBlockEntity).map(BlockEntity::getBlockPos).toList();
         power = currentPower();
         sync();
         player.displayClientMessage(Component.translatable("message.enchantmod.altar.scanned", tier, shelves.size(), power), true);
+    }
+
+    /** The nearest formed core of that block in the area of {@code tier} (author, 2026-11-22: placed freely round the altar), or null. */
+    private BlockPos nearestFormed(Class<? extends Block> type, BooleanProperty formed, int tier) {
+        BlockPos best = null;
+        for (BlockEntity be : blockEntitiesIn(tier)) {
+            BlockPos pos = be.getBlockPos();
+            BlockState state = be.getBlockState();
+            if (type.isInstance(state.getBlock()) && state.getValue(formed) && (best == null || pos.distSqr(worldPosition) < best.distSqr(worldPosition))) best = pos;
+        }
+        return best;
+    }
+
+    /**
+     * The block entities in the area of {@code tier}, read from the block entity lists of the loaded chunks it touches (shelves and
+     * cores all have one), so even the radius 32 area costs a few dozen chunk lookups instead of a hundred thousand cells. Chunks that
+     * are not loaded are skipped, never loaded.
+     */
+    private List<BlockEntity> blockEntitiesIn(int tier) {
+        Balance.Area area = Balance.current().altar().area(tier);
+        int r = area.radius(), x = worldPosition.getX(), y = worldPosition.getY(), z = worldPosition.getZ();
+        List<BlockEntity> out = new ArrayList<>();
+        for (int cx = (x - r) >> 4; cx <= (x + r) >> 4; cx++) {
+            for (int cz = (z - r) >> 4; cz <= (z + r) >> 4; cz++) {
+                LevelChunk chunk = level.getChunkSource().getChunkNow(cx, cz);
+                if (chunk == null) continue;
+                for (BlockEntity be : chunk.getBlockEntities().values()) {
+                    BlockPos pos = be.getBlockPos();
+                    if (!be.isRemoved() && AltarPower.inArea(area, pos.getX() - x, pos.getY() - y, pos.getZ() - z)) out.add(be);
+                }
+            }
+        }
+        return out;
     }
 
     /** Total enchant levels stored in a book, 0 for anything else. */
@@ -299,7 +354,7 @@ public class AltarBlockEntity extends BlockEntity {
     /** Turns one picked book into a plain book. False when the shelf or the enchanted book is gone. */
     private boolean drain(Drain d) {
         if (!(level.getBlockEntity(d.shelf) instanceof ChiseledBookShelfBlockEntity shelf) || bookPower(shelf.getItem(d.slot)) <= 0) return false;
-        shelf.setItem(d.slot, new ItemStack(Items.BOOK));
+        shelf.setItem(d.slot, new ItemStack(Books.plain(Math.max(0, Books.tier(shelf.getItem(d.slot)))))); // a plain book of the same tier
         level.playSound(null, d.shelf, SoundEvents.CHISELED_BOOKSHELF_PICKUP_ENCHANTED, SoundSource.BLOCKS, 0.6F, 1.0F);
         return true;
     }
@@ -309,8 +364,8 @@ public class AltarBlockEntity extends BlockEntity {
         int elapsed = duration - remaining;
         if (elapsed < AltarSpin.rampUp()) return;
         Vec3 altar = Vec3.atLowerCornerOf(worldPosition).add(0.5, 1.0, 0.5);
-        BlockPos core = tier >= 1 ? WheelCoreBlock.wheelFor(level, worldPosition) : null;
-        Vec3 hub = core == null ? null : Vec3.atCenterOf(core);
+        BlockState core = wheel == null ? null : level.getBlockState(wheel);
+        Vec3 hub = core != null && core.getBlock() instanceof WheelCoreBlock && core.getValue(WheelCoreBlock.FORMED) ? Vec3.atCenterOf(wheel) : null;
         boolean any = false;
         for (Drain d : drains) {
             if (d.done || elapsed >= AltarSpin.drainEnd(d.levels)) continue;
@@ -413,6 +468,8 @@ public class AltarBlockEntity extends BlockEntity {
         if (starter != null) tag.putUUID("starter", starter);
         tag.putInt("tier", tier);
         tag.putInt("power", power);
+        if (wheel != null) tag.putLong("wheel", wheel.asLong());
+        if (sphere != null) tag.putLong("sphere", sphere.asLong());
         tag.putLongArray("shelves", shelves.stream().mapToLong(BlockPos::asLong).toArray());
         tag.putInt("duration", duration);
         ListTag list = new ListTag();
@@ -435,6 +492,8 @@ public class AltarBlockEntity extends BlockEntity {
         starter = tag.hasUUID("starter") ? tag.getUUID("starter") : null;
         tier = tag.contains("tier") ? tag.getInt("tier") : -1;
         power = tag.getInt("power");
+        wheel = tag.contains("wheel") ? BlockPos.of(tag.getLong("wheel")) : null;
+        sphere = tag.contains("sphere") ? BlockPos.of(tag.getLong("sphere")) : null;
         shelves = Arrays.stream(tag.getLongArray("shelves")).mapToObj(BlockPos::of).toList();
         duration = tag.getInt("duration");
         drains.clear();

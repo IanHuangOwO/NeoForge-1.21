@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "enchantmod:book_tier1",
+    "enchantmod:book_tier2",
+    "enchantmod:enchanted_book_tier1",
+    "enchantmod:enchanted_book_tier2"
+  ]
+}

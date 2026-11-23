@@ -2,6 +2,7 @@ package com.mamechin.enchantmod;
 
 import com.mamechin.enchantmod.blocks.ModBlockEntities;
 import com.mamechin.enchantmod.altar.client.AltarRenderer;
+import com.mamechin.enchantmod.sphere.client.SphereRenderer;
 import com.mamechin.enchantmod.wheel.client.WheelRenderer;
 import com.mamechin.enchantmod.press.client.PrintingPressRenderer;
 import com.mamechin.enchantmod.press.client.PrintingPressScreen;
@@ -118,6 +119,7 @@ public class EnchantModClient {
         event.registerBlockEntityRenderer(ModBlockEntities.ALTAR.get(), AltarRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.PRINTING_PRESS.get(), PrintingPressRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.WHEEL_CORE.get(), WheelRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.SPHERE_CORE.get(), SphereRenderer::new);
     }
 
     /** The moving parts of the printing press are not in any blockstate, so they are asked for by name. */
@@ -132,6 +134,7 @@ public class EnchantModClient {
         event.register(WheelRenderer.ROTOR_GLOW);
         event.register(WheelRenderer.PILLAR);
         event.register(WheelRenderer.PILLAR_GLOW);
+        SphereRenderer.MODELS.forEach(event::register);
     }
 
     /** Ink fluids reuse the vanilla water textures, tinted per tier. */

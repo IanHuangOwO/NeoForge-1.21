@@ -4,8 +4,10 @@ import java.util.Optional;
 
 import com.mamechin.enchantmod.balance.Balance;
 import com.mamechin.enchantmod.blocks.AltarBlock;
+import com.mamechin.enchantmod.books.Books;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -20,7 +22,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -58,12 +59,15 @@ public abstract class EnchantQuill extends Item {
         stack.hurtAndBreak(1, user, slot);
     }
 
-    /** Quill in the main hand, a book in the other: spends experience and turns one book into an enchanted book, rolled like the vanilla table. */
+    /**
+     * Quill in the main hand, a plain book of any tier in the other: spends experience and turns one book into that tier's enchanted
+     * book, rolled like the vanilla table and trimmed to the tier's level cap.
+     */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack quill = player.getItemInHand(hand);
         ItemStack book = player.getOffhandItem();
-        if (hand != InteractionHand.MAIN_HAND || !book.is(Items.BOOK)) return InteractionResultHolder.pass(quill);
+        if (hand != InteractionHand.MAIN_HAND || !Books.isPlainBook(book)) return InteractionResultHolder.pass(quill);
         BookRite rite = bookRite(quill);
         boolean free = player.hasInfiniteMaterials();
         if (!free && player.experienceLevel < rite.xpLevels()) {
@@ -72,7 +76,11 @@ public abstract class EnchantQuill extends Item {
         }
         if (!level.isClientSide) {
             Optional<HolderSet.Named<Enchantment>> table = level.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getTag(EnchantmentTags.IN_ENCHANTING_TABLE);
-            ItemStack result = EnchantmentHelper.enchantItem(player.getRandom(), book.copyWithCount(1), rite.power(), level.registryAccess(), table);
+            ItemStack single = book.copyWithCount(1);
+            var rolled = EnchantmentHelper.selectEnchantment(player.getRandom(), single, rite.power(),
+                    table.map(HolderSet::stream).orElseGet(() -> level.registryAccess().registryOrThrow(Registries.ENCHANTMENT).holders().map(h -> (Holder<Enchantment>) h)));
+            ItemStack result = rolled.isEmpty() ? single : single.getItem().applyEnchantments(single, rolled); // each tier's book turns into its own enchanted book
+            Books.trim(result);
             if (!free) {
                 book.shrink(1);
                 player.giveExperienceLevels(-rite.xpLevels());

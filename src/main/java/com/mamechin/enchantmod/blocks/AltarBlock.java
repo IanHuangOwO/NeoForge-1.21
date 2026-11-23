@@ -25,8 +25,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 /**
  * The altar (tier 0): a pillar with a four-arm flyer on top whose bobbin is the enchant cube; the item floats above. Right click with
  * an enchant cube or any item to put it on (one of each), with an empty hand to take the cube, then the item, back off, with shift
- * and a quill to find the tier and link the bookshelves, and with a quill to start the 10 second enchanting. Nothing goes on or off while it runs. With a formed spinning wheel facing it from
- * {@code WheelLayout.PEDESTAL_DISTANCE} blocks away it is tier 1 (larger bookshelf scan, and the wheel shows the cube and spins).
+ * and a quill to find the tier and link the bookshelves, and with a quill to start the enchanting. Nothing goes on or off while it runs. With a formed spinning
+ * wheel core in its tier 0 area it is tier 1, with a formed glass sphere core in its tier 1 area too tier 2 (larger bookshelf scan, and the wheel shows the cube and spins).
  */
 public class AltarBlock extends Block implements EntityBlock {
     public static final MapCodec<AltarBlock> CODEC = simpleCodec(AltarBlock::new);

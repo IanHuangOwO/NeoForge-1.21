@@ -38,6 +38,8 @@ public class EnchantMod {
         ModBlocks.BLOCKS.register(modEventBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
+        com.mamechin.enchantmod.books.BookEvents.register(modEventBus);
+        com.mamechin.enchantmod.allay.AllayBinding.register(modEventBus);
         ModDataComponents.COMPONENTS.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
         com.mamechin.enchantmod.particle.ModParticles.PARTICLE_TYPES.register(modEventBus);

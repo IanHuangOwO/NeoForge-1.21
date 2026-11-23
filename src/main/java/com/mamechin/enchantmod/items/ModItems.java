@@ -12,7 +12,12 @@ import com.mamechin.enchantmod.items.quill.QuillTier0;
 import com.mamechin.enchantmod.items.quill.QuillTier1;
 import com.mamechin.enchantmod.items.quill.QuillTier2;
 
+import com.mamechin.enchantmod.books.TierBook;
+
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -40,6 +45,21 @@ public final class ModItems {
 
     public static final DeferredItem<BlockItem> WHEEL_CORE = ITEMS.registerSimpleBlockItem("wheel_core", ModBlocks.WHEEL_CORE);
     public static final DeferredItem<BlockItem> WHEEL_BODY = ITEMS.registerSimpleBlockItem("wheel_body", ModBlocks.WHEEL_BODY);
+
+    public static final DeferredItem<BlockItem> SPHERE_CORE = ITEMS.registerSimpleBlockItem("sphere_core", ModBlocks.SPHERE_CORE);
+
+    // book tiers (author, 2026-11-22): tier 0 is vanilla; vanilla textures for now
+    public static final DeferredItem<com.mamechin.enchantmod.allay.AllayCapsule> ALLAY_CAPSULE = ITEMS.registerItem("allay_capsule", com.mamechin.enchantmod.allay.AllayCapsule::new);
+    public static final DeferredItem<TierBook> BOOK_TIER1 = ITEMS.registerItem("book_tier1", p -> new TierBook(p, 1));
+    public static final DeferredItem<TierBook> BOOK_TIER2 = ITEMS.registerItem("book_tier2", p -> new TierBook(p, 2));
+    public static final DeferredItem<Item> ENCHANTED_BOOK_TIER1 = ITEMS.registerItem("enchanted_book_tier1", Item::new, enchantedBook());
+    public static final DeferredItem<Item> ENCHANTED_BOOK_TIER2 = ITEMS.registerItem("enchanted_book_tier2", Item::new, enchantedBook());
+
+    /** Like the vanilla enchanted book: one per stack, uncommon, glinting, enchants stored rather than applied. */
+    private static Item.Properties enchantedBook() {
+        return new Item.Properties().stacksTo(1).rarity(Rarity.UNCOMMON).component(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY)
+                .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
+    }
 
     private ModItems() {}
 }

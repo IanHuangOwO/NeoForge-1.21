@@ -37,6 +37,12 @@ public final class ModCreativeTabs {
                 output.accept(ModItems.ALTAR.get());
                 output.accept(ModItems.WHEEL_CORE.get());
                 output.accept(ModItems.WHEEL_BODY.get());
+                output.accept(ModItems.SPHERE_CORE.get());
+                output.accept(ModItems.ALLAY_CAPSULE.get());
+                output.accept(ModItems.BOOK_TIER1.get());
+                output.accept(ModItems.BOOK_TIER2.get());
+                output.accept(ModItems.ENCHANTED_BOOK_TIER1.get());
+                output.accept(ModItems.ENCHANTED_BOOK_TIER2.get());
                 output.accept(ModItems.TEMPLATE_SHELF.get());
                 output.accept(ModItems.PRINTING_PRESS.get());
                 output.accept(ModItems.ENCHANT_CUBE_TIER0.get());

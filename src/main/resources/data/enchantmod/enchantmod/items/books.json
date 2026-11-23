@@ -1,0 +1,4 @@
+{
+  "limit_enabled": true,
+  "max_levels": [2, 4, 16]
+}

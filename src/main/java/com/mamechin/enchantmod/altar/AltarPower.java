@@ -1,8 +1,5 @@
 package com.mamechin.enchantmod.altar;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mamechin.enchantmod.balance.Balance;
 
 /**
@@ -14,18 +11,10 @@ import com.mamechin.enchantmod.balance.Balance;
 public final class AltarPower {
     private AltarPower() {}
 
-    /** Offsets {dx, dy, dz} inside the cylinder (dx² + dz² ≤ radius²), the altar's own position left out. */
-    public static List<int[]> cylinder(Balance.Area area) {
-        List<int[]> list = new ArrayList<>();
+    /** True when the offset (dx, dy, dz) from the altar is inside the area's cylinder (dx² + dz² ≤ radius²); the altar itself is not. */
+    public static boolean inArea(Balance.Area area, int dx, int dy, int dz) {
         int r = area.radius();
-        for (int dy = area.minY(); dy <= area.maxY(); dy++) {
-            for (int dx = -r; dx <= r; dx++) {
-                for (int dz = -r; dz <= r; dz++) {
-                    if (dx * dx + dz * dz <= r * r && (dx != 0 || dy != 0 || dz != 0)) list.add(new int[] {dx, dy, dz});
-                }
-            }
-        }
-        return list;
+        return dx * dx + dz * dz <= r * r && dy >= area.minY() && dy <= area.maxY() && (dx != 0 || dy != 0 || dz != 0);
     }
 
     /** How many books from the front of {@code powers} (already in the random order) pay {@code cost}; -1 when they all fall short. */

@@ -1,9 +1,8 @@
 package com.mamechin.enchantmod.altar;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,9 +21,16 @@ class AltarPowerTest {
 
     @Test
     void cylinderIsRoundAndLeavesTheAltarOut() {
-        List<int[]> cells = AltarPower.cylinder(new Balance.Area(4, 0, 2));
-        for (int[] o : cells) assertTrue(o[0] * o[0] + o[2] * o[2] <= 16 && o[1] >= 0 && o[1] <= 2);
-        assertEquals(49 * 3 - 1, cells.size()); // 49 columns within radius 4
-        assertTrue(cells.stream().noneMatch(o -> o[0] == 0 && o[1] == 0 && o[2] == 0));
+        Balance.Area area = new Balance.Area(4, 0, 2);
+        int count = 0;
+        for (int dx = -6; dx <= 6; dx++)
+            for (int dy = -2; dy <= 4; dy++)
+                for (int dz = -6; dz <= 6; dz++)
+                    if (AltarPower.inArea(area, dx, dy, dz)) {
+                        assertTrue(dx * dx + dz * dz <= 16 && dy >= 0 && dy <= 2);
+                        count++;
+                    }
+        assertEquals(49 * 3 - 1, count); // 49 columns within radius 4, the altar left out
+        assertFalse(AltarPower.inArea(area, 0, 0, 0));
     }
 }

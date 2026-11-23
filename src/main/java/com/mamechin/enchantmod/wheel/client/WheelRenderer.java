@@ -1,7 +1,10 @@
 package com.mamechin.enchantmod.wheel.client;
 
 import com.mamechin.enchantmod.EnchantMod;
+import com.mamechin.enchantmod.blocks.ModBlocks;
 import com.mamechin.enchantmod.blocks.WheelCoreBlock;
+import com.mamechin.enchantmod.blocks.WheelPillarBlock;
+import com.mamechin.enchantmod.guide.client.GhostBlocks;
 import com.mamechin.enchantmod.altar.AltarBlockEntity;
 import com.mamechin.enchantmod.wheel.WheelCoreBlockEntity;
 import com.mamechin.enchantmod.wheel.WheelLayout;
@@ -19,7 +22,11 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+
+import java.util.ArrayList;
+import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +35,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
  * Draws a formed spinning wheel from its core: the wheel (Fable's {@code wheel_small_rotor}, authored facing north, axis through the core's
- * centre) and its two pillars, and the cube of the altar in front of it in the socket before the hub. While the altar enchants, the
+ * centre) and its two pillars, and the cube of the altar that linked it in the socket before the hub. While the altar enchants, the
  * wheel rises from resting (half a model block below the authored pose) to floating (half a block above) and spins with the altar's
  * speed, and the wheel's and pillars' glow layers are drawn at full brightness (dark carved runes otherwise).
  */
@@ -54,8 +61,11 @@ public class WheelRenderer implements BlockEntityRenderer<WheelCoreBlockEntity> 
         var level = core.getLevel();
         if (level == null) return;
         Direction facing = core.getBlockState().getValue(WheelCoreBlock.FACING);
-        if (!core.getBlockState().getValue(WheelCoreBlock.FORMED)) return;
-        AltarBlockEntity altar = level.getBlockEntity(WheelCoreBlock.altarPos(core.getBlockPos(), facing)) instanceof AltarBlockEntity a ? a : null;
+        if (!core.getBlockState().getValue(WheelCoreBlock.FORMED)) {
+            if (core.guide()) GhostBlocks.draw(level, core.getBlockPos(), guide(core.getBlockPos(), facing), pose, buffer);
+            return;
+        }
+        AltarBlockEntity altar = core.altar() != null && level.getBlockEntity(core.altar()) instanceof AltarBlockEntity a && core.getBlockPos().equals(a.wheel()) ? a : null;
         float speed = altar == null ? 0 : altar.speed(partialTick);
         float lift = RESTING_LIFT + RISE * speed, angle = altar == null ? 0 : altar.angle(partialTick);
         int light = LevelRenderer.getLightColor(level, core.getBlockPos().relative(facing));
@@ -97,6 +107,14 @@ public class WheelRenderer implements BlockEntityRenderer<WheelCoreBlockEntity> 
             itemRenderer.renderStatic(cube, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
         }
         pose.popPose();
+    }
+
+    /** The wheel's build guide: a frame in every ring and beam cell, gold under smooth basalt for the pillars. */
+    private static List<GhostBlocks.Cell> guide(BlockPos core, Direction facing) {
+        List<GhostBlocks.Cell> cells = new ArrayList<>();
+        for (BlockPos pos : WheelCoreBlock.bodies(core, facing)) cells.add(new GhostBlocks.Cell(pos, ModBlocks.WHEEL_BODY.get()));
+        for (BlockPos pos : WheelCoreBlock.pillars(core, facing)) cells.add(new GhostBlocks.Cell(pos, WheelPillarBlock.original(WheelCoreBlock.isPillarBase(core, pos))));
+        return cells;
     }
 
     private static void draw(PoseStack pose, VertexConsumer consumer, ModelResourceLocation location, int light, int overlay) {

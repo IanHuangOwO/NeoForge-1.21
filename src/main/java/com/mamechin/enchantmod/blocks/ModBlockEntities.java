@@ -7,6 +7,7 @@ import com.mamechin.enchantmod.cauldron.CauldronBlockEntity;
 import com.mamechin.enchantmod.cauldron.CauldronSize;
 import java.util.function.Supplier;
 
+import com.mamechin.enchantmod.sphere.SphereCoreBlockEntity;
 import com.mamechin.enchantmod.wheel.WheelCoreBlockEntity;
 
 import com.mamechin.enchantmod.EnchantMod;
@@ -39,6 +40,9 @@ public final class ModBlockEntities {
     /** Holds nothing; it is there so the wheel can be drawn from the core. */
     public static final Supplier<BlockEntityType<WheelCoreBlockEntity>> WHEEL_CORE = BLOCK_ENTITIES.register("wheel_core",
             () -> BlockEntityType.Builder.of(WheelCoreBlockEntity::new, ModBlocks.WHEEL_CORE.get()).build(null));
+
+    public static final Supplier<BlockEntityType<SphereCoreBlockEntity>> SPHERE_CORE = BLOCK_ENTITIES.register("sphere_core",
+            () -> BlockEntityType.Builder.of(SphereCoreBlockEntity::new, ModBlocks.SPHERE_CORE.get()).build(null));
 
     private ModBlockEntities() {}
 }

@@ -5,6 +5,14 @@
   "block.enchantmod.wheel_core": "Spinning Wheel Core",
   "block.enchantmod.wheel_body": "Spinning Wheel Frame",
   "block.enchantmod.wheel_pillar": "Spinning Wheel Pillar",
+  "block.enchantmod.sphere_core": "Armillary Core",
+  "block.enchantmod.sphere_part": "Armillary Sphere",
+  "item.enchantmod.book_tier1": "Bound Book",
+  "item.enchantmod.book_tier2": "Grand Tome",
+  "item.enchantmod.enchanted_book_tier1": "Enchanted Bound Book",
+  "item.enchantmod.enchanted_book_tier2": "Enchanted Grand Tome",
+  "message.enchantmod.guide.on": "Build guide shown",
+  "message.enchantmod.guide.off": "Build guide hidden",
   "message.enchantmod.altar.need_both": "The altar needs an item and an enchant cube",
   "message.enchantmod.altar.busy": "The altar is already enchanting",
   "message.enchantmod.altar.scanned": "Tier %s altar: %s bookshelves linked, %s enchant power",
@@ -198,5 +206,10 @@
   "gui.enchantmod.research.category.tools": "Tools",
   "gui.enchantmod.research.category.weapons": "Weapons",
   "gui.enchantmod.research.category.armor": "Armor",
-  "gui.enchantmod.research.category.bows": "Bows"
+  "gui.enchantmod.research.category.bows": "Bows",
+  "item.enchantmod.allay_capsule": "Allay Capsule",
+  "item.enchantmod.allay_capsule.empty": "Empty: use on an allay to catch it",
+  "item.enchantmod.allay_capsule.full": "Holds an allay. Sneak-use on an altar to bind it there",
+  "message.enchantmod.allay.bound": "The allay now serves this altar",
+  "message.enchantmod.allay.full": "This altar has all the allays it can bind"
 }

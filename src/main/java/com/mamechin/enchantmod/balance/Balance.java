@@ -11,24 +11,24 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 /**
- * The tunable numbers of the altar, the enchant cubes, the quills, the printing press and the cauldron heat sources, read from data packs (pure). Each lives in
+ * The tunable numbers of the altar, the enchant cubes, the quills, the printing press, the cauldron heat sources and the book level cap, read from data packs (pure). Each lives in
  * {@code data/<namespace>/enchantmod/} at the path in {@link #FILES}; every pack's copy is merged key by key in load order (objects
  * merge, anything else is replaced), so a pack changes single values. This is a trust boundary: a wrong value is dropped with a
  * warning and the default (the shipped number) is used. The server sends the merged files to clients, which parse them the same way.
  */
-public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> quills, Press press, Map<String, Heat> heat) {
+public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> quills, Press press, Map<String, Heat> heat, Books books) {
     /** File name to its path under {@code data/<namespace>/enchantmod/}, grouped by feature. */
     public static final Map<String, String> FILES = Map.of("altar", "altar/altar.json", "cubes", "items/cubes.json", "quills", "items/quills.json", "press", "press/press.json",
-            "heat", "cauldron/heat.json");
+            "heat", "cauldron/heat.json", "books", "items/books.json");
 
     /** The scan cylinder of a tier: radius and the lowest and highest row, all relative to the altar. */
     public record Area(int radius, int minY, int maxY) {}
 
     /**
      * Spin timing in ticks, the scan area per tier (index = tier; a higher tier uses the last), the cost per enchant level the cube
-     * can reach, how many books one shelf gives, and the book weights: rarity name to power per level, enchantment id to rarity name.
+     * can reach, how many books one shelf gives, how many allays one altar can bind (-1 = no limit), and the book weights: rarity name to power per level, enchantment id to rarity name.
      */
-    public record Altar(int rampUp, int rampDown, int drainTicksPerLevel, int costPerLevel, int booksPerShelf, List<Area> scan,
+    public record Altar(int rampUp, int rampDown, int drainTicksPerLevel, int costPerLevel, int booksPerShelf, int maxAllays, List<Area> scan,
             Map<String, Integer> rarities, Map<String, String> enchantments, String defaultRarity) {
         /** Power per level of the enchantment {@code id} ("namespace:path"): its rarity's weight, else the default rarity's, else 1. */
         public int weight(String id) {
@@ -51,13 +51,25 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
     /** A block that heats a cauldron standing on it: heat tier, and whether a block with a LIT property must be lit. */
     public record Heat(int tier, boolean requiresLit) {}
 
+    /**
+     * The book level cap (author, 2026-11-22): whether it is on, and the most enchant levels, summed over all its enchants, a book of
+     * each tier can hold (index = tier; a higher tier uses the last).
+     */
+    public record Books(boolean limitEnabled, List<Integer> maxLevels) {
+        /** The cap of a book of {@code tier}, or -1 when the limit is off. */
+        public int cap(int tier) {
+            return limitEnabled ? maxLevels.get(Math.max(0, Math.min(tier, maxLevels.size() - 1))) : -1;
+        }
+    }
+
     /** Ticks the press takes per template (the stroke animation is played to fit). */
     public record Press(int ticksPerTemplate) {}
 
-    public static final Altar DEFAULT_ALTAR = new Altar(60, 40, 20, 1, 1,
-            List.of(new Area(4, 0, 2), new Area(8, -1, 7)), Map.of(), Map.of(), "");
+    public static final Altar DEFAULT_ALTAR = new Altar(60, 40, 20, 1, 1, -1,
+            List.of(new Area(8, -13, 13), new Area(16, -15, 15), new Area(32, -17, 17)), Map.of(), Map.of(), "");
     public static final Press DEFAULT_PRESS = new Press(20);
-    public static final Balance DEFAULT = new Balance(DEFAULT_ALTAR, Map.of(), Map.of(), DEFAULT_PRESS, Map.of());
+    public static final Books DEFAULT_BOOKS = new Books(true, List.of(2, 4, 16));
+    public static final Balance DEFAULT = new Balance(DEFAULT_ALTAR, Map.of(), Map.of(), DEFAULT_PRESS, Map.of(), DEFAULT_BOOKS);
 
     private static volatile Balance current = DEFAULT;
 
@@ -103,7 +115,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
     public static Balance parse(Map<String, String> files, Consumer<String> warn) {
         return new Balance(altar(object(files.get("altar"), "altar", warn), warn), cubes(object(files.get("cubes"), "cubes", warn), warn),
                 quills(object(files.get("quills"), "quills", warn), warn), press(object(files.get("press"), "press", warn), warn),
-                heat(object(files.get("heat"), "heat", warn), warn));
+                heat(object(files.get("heat"), "heat", warn), warn), books(object(files.get("books"), "books", warn), warn));
     }
 
     private static JsonObject object(String text, String name, Consumer<String> warn) {
@@ -143,6 +155,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
         int perLevel = integer(spin, "drain_ticks_per_level", d.drainTicksPerLevel(), 1, "altar.spin", warn);
         int costPerLevel = integer(cost, "power_per_level", d.costPerLevel(), 0, "altar.cost", warn);
         int booksPerShelf = integer(o, "books_per_shelf", d.booksPerShelf(), 1, "altar", warn);
+        int maxAllays = integer(o, "max_allays", d.maxAllays(), -1, "altar", warn);
 
         List<Area> scan = d.scan();
         if (o.has("scan")) {
@@ -154,7 +167,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
                     if (radius < 0 || !a.has("min_y") || !a.has("max_y")) throw new IllegalArgumentException("each tier needs radius, min_y and max_y");
                     int minY = a.get("min_y").getAsInt(), maxY = a.get("max_y").getAsInt();
                     if (maxY < minY) throw new IllegalArgumentException("max_y below min_y");
-                    list.add(new Area(Math.min(radius, 16), minY, maxY)); // shortcut: radius capped at 16 so a scan stays cheap; raise with care
+                    list.add(new Area(Math.min(radius, 32), minY, maxY)); // radius capped at 32: the scan reads the block entities of the chunks the area touches
                 }
                 if (list.isEmpty()) throw new IllegalArgumentException("empty");
                 scan = List.copyOf(list);
@@ -194,7 +207,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
             }
         }
         if (!defaultRarity.isEmpty() && !rarities.containsKey(defaultRarity)) warn.accept("altar.default_rarity " + defaultRarity + " is unknown; unlisted enchantments are worth 1");
-        return new Altar(rampUp, rampDown, perLevel, costPerLevel, booksPerShelf, scan, Map.copyOf(rarities), Map.copyOf(enchantments), defaultRarity);
+        return new Altar(rampUp, rampDown, perLevel, costPerLevel, booksPerShelf, maxAllays, scan, Map.copyOf(rarities), Map.copyOf(enchantments), defaultRarity);
     }
 
     private static Map<String, Cube> cubes(JsonObject o, Consumer<String> warn) {
@@ -248,6 +261,33 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
             out.put(id.contains(":") ? id : "minecraft:" + id, new Heat(tier, lit));
         }
         return Map.copyOf(out);
+    }
+
+    private static Books books(JsonObject o, Consumer<String> warn) {
+        boolean enabled = DEFAULT_BOOKS.limitEnabled();
+        if (o.has("limit_enabled")) {
+            try {
+                enabled = o.get("limit_enabled").getAsBoolean();
+            } catch (RuntimeException ex) {
+                warn.accept("books.limit_enabled ignored: needs true or false");
+            }
+        }
+        List<Integer> caps = DEFAULT_BOOKS.maxLevels();
+        if (o.has("max_levels")) {
+            try {
+                List<Integer> list = new ArrayList<>();
+                for (JsonElement e : o.getAsJsonArray("max_levels")) {
+                    int v = e.getAsInt();
+                    if (v < 1) throw new IllegalArgumentException("each cap needs to be 1 or more");
+                    list.add(v);
+                }
+                if (list.isEmpty()) throw new IllegalArgumentException("empty");
+                caps = List.copyOf(list);
+            } catch (RuntimeException ex) {
+                warn.accept("books.max_levels ignored: " + ex.getMessage());
+            }
+        }
+        return new Books(enabled, caps);
     }
 
     private static Press press(JsonObject o, Consumer<String> warn) {

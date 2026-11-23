@@ -31,7 +31,7 @@ class BalanceTest {
         assertEquals(20, b.press().ticksPerTemplate());
         assertEquals(new Balance.Cube(3, 10), b.cube("enchantmod:enchant_cube_tier1", new Balance.Cube(3, 10)));
         assertEquals(1, b.altar().weight("minecraft:sharpness"), "no rarities: every level worth 1");
-        assertEquals(new Balance.Area(8, -1, 7), b.altar().area(5), "a higher tier uses the last area");
+        assertEquals(new Balance.Area(32, -17, 17), b.altar().area(5), "a higher tier uses the last area");
     }
 
     @Test
@@ -60,5 +60,17 @@ class BalanceTest {
         assertEquals(new Balance.Quill(12, 4), b.quills().get("enchantmod:quill_tier0"));
         assertEquals(20, b.press().ticksPerTemplate());
         assertEquals(6, warnings.size(), warnings.toString());
+    }
+
+    @Test
+    void bookCapsPerTierAndTheSwitch() {
+        Balance d = Balance.parse(Map.of(), message -> {});
+        assertEquals(2, d.books().cap(0));
+        assertEquals(16, d.books().cap(7), "a higher tier uses the last cap");
+        List<String> warnings = new ArrayList<>();
+        Balance off = Balance.parse(Map.of("books", "{ \"limit_enabled\": false, \"max_levels\": [ 3, 0 ] }"), warnings::add);
+        assertEquals(-1, off.books().cap(0), "switched off");
+        assertEquals(Balance.DEFAULT_BOOKS.maxLevels(), off.books().maxLevels(), "a cap below 1 drops the list");
+        assertEquals(1, warnings.size());
     }
 }
