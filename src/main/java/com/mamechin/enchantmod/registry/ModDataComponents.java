@@ -25,5 +25,9 @@ public final class ModDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.mamechin.enchantmod.items.yggdrasil.TreeData>> TREE =
             COMPONENTS.registerComponentType("tree", b -> b.persistent(com.mamechin.enchantmod.items.yggdrasil.TreeData.CODEC).networkSynchronized(com.mamechin.enchantmod.items.yggdrasil.TreeData.STREAM_CODEC));
 
+    /** Enchant power an altar has already drawn from an enchanted book that still has some left (author, 2026-11-23). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> SPENT_POWER =
+            COMPONENTS.registerComponentType("spent_power", b -> b.persistent(com.mojang.serialization.Codec.INT).networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
     private ModDataComponents() {}
 }

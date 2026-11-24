@@ -29,13 +29,18 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
      * Spin timing in ticks, the scan area per tier (index = tier; a higher tier uses the last), the cost per enchant level the cube
      * can reach, how many books one shelf gives, how many allays one altar can bind (-1 = no limit), and the book weights: rarity name to power per level, enchantment id to rarity name.
      */
-    public record Altar(int rampUp, int rampDown, int drainTicksPerLevel, int costPerLevel, int booksPerShelf, int maxAllays, List<Area> scan,
+    public record Altar(int rampUp, int rampDown, int drainTicksPerBook, int costPerLevel, int booksPerShelf, int maxAllays, List<Area> scan,
             Map<String, Integer> rarities, Map<String, String> enchantments, String defaultRarity) {
         /** Power per level of the enchantment {@code id} ("namespace:path"): its rarity's weight, else the default rarity's, else 1. */
         public int weight(String id) {
             Integer w = rarities.get(enchantments.getOrDefault(id, defaultRarity));
             if (w == null) w = rarities.get(defaultRarity);
             return w == null ? 1 : w;
+        }
+
+        /** Power it takes to apply {@code id} at {@code level}: level x rarity weight x the cost per level (author, 2026-11-24: more than a book of it gives). */
+        public int cost(String id, int level) {
+            return level * weight(id) * costPerLevel;
         }
 
         public Area area(int tier) {
@@ -86,7 +91,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
     /** Ticks the press takes per template (the stroke animation is played to fit). */
     public record Press(int ticksPerTemplate) {}
 
-    public static final Altar DEFAULT_ALTAR = new Altar(60, 40, 20, 1, 1, -1,
+    public static final Altar DEFAULT_ALTAR = new Altar(60, 40, 100, 2, 1, -1,
             List.of(new Area(8, -13, 13), new Area(16, -15, 15), new Area(32, -17, 17)), Map.of(), Map.of(), "");
     public static final Press DEFAULT_PRESS = new Press(20);
     public static final Books DEFAULT_BOOKS = new Books(true, List.of(2, 4, 16));
@@ -177,7 +182,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
         JsonObject spin = child(o, "spin", "altar", warn), cost = child(o, "cost", "altar", warn);
         int rampUp = integer(spin, "ramp_up_ticks", d.rampUp(), 1, "altar.spin", warn);
         int rampDown = integer(spin, "ramp_down_ticks", d.rampDown(), 1, "altar.spin", warn);
-        int perLevel = integer(spin, "drain_ticks_per_level", d.drainTicksPerLevel(), 1, "altar.spin", warn);
+        int drainTicksPerBook = integer(o, "drain_ticks_per_book", d.drainTicksPerBook(), 1, "altar", warn);
         int costPerLevel = integer(cost, "power_per_level", d.costPerLevel(), 0, "altar.cost", warn);
         int booksPerShelf = integer(o, "books_per_shelf", d.booksPerShelf(), 1, "altar", warn);
         int maxAllays = integer(o, "max_allays", d.maxAllays(), -1, "altar", warn);
@@ -232,7 +237,7 @@ public record Balance(Altar altar, Map<String, Cube> cubes, Map<String, Quill> q
             }
         }
         if (!defaultRarity.isEmpty() && !rarities.containsKey(defaultRarity)) warn.accept("altar.default_rarity " + defaultRarity + " is unknown; unlisted enchantments are worth 1");
-        return new Altar(rampUp, rampDown, perLevel, costPerLevel, booksPerShelf, maxAllays, scan, Map.copyOf(rarities), Map.copyOf(enchantments), defaultRarity);
+        return new Altar(rampUp, rampDown, drainTicksPerBook, costPerLevel, booksPerShelf, maxAllays, scan, Map.copyOf(rarities), Map.copyOf(enchantments), defaultRarity);
     }
 
     private static Map<String, Cube> cubes(JsonObject o, Consumer<String> warn) {

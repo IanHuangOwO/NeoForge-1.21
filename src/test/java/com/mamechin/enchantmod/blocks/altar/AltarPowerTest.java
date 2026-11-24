@@ -33,4 +33,11 @@ class AltarPowerTest {
         assertEquals(49 * 3 - 1, count); // 49 columns within radius 4, the altar left out
         assertFalse(AltarPower.inArea(area, 0, 0, 0));
     }
+
+    @Test
+    void allotTakesOnlyWhatIsNeededInOrder() {
+        org.junit.jupiter.api.Assertions.assertArrayEquals(new int[] {3, 2, 0}, AltarPower.allot(new int[] {3, 4, 5}, 5));
+        org.junit.jupiter.api.Assertions.assertArrayEquals(new int[] {0, 4, 1}, AltarPower.allot(new int[] {0, 4, 5}, 5));
+        org.junit.jupiter.api.Assertions.assertNull(AltarPower.allot(new int[] {1, 2}, 5));
+    }
 }

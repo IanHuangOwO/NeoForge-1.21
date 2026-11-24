@@ -26,4 +26,18 @@ public final class AltarPower {
         }
         return sum >= cost ? powers.length : -1;
     }
+
+    /**
+     * How much each book gives to an enchant costing {@code cost}, taking the books' {@code remaining} power in order until it is paid
+     * (author, 2026-11-23: a book only gives what is needed; its leftover stays for the next enchant). Null when they all fall short.
+     */
+    public static int[] allot(int[] remaining, int cost) {
+        int[] taken = new int[remaining.length];
+        int left = cost;
+        for (int i = 0; i < remaining.length && left > 0; i++) {
+            taken[i] = Math.min(Math.max(0, remaining[i]), left);
+            left -= taken[i];
+        }
+        return left > 0 ? null : taken;
+    }
 }

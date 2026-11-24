@@ -26,6 +26,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.Component;
@@ -55,11 +56,12 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 
 /**
  * The altar holds the item to enchant and an enchant cube. Shift and a quill scans: the altar links the nearest formed spinning wheel
- * (core in its tier 0 area) and glass sphere (core in its tier 1 area), takes its tier (2 with both, 1 with the wheel, else 0) and links the chiseled bookshelves in the tier's cylinder ({@link AltarPower}). A quill starts a 10
- * enchanting ({@link AltarSpin}): the cost is worked out, one book per linked shelf is picked, the shelves in a random order, until
- * it is paid (or the altar refuses), the flyer spins up for 3 seconds, every picked book drains at once (one second per enchant level,
- * each becoming a plain book when done; the client draws a trail of enchant glyphs from each shelf to the altar, through the wheel
- * at tier 1), the cube's enchants are fixed onto the item, and it slows down. With a formed spinning wheel in front of it the wheel shows the cube and spins too.
+ * (core in its tier 0 area) and glass sphere (core in its tier 1 area), takes its tier (2 with both, 1 with the wheel, else 0) and links
+ * the chiseled bookshelves in the tier's cylinder ({@link AltarPower}). A quill starts an enchanting ({@link AltarSpin}; author,
+ * 2026-11-23): the linked shelves must hold enough power for every fitting enchant at its highest level; books are picked, up to
+ * {@code books_per_shelf} a shelf; the altar and wheel spin up; then one enchant at a time is rolled and charged, its power flowing
+ * from the books at the tier's rate (a book gives only what is needed, keeps the rest as {@code spent_power}, and turns plain once
+ * empty) and fixed onto the item when it is in; finally the spin slows down. The client draws the flow ({@code client/AltarRibbons}).
  */
 public class AltarBlockEntity extends BlockEntity {
     public static final int ITEM = 0, CUBE = 1;
@@ -82,8 +84,8 @@ public class AltarBlockEntity extends BlockEntity {
         }
     };
 
-    /** Ticks left of the enchanting in progress, 0 when idle. Synced; the client counts down on its own between syncs. */
-    private int remaining;
+    /** The phase of the enchanting ({@link AltarSpin}), ticks into it and its length. Synced; the client counts ticks on its own between syncs. */
+    private int phase = AltarSpin.IDLE, phaseTicks, phaseLength;
     private UUID starter;
     /** Client only: how far the flyer or wheel has turned, in degrees. */
     private float angle;
@@ -95,23 +97,27 @@ public class AltarBlockEntity extends BlockEntity {
     private List<BlockPos> shelves = List.of();
     /** Enchant power in the linked shelves, refreshed by the server once a second. Synced. */
     private int power;
-    /** The books picked to pay for the enchanting in progress, drained in this order, and how many are done. */
-    private final List<Drain> drains = new ArrayList<>();
-    /** Length of the enchanting in progress, in ticks. Synced. */
-    private int duration;
+    /** The books picked to pay for the enchanting in progress, in the order they are drawn from. Synced (the client draws ribbons from them). */
+    private final List<Book> books = new ArrayList<>();
+    /** The cube's enchants still to charge, in order, as enchantment ids. */
+    private final List<String> queue = new ArrayList<>();
+    /** The enchant charging now (id and rolled level), and how much each book gives to it. Synced. */
+    private String current = "";
+    private int currentLevel;
+    private final List<Feed> feeds = new ArrayList<>();
+    /** The feeds of the enchant fixed last: its ribbons' tails are still being drawn into the wheel early in the next phase (synced). */
+    private final List<Feed> trail = new ArrayList<>();
+    /** Client: ticks until the glyph burst of the enchant just fixed, once its power has visibly reached the item; -1 for none. */
+    private int burstIn = -1;
+    /** Enchants fixed so far (id and level), and rolls that gave nothing. */
+    private final List<String> fixed = new ArrayList<>();
+    private int failed;
 
-    /** A picked book, the slot it is in and its enchant levels (one second of draining each); {@code done} once it is a plain book. */
-    private static final class Drain {
-        final BlockPos shelf;
-        final int slot, levels;
-        boolean done;
+    /** A picked book: its shelf and slot. */
+    public record Book(BlockPos shelf, int slot) {}
 
-        Drain(BlockPos shelf, int slot, int levels) {
-            this.shelf = shelf;
-            this.slot = slot;
-            this.levels = levels;
-        }
-    }
+    /** What book {@code book} (an index into {@link #books}) gives to the enchant charging now. */
+    public record Feed(int book, int amount) {}
 
     public AltarBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ALTAR.get(), pos, state);
@@ -122,17 +128,56 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     public boolean busy() {
-        return remaining > 0;
+        return phase != AltarSpin.IDLE;
     }
 
-    /** Ticks since the quill click (fractional with the partial tick), 0 when idle. */
-    public float elapsed(float partialTick) {
-        return busy() ? duration - remaining + partialTick : 0;
+    public int phase() {
+        return phase;
+    }
+
+    /** How far the charging enchant is, 0 to 1, smoothed with the partial tick; 0 outside the charge. */
+    public float chargeProgress(float partialTick) {
+        return phase == AltarSpin.CHARGE && phaseLength > 0 ? Math.min(1, (phaseTicks + partialTick) / phaseLength) : 0;
+    }
+
+    /** Length of the current phase in ticks. */
+    public int phaseLength() {
+        return phaseLength;
+    }
+
+    /** Ticks into the current phase, smoothed with the partial tick. */
+    public float phaseTime(float partialTick) {
+        return phaseTicks + partialTick;
     }
 
     /** Spin speed from 0 to 1. */
     public float speed(float partialTick) {
-        return busy() ? AltarSpin.speed(elapsed(partialTick), duration) : 0;
+        return AltarSpin.speed(phase, phaseTicks + partialTick, phaseLength);
+    }
+
+    /** Where the books feeding the enchant charging now are: the front of each book's slot. Client side, for the ribbons. */
+    public List<Vec3> feedSources() {
+        return sources(feeds);
+    }
+
+    /** Where the books of the enchant fixed last are, for its ribbons' tails. Client side. */
+    public List<Vec3> trailSources() {
+        return sources(trail);
+    }
+
+    /** How many enchants are fixed so far: the charging enchant's number, so each enchant's ribbons take their own shape. */
+    public int enchantIndex() {
+        return fixed.size();
+    }
+
+    private List<Vec3> sources(List<Feed> list) {
+        List<Vec3> out = new ArrayList<>();
+        for (Feed f : list) {
+            if (f.book() < 0 || f.book() >= books.size()) continue;
+            Book b = books.get(f.book());
+            out.add(ShelfSlot.front(b.shelf(), level.getBlockState(b.shelf()), b.slot()));
+        }
+        return out;
     }
 
     /** Degrees turned so far, smoothed with the partial tick. Client side. */
@@ -216,13 +261,9 @@ public class AltarBlockEntity extends BlockEntity {
         return out;
     }
 
-    /** Total enchant levels stored in a book, 0 for anything else. */
-    private static int bookLevels(ItemStack stack) {
-        ItemEnchantments stored = stack.get(DataComponents.STORED_ENCHANTMENTS);
-        if (stored == null) return 0;
-        int sum = 0;
-        for (var e : stored.entrySet()) sum += e.getIntValue();
-        return sum;
+    /** A book's enchant power less what an altar has already drawn from it. */
+    private static int remainingPower(ItemStack stack) {
+        return Math.max(0, bookPower(stack) - stack.getOrDefault(ModDataComponents.SPENT_POWER.get(), 0));
     }
 
     /** Enchant power of a book: the sum over its stored enchants of level times the enchantment's weight ({@code altar.json}). */
@@ -242,7 +283,7 @@ public class AltarBlockEntity extends BlockEntity {
         int sum = 0;
         for (BlockPos pos : shelves) {
             if (!(level.getBlockEntity(pos) instanceof ChiseledBookShelfBlockEntity shelf)) continue;
-            for (int slot = 0; slot < shelf.getContainerSize(); slot++) sum += bookPower(shelf.getItem(slot));
+            for (int slot = 0; slot < shelf.getContainerSize(); slot++) sum += remainingPower(shelf.getItem(slot));
         }
         return sum;
     }
@@ -260,10 +301,9 @@ public class AltarBlockEntity extends BlockEntity {
     }
 
     /**
-     * Starts the enchanting when the linked shelves hold enough power: the cost is the sum of the highest level each fitting enchant
-     * can roll (times the cost per level), and random enchanted books are picked, up to {@code books_per_shelf} from each shelf, the
-     * shelves in a random order (a shelf that is gone is skipped).
-     * Server side only.
+     * Starts the enchanting when the linked shelves hold enough power for every fitting enchant at the highest level it can roll
+     * (author, 2026-11-23: checked up front). Random enchanted books are picked, up to {@code books_per_shelf} from each shelf, the shelves
+     * in a random order. Server side only.
      */
     public void start(Player player) {
         if (busy()) {
@@ -284,33 +324,44 @@ public class AltarBlockEntity extends BlockEntity {
             player.displayClientMessage(Component.translatable("message.enchantmod.altar.nothing"), true);
             return;
         }
-        int cost = Balance.current().altar().costPerLevel() * fits.stream().mapToInt(e -> e.getKey().chances().stream().mapToInt(CubeContents.Chance::level).max().orElse(0)).sum();
+        int cost = fits.stream().mapToInt(e -> Balance.current().altar().cost(e.getKey().enchantment(), e.getKey().chances().stream().mapToInt(CubeContents.Chance::level).max().orElse(0))).sum();
         List<BlockPos> order = new ArrayList<>(shelves);
         Util.shuffle(order, level.random);
-        List<Drain> books = new ArrayList<>();
-        List<Integer> powers = new ArrayList<>();
+        List<Book> picked = new ArrayList<>();
+        int available = 0;
         for (BlockPos pos : order) {
             if (!(level.getBlockEntity(pos) instanceof ChiseledBookShelfBlockEntity shelf)) continue;
             List<Integer> slots = new ArrayList<>();
-            for (int slot = 0; slot < shelf.getContainerSize(); slot++) if (bookPower(shelf.getItem(slot)) > 0) slots.add(slot);
+            for (int slot = 0; slot < shelf.getContainerSize(); slot++) if (remainingPower(shelf.getItem(slot)) > 0) slots.add(slot);
             Util.shuffle(slots, level.random);
             for (int slot : slots.subList(0, Math.min(slots.size(), Balance.current().altar().booksPerShelf()))) {
-                books.add(new Drain(pos, slot, bookLevels(shelf.getItem(slot))));
-                powers.add(bookPower(shelf.getItem(slot)));
+                picked.add(new Book(pos, slot));
+                available += remainingPower(shelf.getItem(slot));
             }
         }
-        int needed = AltarPower.booksNeeded(powers.stream().mapToInt(Integer::intValue).toArray(), cost);
-        if (needed < 0) {
-            player.displayClientMessage(Component.translatable("message.enchantmod.altar.not_enough", powers.stream().mapToInt(Integer::intValue).sum(), cost), true);
+        if (available < cost) {
+            player.displayClientMessage(Component.translatable("message.enchantmod.altar.not_enough", available, cost), true);
             return;
         }
-        drains.clear();
-        drains.addAll(books.subList(0, needed));
-        duration = AltarSpin.duration(drains.stream().mapToInt(d -> d.levels).max().orElse(0));
-        remaining = duration;
+        books.clear();
+        books.addAll(picked);
+        queue.clear();
+        fits.forEach(e -> queue.add(e.getKey().enchantment()));
+        feeds.clear();
+        trail.clear();
+        fixed.clear();
+        failed = 0;
+        current = "";
         starter = player.getUUID();
+        enter(AltarSpin.WARMUP, Balance.current().altar().rampUp());
+        player.displayClientMessage(Component.translatable("message.enchantmod.altar.started", cost, picked.size()), true);
+    }
+
+    private void enter(int newPhase, int length) {
+        phase = newPhase;
+        phaseTicks = 0;
+        phaseLength = length;
         sync();
-        player.displayClientMessage(Component.translatable("message.enchantmod.altar.started", cost, needed), true);
     }
 
     public void serverTick() {
@@ -322,66 +373,153 @@ public class AltarBlockEntity extends BlockEntity {
             }
         }
         if (!busy()) return;
-        remaining--;
-        int elapsed = duration - remaining;
-        boolean changed = false;
-        for (Drain d : drains) {
-            if (d.done || AltarSpin.drainEnd(d.levels) > elapsed) continue;
-            if (!drain(d)) {
-                abort();
-                return;
+        phaseTicks++;
+        if (phaseTicks < phaseLength) {
+            setChanged();
+            return;
+        }
+        switch (phase) {
+            case AltarSpin.WARMUP -> nextEnchant();
+            case AltarSpin.CHARGE -> {
+                if (fixCurrent()) nextEnchant();
             }
-            d.done = changed = true;
+            default -> {
+                phase = AltarSpin.IDLE;
+                feeds.clear();
+                power = currentPower();
+                sync();
+            }
         }
-        if (changed) sync(); // the client stops that book's trail
-        if (elapsed == AltarSpin.enchantAt(duration)) {
-            drains.clear();
-            enchant(player());
-        }
-        if (remaining == 0) {
-            power = currentPower();
-            sync();
-        } else setChanged();
     }
 
     private Player player() {
         return starter == null ? null : level.getPlayerByUUID(starter);
     }
 
-    /** Turns one picked book into a plain book. False when the shelf or the enchanted book is gone. */
-    private boolean drain(Drain d) {
-        if (!(level.getBlockEntity(d.shelf) instanceof ChiseledBookShelfBlockEntity shelf) || bookPower(shelf.getItem(d.slot)) <= 0) return false;
-        shelf.setItem(d.slot, new ItemStack(Books.plain(Math.max(0, Books.tier(shelf.getItem(d.slot)))))); // a plain book of the same tier
-        level.playSound(null, d.shelf, SoundEvents.CHISELED_BOOKSHELF_PICKUP_ENCHANTED, SoundSource.BLOCKS, 0.6F, 1.0F);
+    /**
+     * Rolls the next enchant in the queue and starts charging it: its rolled level times its rarity weight times the cost per level, drawn from the picked
+     * books in order, each giving only what is still needed ({@link AltarPower#allot}). An enchant that rolls nothing, or that clashes
+     * with one fixed just now, is skipped. When the queue is empty the enchanting ends.
+     */
+    private void nextEnchant() {
+        ItemStack target = inventory.getStackInSlot(ITEM), cube = inventory.getStackInSlot(CUBE);
+        CubeContents contents = cube.getOrDefault(ModDataComponents.CUBE_CONTENTS.get(), CubeContents.EMPTY);
+        while (!queue.isEmpty()) {
+            String id = queue.remove(0);
+            Holder<Enchantment> holder = enchantment(id);
+            CubeContents.Entry entry = contents.entries().stream().filter(e -> e.enchantment().equals(id)).findFirst().orElse(null);
+            if (holder == null || entry == null || target.isEmpty() || !EnchantmentHelper.isEnchantmentCompatible(EnchantmentHelper.getEnchantmentsForCrafting(target).keySet(), holder)) continue;
+            int rolled = entry.roll(level.random.nextDouble());
+            if (rolled <= 0) {
+                failed++;
+                continue;
+            }
+            int cost = Balance.current().altar().cost(id, rolled);
+            int[] remaining = new int[books.size()];
+            for (int i = 0; i < books.size(); i++) remaining[i] = remainingPower(bookAt(books.get(i)));
+            int[] taken = AltarPower.allot(remaining, cost);
+            if (taken == null) {
+                stop(Component.translatable("message.enchantmod.altar.lost_book"));
+                return;
+            }
+            feeds.clear();
+            for (int i = 0; i < taken.length; i++) if (taken[i] > 0) feeds.add(new Feed(i, taken[i]));
+            current = id;
+            currentLevel = rolled;
+            enter(AltarSpin.CHARGE, AltarSpin.chargeTicks(feeds.size(), Balance.current().altar().drainTicksPerBook()));
+            return;
+        }
+        stop(null);
+    }
+
+    /** The charged enchant's power is in: the books give their share and it is fixed onto the item. False when a book went missing. */
+    private boolean fixCurrent() {
+        trail.clear();
+        for (Feed f : feeds) {
+            if (remainingPower(bookAt(books.get(f.book()))) < f.amount()) {
+                stop(Component.translatable("message.enchantmod.altar.lost_book"));
+                return false;
+            }
+        }
+        for (Feed f : feeds) spend(books.get(f.book()), f.amount());
+        trail.addAll(feeds);
+        feeds.clear();
+        Holder<Enchantment> holder = enchantment(current);
+        ItemStack target = inventory.getStackInSlot(ITEM);
+        if (holder != null && !target.isEmpty()) {
+            EnchantmentHelper.updateEnchantments(target, enchants -> enchants.upgrade(holder, currentLevel));
+            inventory.setStackInSlot(ITEM, target); // updateEnchantments changed the stack in place; this resyncs the client
+            fixed.add(current + "|" + currentLevel);
+            level.playSound(null, worldPosition, SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.blockEvent(worldPosition, getBlockState().getBlock(), FIXED_EVENT, 0);
+        }
         return true;
     }
 
-    /** Client: every tick while a book drains, a random burst of enchant glyphs leaves its shelf for the altar, or at tier 1 for the wheel's hub, which sends one on to the altar. */
-    private void spawnTrails() {
-        int elapsed = duration - remaining;
-        if (elapsed < AltarSpin.rampUp()) return;
-        Vec3 altar = Vec3.atLowerCornerOf(worldPosition).add(0.5, 1.0, 0.5);
-        BlockState core = wheel == null ? null : level.getBlockState(wheel);
-        Vec3 hub = core != null && core.getBlock() instanceof WheelCoreBlock && core.getValue(WheelCoreBlock.FORMED) ? Vec3.atCenterOf(wheel) : null;
-        boolean any = false;
-        for (Drain d : drains) {
-            if (d.done || elapsed >= AltarSpin.drainEnd(d.levels)) continue;
-            any = true;
-            wave(Vec3.atCenterOf(d.shelf), hub != null ? hub : altar);
+    /** Draws {@code amount} power from a book: it remembers what was spent, and turns into a plain book of its tier once empty. */
+    private void spend(Book b, int amount) {
+        if (!(level.getBlockEntity(b.shelf()) instanceof ChiseledBookShelfBlockEntity shelf)) return;
+        ItemStack book = shelf.getItem(b.slot());
+        int spent = book.getOrDefault(ModDataComponents.SPENT_POWER.get(), 0) + amount;
+        if (spent >= bookPower(book)) {
+            shelf.setItem(b.slot(), new ItemStack(Books.plain(Math.max(0, Books.tier(book)))));
+            level.playSound(null, b.shelf(), SoundEvents.CHISELED_BOOKSHELF_PICKUP_ENCHANTED, SoundSource.BLOCKS, 0.6F, 1.0F);
+        } else {
+            book.set(ModDataComponents.SPENT_POWER.get(), spent);
+            shelf.setChanged();
         }
-        if (any && hub != null) wave(hub, altar);
+    }
+
+    private ItemStack bookAt(Book b) {
+        return level.getBlockEntity(b.shelf()) instanceof ChiseledBookShelfBlockEntity shelf ? shelf.getItem(b.slot()) : ItemStack.EMPTY;
+    }
+
+    private Holder<Enchantment> enchantment(String id) {
+        return level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).get(ResourceKey.create(Registries.ENCHANTMENT, ResourceLocation.parse(id))).orElse(null);
     }
 
     /**
-     * A random burst of 0 to 3 enchant glyphs (1.5 a tick on average) that fly from anywhere in the block round {@code from} to near
-     * {@code to}, each on its own wandering path ({@code drain_glyph}: it starts at pos + velocity and lands exactly on pos).
+     * Ends the enchanting and slows down. The enchants fixed so far stay; the cube is used up unless nothing was rolled at all
+     * (author, 2026-11-23: also when a book went missing part way, then {@code reason} is said instead of the result).
      */
-    private void wave(Vec3 from, Vec3 to) {
-        int count = level.random.nextInt(4);
-        for (int i = 0; i < count; i++) {
-            double ex = to.x + spread(0.4), ey = to.y + spread(0.4), ez = to.z + spread(0.4);
-            level.addParticle(ModParticles.DRAIN_GLYPH.get(), ex, ey, ez,
-                    from.x + spread(1.0) - ex, from.y + spread(1.0) - ey, from.z + spread(1.0) - ez);
+    private void stop(Component reason) {
+        queue.clear();
+        feeds.clear();
+        Player player = player();
+        List<Component> names = new ArrayList<>();
+        for (String f : fixed) {
+            String[] parts = f.split("\\|");
+            Holder<Enchantment> holder = enchantment(parts[0]);
+            if (holder != null) names.add(Enchantment.getFullname(holder, Integer.parseInt(parts[1])));
+        }
+        if (fixed.isEmpty() && failed == 0 && reason == null) tell(player, Component.translatable("message.enchantmod.altar.nothing"));
+        else {
+            inventory.setStackInSlot(CUBE, ItemStack.EMPTY);
+            if (fixed.isEmpty()) level.playSound(null, worldPosition, SoundEvents.GRINDSTONE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
+            tell(player, reason != null ? reason : names.isEmpty() ? Component.translatable("message.enchantmod.altar.failed")
+                    : Component.translatable("message.enchantmod.altar.done", ComponentUtils.formatList(names, Component.literal(", "))));
+        }
+        enter(AltarSpin.COOLDOWN, Balance.current().altar().rampDown());
+    }
+
+    /** Ticks after an enchant is fixed until its power visibly reaches the item: the ribbon's tail into the wheel, then the threads. */
+    public static final int TRAIL_TICKS = 40, THREAD_TICKS = 12;
+
+    /** Block event: an enchant was just fixed; the client bursts enchant glyphs into the item once the power has arrived. */
+    private static final int FIXED_EVENT = 1;
+
+    @Override
+    public boolean triggerEvent(int id, int param) {
+        if (id != FIXED_EVENT) return super.triggerEvent(id, param);
+        if (level != null && level.isClientSide) burstIn = TRAIL_TICKS + (wheel != null ? THREAD_TICKS : 0);
+        return true;
+    }
+
+    private void burst() {
+        Vec3 item = Vec3.atLowerCornerOf(worldPosition).add(0.5, 1.625, 0.5);
+        for (int i = 0; i < 24; i++) {
+            double ex = item.x + spread(0.3), ey = item.y + spread(0.3), ez = item.z + spread(0.3);
+            level.addParticle(ModParticles.DRAIN_GLYPH.get(), ex, ey, ez, spread(2.4), spread(2.4), spread(2.4));
         }
     }
 
@@ -390,20 +528,13 @@ public class AltarBlockEntity extends BlockEntity {
         return (level.random.nextDouble() - 0.5) * width;
     }
 
-    /** A picked book went missing: no enchant, the cube is kept, and the spin slows down from here. */
-    private void abort() {
-        drains.clear();
-        remaining = AltarSpin.rampDown() - 1; // past the roll, so it only slows down
-        power = currentPower();
-        sync();
-        tell(player(), Component.translatable("message.enchantmod.altar.lost_book"));
-    }
-
     public void clientTick() {
+        // the cool-down squeezes the last drain into its length, so the last burst must not come after it
+        if (phase == AltarSpin.COOLDOWN && burstIn > 0) burstIn = Math.min(burstIn, Math.max(0, phaseLength - phaseTicks - 1));
+        if (burstIn >= 0 && burstIn-- == 0) burst();
         if (!busy()) return;
         angle = (angle + speed(0) * MAX_DEGREES_PER_TICK) % 360;
-        spawnTrails();
-        remaining--;
+        if (phaseTicks < phaseLength) phaseTicks++;
     }
 
     private void sync() {
@@ -417,42 +548,6 @@ public class AltarBlockEntity extends BlockEntity {
         }
     }
 
-    /**
-     * Fixes the cube's enchants onto the item, each rolled from its chances. An enchant the item cannot take, or that
-     * clashes with one already there, is skipped. The cube is used up unless nothing in it fits the item. Server side only;
-     * {@code player} (who started it, null if gone) gets the result on the action bar.
-     */
-    private void enchant(Player player) {
-        ItemStack target = inventory.getStackInSlot(ITEM), cube = inventory.getStackInSlot(CUBE);
-        if (target.isEmpty() || cube.isEmpty()) return; // the slots are locked while busy, so only a broken world gets here
-        var fits = fitting(target, cube.getOrDefault(ModDataComponents.CUBE_CONTENTS.get(), CubeContents.EMPTY));
-        List<Component> done = new ArrayList<>();
-        int[] failed = {0};
-        EnchantmentHelper.updateEnchantments(target, enchants -> {
-            for (var fit : fits) {
-                Holder<Enchantment> holder = fit.getValue();
-                if (!EnchantmentHelper.isEnchantmentCompatible(enchants.keySet(), holder)) continue; // clashes with one fixed just now
-                int levelGot = fit.getKey().roll(level.random.nextDouble());
-                if (levelGot <= 0) failed[0]++;
-                else {
-                    enchants.upgrade(holder, levelGot);
-                    done.add(Enchantment.getFullname(holder, levelGot));
-                }
-            }
-        });
-        inventory.setStackInSlot(ITEM, target); // updateEnchantments changed the stack in place; this resyncs the client
-        if (done.isEmpty() && failed[0] == 0) {
-            tell(player, Component.translatable("message.enchantmod.altar.nothing"));
-            return;
-        }
-        inventory.setStackInSlot(CUBE, ItemStack.EMPTY); // the cube is used up, whether or not the fixation worked
-        level.playSound(null, worldPosition, done.isEmpty() ? SoundEvents.GRINDSTONE_USE : SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
-        Component list = ComponentUtils.formatList(done, Component.literal(", "));
-        tell(player, done.isEmpty()
-                ? Component.translatable("message.enchantmod.altar.failed")
-                : Component.translatable("message.enchantmod.altar.done", list));
-    }
-
     private static void tell(Player player, Component message) {
         if (player != null) player.displayClientMessage(message, true);
     }
@@ -461,45 +556,85 @@ public class AltarBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("items", inventory.serializeNBT(registries));
-        tag.putInt("remaining", remaining);
+        tag.putInt("phase", phase);
+        tag.putInt("phase_ticks", phaseTicks);
+        tag.putInt("phase_length", phaseLength);
         if (starter != null) tag.putUUID("starter", starter);
         tag.putInt("tier", tier);
         tag.putInt("power", power);
         if (wheel != null) tag.putLong("wheel", wheel.asLong());
         if (sphere != null) tag.putLong("sphere", sphere.asLong());
         tag.putLongArray("shelves", shelves.stream().mapToLong(BlockPos::asLong).toArray());
-        tag.putInt("duration", duration);
-        ListTag list = new ListTag();
-        for (Drain d : drains) {
+        ListTag picked = new ListTag();
+        for (Book b : books) {
             CompoundTag t = new CompoundTag();
-            t.putLong("pos", d.shelf.asLong());
-            t.putInt("slot", d.slot);
-            t.putInt("levels", d.levels);
-            t.putBoolean("done", d.done);
-            list.add(t);
+            t.putLong("pos", b.shelf().asLong());
+            t.putInt("slot", b.slot());
+            picked.add(t);
         }
-        tag.put("drains", list);
+        tag.put("books", picked);
+        ListTag feedList = new ListTag();
+        for (Feed f : feeds) {
+            CompoundTag t = new CompoundTag();
+            t.putInt("book", f.book());
+            t.putInt("amount", f.amount());
+            feedList.add(t);
+        }
+        tag.put("feeds", feedList);
+        ListTag trailList = new ListTag();
+        for (Feed f : trail) {
+            CompoundTag t = new CompoundTag();
+            t.putInt("book", f.book());
+            t.putInt("amount", f.amount());
+            trailList.add(t);
+        }
+        tag.put("trail", trailList);
+        ListTag queued = new ListTag();
+        queue.forEach(id -> queued.add(StringTag.valueOf(id)));
+        tag.put("queue", queued);
+        ListTag done = new ListTag();
+        fixed.forEach(f -> done.add(StringTag.valueOf(f)));
+        tag.put("fixed", done);
+        tag.putString("current", current);
+        tag.putInt("current_level", currentLevel);
+        tag.putInt("failed", failed);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("items"));
-        remaining = tag.getInt("remaining");
+        phase = tag.getInt("phase");
+        phaseTicks = tag.getInt("phase_ticks");
+        phaseLength = tag.getInt("phase_length");
         starter = tag.hasUUID("starter") ? tag.getUUID("starter") : null;
         tier = tag.contains("tier") ? tag.getInt("tier") : -1;
         power = tag.getInt("power");
         wheel = tag.contains("wheel") ? BlockPos.of(tag.getLong("wheel")) : null;
         sphere = tag.contains("sphere") ? BlockPos.of(tag.getLong("sphere")) : null;
         shelves = Arrays.stream(tag.getLongArray("shelves")).mapToObj(BlockPos::of).toList();
-        duration = tag.getInt("duration");
-        drains.clear();
-        for (Tag t : tag.getList("drains", Tag.TAG_COMPOUND)) {
+        books.clear();
+        for (Tag t : tag.getList("books", Tag.TAG_COMPOUND)) {
             CompoundTag c = (CompoundTag) t;
-            Drain d = new Drain(BlockPos.of(c.getLong("pos")), c.getInt("slot"), c.getInt("levels"));
-            d.done = c.getBoolean("done");
-            drains.add(d);
+            books.add(new Book(BlockPos.of(c.getLong("pos")), c.getInt("slot")));
         }
+        feeds.clear();
+        for (Tag t : tag.getList("feeds", Tag.TAG_COMPOUND)) {
+            CompoundTag c = (CompoundTag) t;
+            feeds.add(new Feed(c.getInt("book"), c.getInt("amount")));
+        }
+        trail.clear();
+        for (Tag t : tag.getList("trail", Tag.TAG_COMPOUND)) {
+            CompoundTag c = (CompoundTag) t;
+            trail.add(new Feed(c.getInt("book"), c.getInt("amount")));
+        }
+        queue.clear();
+        for (Tag t : tag.getList("queue", Tag.TAG_STRING)) queue.add(t.getAsString());
+        fixed.clear();
+        for (Tag t : tag.getList("fixed", Tag.TAG_STRING)) fixed.add(t.getAsString());
+        current = tag.getString("current");
+        currentLevel = tag.getInt("current_level");
+        failed = tag.getInt("failed");
     }
 
     @Override

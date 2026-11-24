@@ -70,6 +70,7 @@ public class AltarRenderer implements BlockEntityRenderer<AltarBlockEntity> {
             itemRenderer.renderStatic(cube, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffer, level, 1);
         }
         pose.popPose();
+        AltarRibbons.draw(altar, partialTick, pose, buffer);
     }
 
     private static void draw(PoseStack pose, VertexConsumer consumer, ModelResourceLocation location, int light, int overlay) {
@@ -77,9 +78,14 @@ public class AltarRenderer implements BlockEntityRenderer<AltarBlockEntity> {
         Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(pose.last(), consumer, null, model, 1, 1, 1, light, overlay, ModelData.EMPTY, RenderType.cutout());
     }
 
-    /** The item floats in the block above. */
+    /** The item floats in the block above; while enchanting the ribbons reach to shelves up to 32 blocks away. */
     @Override
     public AABB getRenderBoundingBox(AltarBlockEntity altar) {
-        return new AABB(altar.getBlockPos()).expandTowards(0, 1, 0);
+        return altar.busy() ? AABB.INFINITE : new AABB(altar.getBlockPos()).expandTowards(0, 1, 0);
+    }
+
+    @Override
+    public boolean shouldRenderOffScreen(AltarBlockEntity altar) {
+        return altar.busy();
     }
 }

@@ -16,10 +16,8 @@ import com.mamechin.enchantmod.items.yggdrasil.YggdrasilItem;
 
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.core.HolderLookup;
@@ -138,17 +136,8 @@ public class SphereCoreBlockEntity extends GuidedCoreBlockEntity implements Menu
      */
     private void strike(ChiseledBookShelfBlockEntity shelf, int slot) {
         BlockPos pos = shelf.getBlockPos();
-        Direction facing = shelf.getBlockState().getValue(HorizontalDirectionalBlock.FACING);
-        // vanilla's slot layout seen from the front: columns split at 0.375 and 0.6875, the top row is slots 0 to 2
-        float u = new float[] {0.1875F, 0.53125F, 0.84375F}[slot % 3], v = slot < 3 ? 0.75F : 0.25F;
-        double x = pos.getX(), y = pos.getY() + v, z = pos.getZ();
-        switch (facing) {
-            case NORTH -> { x += 1 - u; z -= 0.02; }
-            case SOUTH -> { x += u; z += 1.02; }
-            case WEST -> { z += u; x -= 0.02; }
-            default -> { z += 1 - u; x += 1.02; }
-        }
-        LightningPayload bolt = new LightningPayload(Vec3.atCenterOf(worldPosition), new Vec3(x, y, z), level.random.nextLong());
+        Vec3 target = com.mamechin.enchantmod.blocks.altar.ShelfSlot.front(pos, shelf.getBlockState(), slot);
+        LightningPayload bolt = new LightningPayload(Vec3.atCenterOf(worldPosition), target, level.random.nextLong());
         PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(worldPosition), bolt);
         level.playSound(null, pos, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 1, 1);
         level.playSound(null, pos, SoundEvents.LIGHTNING_BOLT_IMPACT, SoundSource.BLOCKS, 0.3F, 1.8F);

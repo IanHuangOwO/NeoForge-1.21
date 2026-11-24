@@ -19,8 +19,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,14 +26,12 @@ import net.minecraft.core.Direction;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
  * Draws a formed spinning wheel from its core: the wheel (Fable's {@code wheel_small_rotor}, authored facing north, axis through the core's
- * centre) and its two pillars, and the cube of the altar that linked it in the socket before the hub. While the altar enchants, the
+ * centre) and its two pillars. While the altar enchants, the
  * wheel rises from resting (half a model block below the authored pose) to floating (half a block above) and spins with the altar's
  * speed, and the wheel's and pillars' glow layers are drawn at full brightness (dark carved runes otherwise).
  */
@@ -46,10 +42,8 @@ public class WheelRenderer implements BlockEntityRenderer<WheelCoreBlockEntity> 
     private static final int MODEL_RADIUS = 3;
     private static final float SCALE = (WheelLayout.RADIUS + 0.5F) / (MODEL_RADIUS + 0.5F);
 
-    private final ItemRenderer itemRenderer;
 
     public WheelRenderer(BlockEntityRendererProvider.Context context) {
-        this.itemRenderer = context.getItemRenderer();
     }
 
     private static ModelResourceLocation part(String name) {
@@ -99,13 +93,6 @@ public class WheelRenderer implements BlockEntityRenderer<WheelCoreBlockEntity> 
         draw(pose, consumer, ROTOR, light, overlay);
         if (speed > 0) draw(pose, consumer, ROTOR_GLOW, LightTexture.FULL_BRIGHT, overlay);
         pose.popPose();
-        ItemStack cube = altar == null ? ItemStack.EMPTY : altar.inventory().getStackInSlot(AltarBlockEntity.CUBE);
-        if (!cube.isEmpty()) {
-            // full size and upright, in front of the hub: the scaled wheel's front face is at z 0.5 - 0.5 * SCALE, an 8 px cube is 0.25 deep each way
-            pose.translate(0.5, 0.5 + lift * SCALE, 0.5 - 0.5 * SCALE - 0.25);
-            pose.scale(0.5F, 0.5F, 0.5F);
-            itemRenderer.renderStatic(cube, ItemDisplayContext.FIXED, light, OverlayTexture.NO_OVERLAY, pose, buffer, level, 0);
-        }
         pose.popPose();
     }
 

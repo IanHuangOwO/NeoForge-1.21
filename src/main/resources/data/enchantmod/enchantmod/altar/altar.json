@@ -1,12 +1,12 @@
 {
   "spin": {
     "ramp_up_ticks": 60,
-    "ramp_down_ticks": 40,
-    "drain_ticks_per_level": 20
+    "ramp_down_ticks": 40
   },
   "cost": {
-    "power_per_level": 1
+    "power_per_level": 2
   },
+  "drain_ticks_per_book": 100,
   "books_per_shelf": 1,
   "max_allays": -1,
   "scan": [
